@@ -1,0 +1,323 @@
+import { useCallback, useEffect, useRef } from "react";
+import { Link } from "react-router";
+import { motion } from "motion/react";
+import { Mic, MicOff } from "lucide-react";
+import {
+  LooperProvider,
+  useLooper,
+} from "../contexts/LooperContext";
+import { LoopTrack } from "../components/looper/LoopTrack";
+import { LooperFaceCamera } from "../components/looper/LooperFaceCamera";
+import { useCamera } from "../hooks/useCamera";
+import { useHandTracking } from "../hooks/useHandTracking";
+import { useLooperRecorder } from "../hooks/useLooperRecorder";
+
+function LooperInner() {
+  const {
+    tracks,
+    selectedTrack,
+    masterLength,
+    masterBpm,
+    isListening,
+    error: audioError,
+    startListening,
+    stopListening,
+    recordStop,
+    setSelectedTrack,
+    getAudioContext,
+    getMasterNode,
+  } = useLooper();
+
+  const {
+    videoRef,
+    started,
+    error: cameraError,
+    start: startCamera,
+    stop: stopCamera,
+    getVideoTrack,
+  } = useCamera();
+  const {
+    overlayCanvasRef: handCanvasRef,
+    rightHand,
+    start: startHands,
+    stop: stopHands,
+  } = useHandTracking(videoRef);
+
+  const start = useCallback(async () => {
+    await startCamera();
+    startHands();
+  }, [startCamera, startHands]);
+  const stop = useCallback(() => {
+    stopCamera();
+    stopHands();
+  }, [stopCamera, stopHands]);
+
+  const {
+    isCapturing,
+    captureBlob,
+    format,
+    startCapture,
+    stopCapture,
+    download,
+  } = useLooperRecorder(
+    getMasterNode,
+    getAudioContext,
+    getVideoTrack,
+  );
+
+  // Right-hand pinch → cycle to next track (800ms debounce)
+  const lastPinchRef = useRef(0);
+  const tracksLen = tracks.length;
+  useEffect(() => {
+    if (!rightHand?.isPinching) return;
+    const now = performance.now();
+    if (now - lastPinchRef.current < 800) return;
+    lastPinchRef.current = now;
+    setSelectedTrack((selectedTrack + 1) % tracksLen);
+  }, [
+    rightHand?.isPinching,
+    selectedTrack,
+    tracksLen,
+    setSelectedTrack,
+  ]);
+
+  const selectedStatus = tracks[selectedTrack]?.status;
+  const isRecording =
+    selectedStatus === "recording" ||
+    selectedStatus === "overdubbing";
+
+  return (
+    <div
+      className="h-screen w-full overflow-hidden relative"
+      style={{ background: "#030810" }}
+    >
+      {/* Surge gradient atmosphere */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: [
+            "radial-gradient(ellipse 60% 55% at 90% 85%, rgba(0,235,184,0.20) 0%, transparent 70%)",
+            "radial-gradient(ellipse 55% 60% at 10% 15%, rgba(0,48,197,0.26) 0%, transparent 68%)",
+            "radial-gradient(ellipse 35% 35% at 50% 50%, rgba(0,80,120,0.06) 0%, transparent 70%)",
+          ].join(", "),
+        }}
+      />
+      {/* Grain noise */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: "300px 300px",
+        }}
+      />
+      <div className="relative h-full flex flex-col p-4 gap-4">
+        {/* Header */}
+        <motion.div
+          className="flex items-center justify-between flex-shrink-0"
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <Link
+            to="/"
+            className="text-white/30 hover:text-white/60 text-[10px] font-mono tracking-widest uppercase transition-colors flex items-center gap-1.5"
+          >
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Fourier
+          </Link>
+
+          <div className="text-center">
+            <h1 className="text-sm font-medium text-white/90 tracking-widest uppercase">
+              Loop Station
+            </h1>
+            <p className="text-white/30 text-[10px] font-mono tracking-wider">
+              multi-track browser looper
+            </p>
+          </div>
+
+          {/* Master info */}
+          <div className="flex items-center gap-3">
+            {masterBpm && (
+              <div className="text-right">
+                <div className="text-white/70 text-sm font-mono font-medium">
+                  {masterBpm}
+                </div>
+                <div className="text-white/25 text-[9px] font-mono tracking-wider">
+                  BPM EST
+                </div>
+              </div>
+            )}
+            {masterLength && (
+              <div className="text-right">
+                <div className="text-white/70 text-sm font-mono font-medium">
+                  {masterLength.toFixed(2)}s
+                </div>
+                <div className="text-white/25 text-[9px] font-mono tracking-wider">
+                  LOOP LEN
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
+          {/* Left: controls + camera */}
+          <div className="flex-shrink-0 lg:w-90 flex flex-col gap-3">
+            {/* Mic toggle */}
+            <motion.button
+              className={`
+                flex items-center justify-center gap-2 py-3 rounded-sm border font-mono text-xs tracking-widest uppercase transition-all flex-shrink-0
+                ${
+                  isListening
+                    ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300/80 hover:bg-emerald-500/20"
+                    : "bg-white/5 border-white/15 text-white/50 hover:bg-white/8 hover:border-white/25"
+                }
+              `}
+              onClick={() =>
+                isListening ? stopListening() : startListening()
+              }
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {isListening ? (
+                <Mic className="w-3.5 h-3.5" />
+              ) : (
+                <MicOff className="w-3.5 h-3.5" />
+              )}
+              {isListening ? "Mic on" : "Enable mic"}
+            </motion.button>
+
+            {audioError && (
+              <p className="text-red-400/70 text-[10px] font-mono text-center flex-shrink-0">
+                {audioError}
+              </p>
+            )}
+
+            {/* Controls reference */}
+            <div className="space-y-1.5 border border-white/5 rounded-sm p-3 flex-shrink-0">
+              <p className="text-white/20 text-[9px] font-mono tracking-widest uppercase mb-2">
+                Controls
+              </p>
+              {[
+                { key: "Space", action: "Record / stop" },
+                { key: "R-Hand Pinch", action: "Next track" },
+              ].map(({ key, action }) => (
+                <div
+                  key={key}
+                  className="flex items-center justify-between"
+                >
+                  <span className="text-white/40 text-[9px] font-mono">
+                    {key}
+                  </span>
+                  <span className="text-white/20 text-[9px] font-mono">
+                    {action}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Camera panel */}
+            <div
+              className="flex-1 min-h-0"
+              style={{ minHeight: "180px" }}
+            >
+              <LooperFaceCamera
+                videoRef={videoRef}
+                handCanvasRef={handCanvasRef}
+                started={started}
+                error={cameraError}
+                onStart={start}
+                onStop={stop}
+                isCapturing={isCapturing}
+                captureBlob={captureBlob}
+                format={format}
+                onStartCapture={startCapture}
+                onStopCapture={stopCapture}
+                onDownload={download}
+              />
+            </div>
+          </div>
+
+          {/* Right: tracks */}
+          <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto pt-4">
+            {/* Column headers */}
+            <div className="flex items-center gap-3 px-4 pb-1 border-b border-white/5">
+              <div className="w-8" />
+              <div className="flex-1 text-[9px] font-mono text-white/20 tracking-widest uppercase">
+                Waveform
+              </div>
+              <div className="w-10 text-[9px] font-mono text-white/20 tracking-widest uppercase text-right">
+                Status
+              </div>
+              <div className="w-12 text-[9px] font-mono text-white/20 tracking-widest uppercase text-right">
+                Len
+              </div>
+              <div className="w-16 text-[9px] font-mono text-white/20 tracking-widest uppercase text-center">
+                Vol
+              </div>
+              <div className="w-20 text-[9px] font-mono text-white/20 tracking-widest uppercase text-center">
+                Controls
+              </div>
+              <div className="w-8 text-[9px] font-mono text-white/20 tracking-widest uppercase text-center">
+                Rec
+              </div>
+            </div>
+
+            {tracks.map((track) => (
+              <motion.div
+                key={track.id}
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: track.id * 0.05 }}
+              >
+                <LoopTrack
+                  track={track}
+                  isSelected={selectedTrack === track.id}
+                  onSelect={() => setSelectedTrack(track.id)}
+                />
+              </motion.div>
+            ))}
+
+            {!isListening && (
+              <p className="text-center text-white/20 text-[10px] font-mono mt-4">
+                Enable mic to start recording
+              </p>
+            )}
+
+            {isListening && (
+              <motion.p
+                className="text-center text-white/20 text-[10px] font-mono mt-2"
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                {isRecording
+                  ? "Recording… press foot pedal or Space to stop"
+                  : "Select a track — press foot pedal or Space to record"}
+              </motion.p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function LooperPage() {
+  return (
+    <LooperProvider>
+      <LooperInner />
+    </LooperProvider>
+  );
+}
