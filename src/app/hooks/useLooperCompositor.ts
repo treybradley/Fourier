@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import type { LoopTrack } from "../../contexts/LooperContext";
+import type { LoopTrack } from "../contexts/LooperContext";
 import {
   EXPORT_HEIGHT,
   EXPORT_WIDTH,
@@ -113,15 +113,6 @@ export function useLooperCompositor({
       const topSafe = Math.round(ch * IG_SAFE.top);
       const bottomSafe = Math.round(ch * IG_SAFE.bottom);
 
-      // Soft bottom gradient behind waveform rail
-      const gradTop = ch - bottomSafe - Math.round(ch * 0.18);
-      const grad = ctx.createLinearGradient(0, gradTop, 0, ch);
-      grad.addColorStop(0, "rgba(3,8,16,0)");
-      grad.addColorStop(0.4, "rgba(3,8,16,0.55)");
-      grad.addColorStop(1, "rgba(3,8,16,0.85)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, gradTop, cw, ch - gradTop);
-
       // Soft top gradient behind wordmark
       const topGrad = ctx.createLinearGradient(0, 0, 0, topSafe + 40);
       topGrad.addColorStop(0, "rgba(3,8,16,0.7)");
@@ -146,20 +137,24 @@ export function useLooperCompositor({
       ctx.textBaseline = "top";
       ctx.fillText(header, sidePad, topSafe);
 
-      // Bottom waveform rail — taller rows, tight gaps, matched bottom inset
+      // Fixed-height rows (don't shrink as tracks are added), stacked tightly
       const withAudio = tracksRef.current.filter((t) => t.audioBuffer);
       if (withAudio.length > 0) {
-        const railH = Math.round(ch * 0.2);
+        const rowH = Math.round(ch * 0.048); // ~92px @ 1920 — same for 1 or 5 tracks
+        const rowGap = 3;
         const railBottom = ch - bottomSafe;
-        const rowGap = Math.max(2, Math.round(ch * 0.004));
-        const rowH = Math.max(
-          18,
-          Math.floor((railH - rowGap * (withAudio.length - 1)) / withAudio.length),
-        );
         const usedH =
           rowH * withAudio.length + rowGap * Math.max(0, withAudio.length - 1);
-        let y = railBottom - usedH;
 
+        const gradTop = railBottom - usedH - Math.round(ch * 0.04);
+        const grad = ctx.createLinearGradient(0, gradTop, 0, ch);
+        grad.addColorStop(0, "rgba(3,8,16,0)");
+        grad.addColorStop(0.35, "rgba(3,8,16,0.55)");
+        grad.addColorStop(1, "rgba(3,8,16,0.85)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, gradTop, cw, ch - gradTop);
+
+        let y = railBottom - usedH;
         for (const track of withAudio) {
           const buf = track.audioBuffer!;
           const cacheKey = `${track.id}:${buf.length}:${buf.duration.toFixed(3)}`;
