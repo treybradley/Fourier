@@ -108,7 +108,7 @@ export function LooperLoader() {
     <PageLoader
       name="Loop Station"
       index="02"
-      tagline="Multi-track browser looper"
+      tagline="Multi-track looper"
       accentA="#00EBB8"
       accentB="#0030C5"
       background="#04060E"
@@ -144,7 +144,7 @@ export function GridLoader() {
     <PageLoader
       name="Grid"
       index="05"
-      tagline="Browser-native sampler"
+      tagline="Sampler & Sequencer"
       accentA="#FFF047"
       accentB="#B5D100"
       background="#0A0509"

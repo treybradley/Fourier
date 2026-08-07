@@ -5,7 +5,11 @@ function getSupportedMimeType(hasVideo: boolean): string {
     ? ["video/mp4", "video/webm;codecs=vp9,opus", "video/webm"]
     : ["audio/mp4", "audio/webm;codecs=opus", "audio/webm"];
   for (const t of types) {
-    try { if (MediaRecorder.isTypeSupported(t)) return t; } catch {}
+    try {
+      if (MediaRecorder.isTypeSupported(t)) return t;
+    } catch {
+      /* ignore */
+    }
   }
   return hasVideo ? "video/webm" : "audio/webm";
 }
@@ -13,7 +17,8 @@ function getSupportedMimeType(hasVideo: boolean): string {
 export function useLooperRecorder(
   getMasterNode: () => GainNode | null,
   getAudioContext: () => AudioContext | null,
-  getVideoTrack: () => MediaStreamTrack | null,
+  getMicSourceNode: () => MediaStreamAudioSourceNode | null,
+  getCanvasStream: () => MediaStream | null,
 ) {
   const [isCapturing, setIsCapturing] = useState(false);
   const [captureBlob, setCaptureBlob] = useState<Blob | null>(null);
@@ -21,27 +26,45 @@ export function useLooperRecorder(
 
   const mrRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const destRef = useRef<MediaStreamDestinationNode | null>(null);
+  const destRef = useRef<MediaStreamAudioDestinationNode | null>(null);
   const masterSnapshotRef = useRef<GainNode | null>(null);
+  const micSnapshotRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const canvasStreamRef = useRef<MediaStream | null>(null);
 
   const startCapture = useCallback(() => {
     const ctx = getAudioContext();
     const master = getMasterNode();
     if (!ctx || !master) return;
 
+    const canvasStream = getCanvasStream();
+    const videoTrack = canvasStream?.getVideoTracks()[0] ?? null;
+    if (!videoTrack) return;
+
     const dest = ctx.createMediaStreamDestination();
     master.connect(dest);
     destRef.current = dest;
     masterSnapshotRef.current = master;
 
-    const videoTrack = getVideoTrack();
+    // Live mic into capture only (speakers stay silent via existing gain 0 path)
+    const mic = getMicSourceNode();
+    if (mic) {
+      try {
+        mic.connect(dest);
+        micSnapshotRef.current = mic;
+      } catch {
+        micSnapshotRef.current = null;
+      }
+    }
+
+    canvasStreamRef.current = canvasStream;
+
     const allTracks = [
       ...dest.stream.getAudioTracks(),
-      ...(videoTrack ? [videoTrack] : []),
+      videoTrack,
     ];
     const captureStream = new MediaStream(allTracks);
 
-    const mimeType = getSupportedMimeType(!!videoTrack);
+    const mimeType = getSupportedMimeType(true);
     const ext = mimeType.includes("mp4") ? "mp4" : "webm";
     setFormat(ext as "mp4" | "webm");
 
@@ -54,15 +77,27 @@ export function useLooperRecorder(
     mr.onstop = () => {
       const blob = new Blob(chunksRef.current, { type: mimeType });
       setCaptureBlob(blob);
-      try { masterSnapshotRef.current?.disconnect(destRef.current!); } catch {}
+      try {
+        masterSnapshotRef.current?.disconnect(destRef.current!);
+      } catch {
+        /* ignore */
+      }
+      try {
+        micSnapshotRef.current?.disconnect(destRef.current!);
+      } catch {
+        /* ignore */
+      }
       destRef.current = null;
+      masterSnapshotRef.current = null;
+      micSnapshotRef.current = null;
+      canvasStreamRef.current = null;
     };
 
-    mr.start(200); // collect chunks every 200ms
+    mr.start(200);
     mrRef.current = mr;
     setIsCapturing(true);
     setCaptureBlob(null);
-  }, [getMasterNode, getAudioContext, getVideoTrack]);
+  }, [getMasterNode, getAudioContext, getMicSourceNode, getCanvasStream]);
 
   const stopCapture = useCallback(() => {
     mrRef.current?.stop();

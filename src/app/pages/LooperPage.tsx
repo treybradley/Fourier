@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback } from "react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { Mic, MicOff } from "lucide-react";
@@ -7,10 +7,10 @@ import {
   useLooper,
 } from "../contexts/LooperContext";
 import { LoopTrack } from "../components/looper/LoopTrack";
-import { LooperFaceCamera } from "../components/looper/LooperFaceCamera";
+import { LooperCamera } from "../components/looper/LooperCamera";
 import { useCamera } from "../hooks/useCamera";
-import { useHandTracking } from "../hooks/useHandTracking";
 import { useLooperRecorder } from "../hooks/useLooperRecorder";
+import { useLooperCompositor } from "../hooks/useLooperCompositor";
 
 function LooperInner() {
   const {
@@ -22,10 +22,10 @@ function LooperInner() {
     error: audioError,
     startListening,
     stopListening,
-    recordStop,
     setSelectedTrack,
     getAudioContext,
     getMasterNode,
+    getMicSourceNode,
   } = useLooper();
 
   const {
@@ -34,23 +34,15 @@ function LooperInner() {
     error: cameraError,
     start: startCamera,
     stop: stopCamera,
-    getVideoTrack,
   } = useCamera();
-  const {
-    overlayCanvasRef: handCanvasRef,
-    rightHand,
-    start: startHands,
-    stop: stopHands,
-  } = useHandTracking(videoRef);
 
-  const start = useCallback(async () => {
-    await startCamera();
-    startHands();
-  }, [startCamera, startHands]);
-  const stop = useCallback(() => {
-    stopCamera();
-    stopHands();
-  }, [stopCamera, stopHands]);
+  const { canvasRef, getCanvasStream } = useLooperCompositor({
+    videoRef,
+    tracks,
+    masterBpm,
+    masterLength,
+    active: started && !cameraError,
+  });
 
   const {
     isCapturing,
@@ -62,29 +54,24 @@ function LooperInner() {
   } = useLooperRecorder(
     getMasterNode,
     getAudioContext,
-    getVideoTrack,
+    getMicSourceNode,
+    getCanvasStream,
   );
 
-  // Right-hand pinch → cycle to next track (800ms debounce)
-  const lastPinchRef = useRef(0);
-  const tracksLen = tracks.length;
-  useEffect(() => {
-    if (!rightHand?.isPinching) return;
-    const now = performance.now();
-    if (now - lastPinchRef.current < 800) return;
-    lastPinchRef.current = now;
-    setSelectedTrack((selectedTrack + 1) % tracksLen);
-  }, [
-    rightHand?.isPinching,
-    selectedTrack,
-    tracksLen,
-    setSelectedTrack,
-  ]);
+  const start = useCallback(async () => {
+    await startCamera();
+  }, [startCamera]);
+
+  const stop = useCallback(() => {
+    if (isCapturing) stopCapture();
+    stopCamera();
+  }, [isCapturing, stopCapture, stopCamera]);
 
   const selectedStatus = tracks[selectedTrack]?.status;
   const isRecording =
     selectedStatus === "recording" ||
     selectedStatus === "overdubbing";
+  const canCapture = started && isListening && !!getMasterNode();
 
   return (
     <div
@@ -142,7 +129,7 @@ function LooperInner() {
               Loop Station
             </h1>
             <p className="text-white/30 text-[10px] font-mono tracking-wider">
-              multi-track browser looper
+              multi-track looper in the browser
             </p>
           </div>
 
@@ -174,7 +161,7 @@ function LooperInner() {
         {/* Main content */}
         <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
           {/* Left: controls + camera */}
-          <div className="flex-shrink-0 lg:w-90 flex flex-col gap-3">
+          <div className="flex-shrink-0 lg:w-90 flex flex-col gap-3 min-h-0">
             {/* Mic toggle */}
             <motion.button
               className={`
@@ -212,7 +199,7 @@ function LooperInner() {
               </p>
               {[
                 { key: "Space", action: "Record / stop" },
-                { key: "R-Hand Pinch", action: "Next track" },
+                { key: "Keys 1-5", action: "Select track" },
               ].map(({ key, action }) => (
                 <div
                   key={key}
@@ -231,11 +218,11 @@ function LooperInner() {
             {/* Camera panel */}
             <div
               className="flex-1 min-h-0"
-              style={{ minHeight: "180px" }}
+              style={{ minHeight: "220px" }}
             >
-              <LooperFaceCamera
+              <LooperCamera
                 videoRef={videoRef}
-                handCanvasRef={handCanvasRef}
+                canvasRef={canvasRef}
                 started={started}
                 error={cameraError}
                 onStart={start}
@@ -246,35 +233,13 @@ function LooperInner() {
                 onStartCapture={startCapture}
                 onStopCapture={stopCapture}
                 onDownload={download}
+                canCapture={canCapture}
               />
             </div>
           </div>
 
           {/* Right: tracks */}
-          <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto pt-4">
-            {/* Column headers */}
-            <div className="flex items-center gap-3 px-4 pb-1 border-b border-white/5">
-              <div className="w-8" />
-              <div className="flex-1 text-[9px] font-mono text-white/20 tracking-widest uppercase">
-                Waveform
-              </div>
-              <div className="w-10 text-[9px] font-mono text-white/20 tracking-widest uppercase text-right">
-                Status
-              </div>
-              <div className="w-12 text-[9px] font-mono text-white/20 tracking-widest uppercase text-right">
-                Len
-              </div>
-              <div className="w-16 text-[9px] font-mono text-white/20 tracking-widest uppercase text-center">
-                Vol
-              </div>
-              <div className="w-20 text-[9px] font-mono text-white/20 tracking-widest uppercase text-center">
-                Controls
-              </div>
-              <div className="w-8 text-[9px] font-mono text-white/20 tracking-widest uppercase text-center">
-                Rec
-              </div>
-            </div>
-
+          <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto pt-1 lg:pt-0">
             {tracks.map((track) => (
               <motion.div
                 key={track.id}
@@ -291,20 +256,20 @@ function LooperInner() {
             ))}
 
             {!isListening && (
-              <p className="text-center text-white/20 text-[10px] font-mono mt-4">
-                Enable mic to start recording
+              <p className="text-center text-white/40 text-[10px] font-mono mt-4">
+                Enable mic to start recording audio. Use headphones to avoid feedback while recording.
               </p>
             )}
 
             {isListening && (
               <motion.p
-                className="text-center text-white/20 text-[10px] font-mono mt-2"
-                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                className="text-center text-white/40 text-[10px] font-mono mt-2"
+                animate={{ opacity: [0.3, 0.9, 0.3] }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
                 {isRecording
-                  ? "Recording… press foot pedal or Space to stop"
-                  : "Select a track — press foot pedal or Space to record"}
+                  ? "Recording… press Space or usb foot pedal to stop"
+                  : "Select a track — press Space or usb foot pedalto record"}
               </motion.p>
             )}
           </div>

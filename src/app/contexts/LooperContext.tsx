@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from "react";
 
-export type TrackStatus = "empty" | "recording" | "playing" | "overdubbing" | "stopped";
+export type TrackStatus = "empty" | "recording" | "playing" | "overdubbing" | "stopped" | "pending";
 
 export interface LoopTrack {
   id: number;
@@ -29,6 +29,12 @@ interface LooperContextValue {
   toggleMute: (trackIndex: number) => void;
   setSelectedTrack: (index: number) => void;
   clearAll: () => void;
+  getAudioContext: () => AudioContext | null;
+  getMasterNode: () => GainNode | null;
+  /** Mic source for session capture only (not routed to speakers). */
+  getMicSourceNode: () => MediaStreamAudioSourceNode | null;
+  /** 0–1 phase through the master loop, or 0 if no grid. */
+  getLoopPhase: () => number;
 }
 
 const LooperContext = createContext<LooperContextValue | null>(null);
@@ -114,12 +120,16 @@ interface PlaybackSlot {
 
 export function LooperProvider({ children }: { children: React.ReactNode }) {
   const audioContextRef = useRef<AudioContext | null>(null);
+  const masterGainRef = useRef<GainNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
   const workletReadyRef = useRef(false);
 
   const playbackSlotsRef = useRef<(PlaybackSlot | null)[]>(Array(TRACK_COUNT).fill(null));
+  const pendingPlayTimersRef = useRef<(ReturnType<typeof setTimeout> | null)[]>(
+    Array(TRACK_COUNT).fill(null),
+  );
   const recordingChunksRef = useRef<Float32Array[][]>(Array.from({ length: TRACK_COUNT }, () => []));
   const recordingTrackRef = useRef<number | null>(null);
   // AudioContext time when each recording started (for click-to-click loop length)
@@ -145,8 +155,37 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
       audioContextRef.current = new AudioContext({ latencyHint: "interactive" });
       // New context: worklet module must be re-registered
       workletReadyRef.current = false;
+      masterGainRef.current = null;
+    }
+    if (!masterGainRef.current) {
+      const master = audioContextRef.current.createGain();
+      master.gain.value = 1;
+      master.connect(audioContextRef.current.destination);
+      masterGainRef.current = master;
     }
     return audioContextRef.current;
+  }, []);
+
+  const getAudioContext = useCallback(
+    () => audioContextRef.current,
+    [],
+  );
+  const getMasterNode = useCallback(
+    () => masterGainRef.current,
+    [],
+  );
+  const getMicSourceNode = useCallback(
+    () => sourceNodeRef.current,
+    [],
+  );
+  const getLoopPhase = useCallback(() => {
+    const ml = masterLengthRef.current;
+    const start = masterStartRef.current;
+    const ctx = audioContextRef.current;
+    if (!ml || ml <= 0 || start === 0 || !ctx) return 0;
+    const elapsed = ctx.currentTime - start;
+    const phase = ((elapsed % ml) + ml) % ml;
+    return phase / ml;
   }, []);
 
   const startListening = useCallback(async () => {
@@ -212,7 +251,16 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
 
   // Gapless looping via lookahead scheduling: pre-schedules the next buffer iteration
   // before the current one ends, avoiding the gap that source.loop can introduce.
+  const cancelPendingPlay = useCallback((trackIndex: number) => {
+    const timer = pendingPlayTimersRef.current[trackIndex];
+    if (timer !== null) {
+      clearTimeout(timer);
+      pendingPlayTimersRef.current[trackIndex] = null;
+    }
+  }, []);
+
   const stopPlayback = useCallback((trackIndex: number) => {
+    cancelPendingPlay(trackIndex);
     const slot = playbackSlotsRef.current[trackIndex];
     if (slot) {
       clearInterval(slot.intervalId);
@@ -220,7 +268,7 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
       setTimeout(() => { try { slot.gain.disconnect(); } catch (_) {} }, 100);
       playbackSlotsRef.current[trackIndex] = null;
     }
-  }, []);
+  }, [cancelPendingPlay]);
 
   const startPlayback = useCallback((trackIndex: number, buffer: AudioBuffer, when = 0) => {
     const ctx = getCtx();
@@ -230,7 +278,8 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
     const track = tracksRef.current[trackIndex];
     const gain = ctx.createGain();
     gain.gain.value = (track?.isMuted ?? false) ? 0 : (track?.volume ?? 0.8);
-    gain.connect(ctx.destination);
+    // Route through master bus so session capture can tap the mix
+    gain.connect(masterGainRef.current ?? ctx.destination);
 
     // Use sample-exact duration to avoid floating-point loop drift
     const loopSamples = buffer.length;
@@ -264,6 +313,88 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
     return masterStartRef.current + (cyclesElapsed + 1) * ml;
   }, []);
 
+  /** True if another track is already on the master grid (playing, dubbing, or waiting). */
+  const isMasterGridLive = useCallback((exceptTrackIndex?: number) => {
+    for (let i = 0; i < TRACK_COUNT; i++) {
+      if (i === exceptTrackIndex) continue;
+      const status = tracksRef.current[i]?.status;
+      if (
+        status === "playing" ||
+        status === "overdubbing" ||
+        status === "pending" ||
+        status === "recording"
+      ) {
+        return true;
+      }
+      if (playbackSlotsRef.current[i]) return true;
+    }
+    return false;
+  }, []);
+
+  /**
+   * Start (or resume) a track on the master grid.
+   * - Grid live → wait until next loop boundary (status: pending)
+   * - Nothing playing → start now and re-anchor the master clock
+   */
+  const beginQuantizedPlayback = useCallback((
+    trackIndex: number,
+    buffer: AudioBuffer,
+    { forceImmediate = false }: { forceImmediate?: boolean } = {},
+  ) => {
+    const ctx = getCtx();
+    if (ctx.state === "suspended") ctx.resume();
+
+    const gridLive =
+      !forceImmediate &&
+      !!masterLengthRef.current &&
+      masterStartRef.current !== 0 &&
+      isMasterGridLive(trackIndex);
+
+    let when: number;
+    if (gridLive) {
+      when = nextLoopBoundary(ctx);
+    } else {
+      // All stopped (or first loop): start now and re-anchor so the next presses sync here
+      when = ctx.currentTime;
+      masterStartRef.current = when;
+    }
+
+    const delayMs = Math.max(0, (when - ctx.currentTime) * 1000);
+    startPlayback(trackIndex, buffer, when);
+
+    if (delayMs > 20) {
+      setTracks((prev) => {
+        const next = [...prev];
+        next[trackIndex] = { ...next[trackIndex], status: "pending", audioBuffer: buffer, duration: buffer.duration };
+        return next;
+      });
+      cancelPendingPlay(trackIndex);
+      pendingPlayTimersRef.current[trackIndex] = setTimeout(() => {
+        pendingPlayTimersRef.current[trackIndex] = null;
+        setTracks((prev) => {
+          const next = [...prev];
+          if (next[trackIndex].status === "pending") {
+            next[trackIndex] = { ...next[trackIndex], status: "playing" };
+          }
+          return next;
+        });
+      }, delayMs);
+    } else {
+      cancelPendingPlay(trackIndex);
+      setTracks((prev) => {
+        const next = [...prev];
+        next[trackIndex] = { ...next[trackIndex], status: "playing", audioBuffer: buffer, duration: buffer.duration };
+        return next;
+      });
+    }
+  }, [
+    getCtx,
+    isMasterGridLive,
+    nextLoopBoundary,
+    startPlayback,
+    cancelPendingPlay,
+  ]);
+
   const recordStop = useCallback((trackIndex?: number) => {
     const ctx = getCtx();
     const idx = trackIndex ?? selectedTrack;
@@ -271,7 +402,10 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
 
     if (!isListening) return;
 
-    if (track.status === "empty" || track.status === "stopped") {
+    if (track.status === "empty" || track.status === "stopped" || track.status === "pending") {
+      // Cancel any waiting quantized play before arming record
+      stopPlayback(idx);
+
       // Start recording — note AudioContext time for click-to-click length calculation
       recordingChunksRef.current[idx] = [];
       recordingStartTimeRef.current = ctx.currentTime;
@@ -302,6 +436,7 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
         targetSamples = rawSamples;
         newMasterLength = rawDuration;
         setMasterLength(newMasterLength);
+        masterLengthRef.current = newMasterLength;
         const bpmGuess = Math.round((2 * 4 * 60) / newMasterLength);
         setMasterBpm(bpmGuess);
       } else {
@@ -311,20 +446,7 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
       }
 
       const buffer = chunksToBuffer(ctx, chunks, targetSamples);
-      // For first loop masterLengthRef is still null (setState is async), so
-      // nextLoopBoundary returns ctx.currentTime — playback starts immediately.
-      const when = nextLoopBoundary(ctx);
-      // Anchor master start to actual playback time so subsequent tracks align
-      if (masterStartRef.current === 0) {
-        masterStartRef.current = when;
-      }
-      startPlayback(idx, buffer, when);
-
-      setTracks((prev) => {
-        const next = [...prev];
-        next[idx] = { ...next[idx], status: "playing", audioBuffer: buffer, duration: buffer.duration };
-        return next;
-      });
+      beginQuantizedPlayback(idx, buffer);
     } else if (track.status === "playing") {
       // Start overdubbing
       recordingChunksRef.current[idx] = [];
@@ -338,7 +460,7 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
         return next;
       });
     } else if (track.status === "overdubbing") {
-      // Commit overdub
+      // Commit overdub — keep phase by restarting immediately on the live grid clock
       workletNodeRef.current?.port.postMessage({ active: false });
       recordingTrackRef.current = null;
 
@@ -346,16 +468,24 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
       const overdubChunks = recordingChunksRef.current[idx];
       const mixedBuffer = mixBuffers(ctx, existingBuffer, overdubChunks);
 
+      // Immediate restart (track was already audible); stay locked to current masterStart
+      const when = ctx.currentTime;
       stopPlayback(idx);
-      startPlayback(idx, mixedBuffer);
-
+      startPlayback(idx, mixedBuffer, when);
       setTracks((prev) => {
         const next = [...prev];
-        next[idx] = { ...next[idx], status: "playing", audioBuffer: mixedBuffer };
+        next[idx] = { ...next[idx], status: "playing", audioBuffer: mixedBuffer, duration: mixedBuffer.duration };
         return next;
       });
     }
-  }, [getCtx, selectedTrack, isListening, nextLoopBoundary, startPlayback, stopPlayback]);
+  }, [
+    getCtx,
+    selectedTrack,
+    isListening,
+    beginQuantizedPlayback,
+    startPlayback,
+    stopPlayback,
+  ]);
 
   const stopTrack = useCallback((trackIndex: number) => {
     stopPlayback(trackIndex);
@@ -371,18 +501,19 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
       }
       return next;
     });
+    // Do NOT reset masterStartRef — remaining / future tracks stay on the same grid
   }, [stopPlayback]);
 
   const playTrack = useCallback((trackIndex: number) => {
     const track = tracksRef.current[trackIndex];
-    if (!track.audioBuffer || track.status === "playing") return;
-    startPlayback(trackIndex, track.audioBuffer);
-    setTracks((prev) => {
-      const next = [...prev];
-      next[trackIndex] = { ...next[trackIndex], status: "playing" };
-      return next;
-    });
-  }, [startPlayback]);
+    if (!track.audioBuffer) return;
+    if (track.status === "playing" || track.status === "overdubbing" || track.status === "pending") {
+      return;
+    }
+    // Don't allow play while this track is mid-record
+    if (track.status === "recording") return;
+    beginQuantizedPlayback(trackIndex, track.audioBuffer);
+  }, [beginQuantizedPlayback]);
 
   const clearTrack = useCallback((trackIndex: number) => {
     stopPlayback(trackIndex);
@@ -450,11 +581,16 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     return () => {
       stopListening();
-      // Stop all scheduling intervals
-      for (let i = 0; i < TRACK_COUNT; i++) stopPlayback(i);
+      for (let i = 0; i < TRACK_COUNT; i++) {
+        const timer = pendingPlayTimersRef.current[i];
+        if (timer !== null) clearTimeout(timer);
+        pendingPlayTimersRef.current[i] = null;
+        stopPlayback(i);
+      }
       const ctx = audioContextRef.current;
       if (ctx && ctx.state !== "closed") ctx.close();
       audioContextRef.current = null;
+      masterGainRef.current = null;
       workletReadyRef.current = false;
     };
   }, [stopListening, stopPlayback]);
@@ -464,6 +600,7 @@ export function LooperProvider({ children }: { children: React.ReactNode }) {
       tracks, selectedTrack, masterLength, masterBpm, isListening, error,
       startListening, stopListening, recordStop, stopTrack, playTrack,
       clearTrack, setTrackVolume, toggleMute, setSelectedTrack, clearAll,
+      getAudioContext, getMasterNode, getMicSourceNode, getLoopPhase,
     }}>
       {children}
     </LooperContext.Provider>

@@ -109,19 +109,23 @@ function classifyHands(
   let left: ProcessedHand | null = null;
   let right: ProcessedHand | null = null;
   for (const det of detections) {
-    const wrist = det.landmarks[WRIST];
-    const indexMcp = det.landmarks[INDEX_MCP];
-    const isRight = indexMcp.x > wrist.x;
     const processed = processHand(det.landmarks, videoWidth, videoHeight);
-    if (isRight) right = processed;
-    else left = processed;
+    // Use MediaPipe's handedness (person's Left/Right), not image geometry —
+    // the old index-vs-wrist heuristic swapped hands on selfie cameras.
+    const label = det.handedness.toLowerCase();
+    if (label.startsWith("right")) right = processed;
+    else if (label.startsWith("left")) left = processed;
   }
   return { left, right };
 }
 
 export function useHandTracking(
   externalVideoRef?: React.RefObject<HTMLVideoElement>,
-  { showPitchZone = false } = {}
+  {
+    showPitchZone = false,
+    showLeftHand = true,
+    solidRightHand = false,
+  } = {}
 ): UseHandTrackingReturn {
   const ownVideoRef = useRef<HTMLVideoElement>(null!);
   const videoRef = externalVideoRef ?? ownVideoRef;
@@ -129,6 +133,8 @@ export function useHandTracking(
   const rafRef = useRef<number>();
   const handLandmarkerRef = useRef<unknown>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const optionsRef = useRef({ showPitchZone, showLeftHand, solidRightHand });
+  optionsRef.current = { showPitchZone, showLeftHand, solidRightHand };
   const [started, setStarted] = useState(false);
 
   const [state, setState] = useState<HandTrackingState>({
@@ -158,19 +164,64 @@ export function useHandTracking(
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width = video.videoWidth || canvas.offsetWidth;
-    canvas.height = video.videoHeight || canvas.offsetHeight;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const { showPitchZone: zones, showLeftHand, solidRightHand } =
+      optionsRef.current;
 
-    const w = canvas.width;
-    const h = canvas.height;
+    const displayW = canvas.clientWidth || canvas.offsetWidth;
+    const displayH = canvas.clientHeight || canvas.offsetHeight;
+    if (displayW <= 0 || displayH <= 0) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const bufW = Math.round(displayW * dpr);
+    const bufH = Math.round(displayH * dpr);
+    if (canvas.width !== bufW || canvas.height !== bufH) {
+      canvas.width = bufW;
+      canvas.height = bufH;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, displayW, displayH);
+
+    const vw = video.videoWidth || displayW;
+    const vh = video.videoHeight || displayH;
+    // Match video `object-cover` so landmarks and circles aren't CSS-stretched
+    const scale = Math.max(displayW / vw, displayH / vh);
+    const drawnW = vw * scale;
+    const drawnH = vh * scale;
+    const offsetX = (displayW - drawnW) / 2;
+    const offsetY = (displayH - drawnH) / 2;
 
     function toPixel(lm: HandLandmark) {
-      return { x: (1 - lm.x) * w, y: lm.y * h };
+      return {
+        x: offsetX + (1 - lm.x) * drawnW,
+        y: offsetY + lm.y * drawnH,
+      };
+    }
+
+    function drawDot(x: number, y: number, radius: number) {
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawYellowHand(hand: ProcessedHand) {
+      const thumb = toPixel(hand.thumbTip);
+      const index = toPixel(hand.indexTip);
+      const dotAlpha = solidRightHand ? 1 : hand.isPinching ? 0.9 : 0.6;
+      const lineAlpha = solidRightHand ? 1 : hand.isPinching ? 0.9 : 0.4;
+      ctx.fillStyle = `rgba(255,220,0,${dotAlpha})`;
+      drawDot(thumb.x, thumb.y, 6);
+      drawDot(index.x, index.y, 6);
+      ctx.strokeStyle = `rgba(255,220,0,${lineAlpha})`;
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(thumb.x, thumb.y);
+      ctx.lineTo(index.x, index.y);
+      ctx.stroke();
     }
 
     // ── Gesture zones (stem collage only) ────────────────────
-    if (showPitchZone) {
+    if (zones) {
       function drawZone(
         zone: typeof PITCH_ZONE,
         active: boolean,
@@ -179,11 +230,10 @@ export function useHandTracking(
         colorActive: string,
         colorInactive: string,
       ) {
-        // displayX = (1 - lm.x) * w, so left edge of zone in display = (1 - xMax) * w
-        const zX = (1 - zone.xMax) * w;
-        const zW = (zone.xMax - zone.xMin) * w;
-        const zY = zone.yMin * h;
-        const zH = (zone.yMax - zone.yMin) * h;
+        const zX = offsetX + (1 - zone.xMax) * drawnW;
+        const zW = (zone.xMax - zone.xMin) * drawnW;
+        const zY = offsetY + zone.yMin * drawnH;
+        const zH = (zone.yMax - zone.yMin) * drawnH;
 
         ctx.save();
         ctx.fillStyle = active ? colorActive.replace("COLOR", "0.07") : "rgba(255,255,255,0.025)";
@@ -210,7 +260,6 @@ export function useHandTracking(
         ctx.restore();
       }
 
-      // Pitch zone (right side, amber)
       const pitchActive = !!(right?.isPinching && right?.isPinchInPitchZone);
       drawZone(
         PITCH_ZONE, pitchActive,
@@ -219,7 +268,6 @@ export function useHandTracking(
         "rgba(251,191,36,COLOR)", "rgba(255,255,255,0.18)",
       );
 
-      // Volume zone (left side, rose)
       const volActive = !!(left?.isPinching && left?.isPinchInVolumeZone);
       drawZone(
         VOLUME_ZONE, volActive,
@@ -229,28 +277,27 @@ export function useHandTracking(
       );
     }
 
-    // ── Right hand: yellow dots + connecting line ─────────────
-    if (right) {
-      const thumb = toPixel(right.thumbTip);
-      const index = toPixel(right.indexTip);
-      ctx.fillStyle = right.isPinching ? "rgba(255,220,0,0.9)" : "rgba(255,220,0,0.6)";
-      ctx.beginPath(); ctx.arc(thumb.x, thumb.y, 7, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(index.x, index.y, 7, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = right.isPinching ? "rgba(255,220,0,0.9)" : "rgba(255,220,0,0.4)";
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(thumb.x, thumb.y); ctx.lineTo(index.x, index.y); ctx.stroke();
+    if (!showLeftHand) {
+      // Loop Station: yellow overlay on the person's right hand only — no left fallback
+      if (right) drawYellowHand(right);
+      return;
     }
 
-    // ── Left hand: red dots + connecting line ─────────────────
+    if (right) drawYellowHand(right);
+
     if (left) {
       const thumb = toPixel(left.thumbTip);
       const index = toPixel(left.indexTip);
       ctx.fillStyle = left.isPinching ? "rgba(255,60,60,0.9)" : "rgba(255,60,60,0.6)";
-      ctx.beginPath(); ctx.arc(thumb.x, thumb.y, 7, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(index.x, index.y, 7, 0, Math.PI * 2); ctx.fill();
+      drawDot(thumb.x, thumb.y, 6);
+      drawDot(index.x, index.y, 6);
       ctx.strokeStyle = "rgba(255,60,60,0.7)";
       ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(thumb.x, thumb.y); ctx.lineTo(index.x, index.y); ctx.stroke();
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(thumb.x, thumb.y);
+      ctx.lineTo(index.x, index.y);
+      ctx.stroke();
     }
   }, []);
 

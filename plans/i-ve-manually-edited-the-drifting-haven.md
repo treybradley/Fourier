@@ -494,7 +494,7 @@ Pad 2 ○  ○  ○  ●  ...
   slug: "grid",
   index: "05",
   name: "GRID",
-  tagline: "Browser-native sampler",
+  tagline: "Sampler & Sequencer",
   description: "Drag in audio, assign to pads, play live. A 16-pad sampler with step sequencer — entirely in the browser.",
   features: ["16 pads", "Step sequencer", "Mic recording"],
   status: "available" as const,

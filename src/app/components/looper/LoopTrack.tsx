@@ -15,6 +15,7 @@ const STATUS_LABEL: Record<TrackStatus, string> = {
   playing: "PLAY",
   overdubbing: "DUB",
   stopped: "STOP",
+  pending: "WAIT",
 };
 
 const STATUS_COLOR: Record<TrackStatus, string> = {
@@ -23,6 +24,7 @@ const STATUS_COLOR: Record<TrackStatus, string> = {
   playing: "text-emerald-400",
   overdubbing: "text-amber-400",
   stopped: "text-white/40",
+  pending: "text-sky-300",
 };
 
 const STATUS_DOT: Record<TrackStatus, string> = {
@@ -31,6 +33,7 @@ const STATUS_DOT: Record<TrackStatus, string> = {
   playing: "bg-emerald-400",
   overdubbing: "bg-amber-400",
   stopped: "bg-white/25",
+  pending: "bg-sky-400",
 };
 
 // Colors pulled from the Surge gradient palette (teal → deep blue) + complementary cyans
@@ -60,6 +63,7 @@ export function LoopTrack({ track, isSelected, onSelect }: LoopTrackProps) {
     else clearTrack(track.id);
   };
   const isActive = track.status === "recording" || track.status === "overdubbing";
+  const isPending = track.status === "pending";
   const hasAudio = !!track.audioBuffer;
 
   return (
@@ -87,7 +91,7 @@ export function LoopTrack({ track, isSelected, onSelect }: LoopTrackProps) {
           </div>
           <div
             className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_DOT[track.status]} ${
-              isActive ? "animate-pulse" : ""
+              isActive || isPending ? "animate-pulse" : ""
             }`}
           />
         </div>
@@ -140,16 +144,21 @@ export function LoopTrack({ track, isSelected, onSelect }: LoopTrackProps) {
             {track.isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
           </ControlBtn>
 
-          {/* Play / Stop */}
-          {track.status === "playing" || track.status === "overdubbing" ? (
-            <ControlBtn onClick={() => stopTrack(track.id)} title="Stop">
+          {/* Play / Stop / Cancel wait */}
+          {track.status === "playing" ||
+          track.status === "overdubbing" ||
+          track.status === "pending" ? (
+            <ControlBtn
+              onClick={() => stopTrack(track.id)}
+              title={track.status === "pending" ? "Cancel wait" : "Stop"}
+            >
               <Square className="w-3 h-3" />
             </ControlBtn>
           ) : (
             <ControlBtn
               onClick={() => playTrack(track.id)}
               disabled={!hasAudio}
-              title="Play"
+              title="Play (quantized to loop)"
             >
               <Play className="w-3 h-3" />
             </ControlBtn>
@@ -263,7 +272,8 @@ function WaveformDisplay({
 
   const COLORS = ["#8b5cf6", "#38bdf8", "#34d399", "#fbbf24", "#fb7185"];
   const color = COLORS[trackId] ?? "#ffffff";
-  const isActive = status === "playing" || status === "overdubbing";
+  const isActive = status === "playing" || status === "overdubbing" || status === "pending";
+  const opacity = status === "pending" ? 0.5 : isActive ? 0.7 : 0.35;
 
   return (
     <svg viewBox={`0 0 ${samples} 1`} preserveAspectRatio="none" className="w-full h-full">
@@ -275,7 +285,7 @@ function WaveformDisplay({
           width={0.7}
           height={v}
           fill={color}
-          opacity={isActive ? 0.7 : 0.35}
+          opacity={opacity}
         />
       ))}
     </svg>

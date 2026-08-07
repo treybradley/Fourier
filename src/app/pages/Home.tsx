@@ -25,7 +25,7 @@ const TOOLS = [
     slug: "loop-station",
     index: "02",
     name: "LOOP STATION",
-    tagline: "Multi-track browser looper",
+    tagline: "Multi-track looper",
     description:
       "Inspired by the Boss RC-505 MK2, record, overdub, and layer audio in real time. Use headphones for the best experience.",
     features: [
@@ -62,7 +62,7 @@ const TOOLS = [
     slug: "grid",
     index: "05",
     name: "GRID",
-    tagline: "Browser-native sampler",
+    tagline: "Sampler & Sequencer",
     description:
       "Drag in audio or paste YouTube links, assign to 9 pads, play live. Step sequencer, mic recording, WAV export.",
     features: ["9 pads", "Step sequencer", "Live mode"],
