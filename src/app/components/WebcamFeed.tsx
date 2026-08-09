@@ -30,16 +30,10 @@ const GESTURES = [
     action: "Pitch",
   },
   {
-    color: "violet",
-    hand: "R",
-    gesture: "1–4 fingers extended",
-    action: "Jump to cue point",
-  },
-  {
     color: "rose",
     hand: "L",
-    gesture: "Pinch spread",
-    action: "Volume (wide = loud)",
+    gesture: "Pinch in zone ↕",
+    action: "Volume",
   },
   {
     color: "emerald",
@@ -201,10 +195,6 @@ export function WebcamFeed({
               <Chip color={leftHand.isOpen ? "rose" : "emerald"}>
                 {leftHand.isOpen ? "PAUSE" : "PLAY"}
               </Chip>
-            )}
-
-            {rightHand && !rightHand.isPinching && rightHand.fingersExtended >= 1 && (
-              <Chip color="violet">CUE {rightHand.fingersExtended}</Chip>
             )}
           </div>
         )}

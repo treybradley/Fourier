@@ -23,12 +23,10 @@ export function PadCard({
   onDropFile,
 }: PadCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isYt = pad.source.type === "youtube";
-  const hasContent = !!pad.buffer || isYt;
+  const hasContent = !!pad.buffer;
 
-  // Draw waveform when buffer changes
   useEffect(() => {
-    if (!pad.buffer || !canvasRef.current || isYt) return;
+    if (!pad.buffer || !canvasRef.current) return;
     const canvas = canvasRef.current;
     const W = canvas.offsetWidth || 100;
     const H = canvas.offsetHeight || 32;
@@ -56,7 +54,7 @@ export function PadCard({
       ctx.lineTo(x + 0.5, H / 2 + h);
     }
     ctx.stroke();
-  }, [pad.buffer, isYt]);
+  }, [pad.buffer]);
 
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
@@ -103,7 +101,6 @@ export function PadCard({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      {/* Active glow overlay */}
       {isActive && (
         <div
           className="pointer-events-none absolute inset-0 rounded-[10px]"
@@ -114,28 +111,8 @@ export function PadCard({
         />
       )}
 
-      {/* Waveform or YouTube icon */}
       <div className="flex-1 min-h-0 w-full overflow-hidden">
-        {isYt ? (
-          <div className="w-full h-full flex items-center justify-center">
-            <svg
-              className="w-5 h-5 opacity-70"
-              viewBox="0 0 24 24"
-              fill="#FF0000"
-            >
-              <path d="M23.5 6.2a3.01 3.01 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3.01 3.01 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3.01 3.01 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3.01 3.01 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8z" />
-              <polygon
-                points="9.6,15.6 15.8,12 9.6,8.4"
-                fill="white"
-              />
-            </svg>
-            {pad.source.type === "youtube" && (
-              <span className="absolute bottom-6 left-2 right-6 text-[7px] font-mono text-white/40 truncate">
-                {pad.source.videoId}
-              </span>
-            )}
-          </div>
-        ) : pad.buffer ? (
+        {pad.buffer ? (
           <canvas
             ref={canvasRef}
             className="w-full"
@@ -160,7 +137,6 @@ export function PadCard({
         )}
       </div>
 
-      {/* Bottom row: name + key badge */}
       <div className="flex items-end justify-between mt-1 gap-1">
         <span className="text-[8px] font-mono text-white/35 truncate leading-tight flex-1">
           {pad.fileName
@@ -168,9 +144,7 @@ export function PadCard({
                 /\.(mp3|wav|ogg|flac|m4a)$/i,
                 "",
               )
-            : isYt
-              ? "YouTube"
-              : "––"}
+            : "––"}
         </span>
         <span
           className="text-[8px] font-mono shrink-0 leading-none px-1 py-0.5 rounded border"

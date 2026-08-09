@@ -59,8 +59,7 @@ export function Sequencer({
         {/* Pad rows */}
         {pads.map((pad) => {
           const isSelected = selectedPadId === pad.id;
-          const hasContent =
-            !!pad.buffer || pad.source.type === "youtube";
+          const hasContent = !!pad.buffer;
           return (
             <div
               key={pad.id}
@@ -109,9 +108,7 @@ export function Sequencer({
                           "",
                         )
                         .slice(0, 9)
-                    : pad.source.type === "youtube"
-                      ? "YT"
-                      : "––"}
+                    : "––"}
                 </span>
               </div>
 

@@ -1,27 +1,52 @@
-import type { Dispatch } from "react";
+import { useState, type Dispatch } from "react";
 import type { GridMode, GridState, GridAction } from "./types";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 interface TransportProps {
   state: GridState;
   dispatch: Dispatch<GridAction>;
-  onExportWav?: () => void;
+  onExportLoop?: (bars: 1 | 2 | 4) => void;
   onExportJson?: () => void;
   onImportJson?: () => void;
+  isSessionRecording?: boolean;
+  onToggleSessionRecord?: () => void;
 }
 
 const ACCENT = "#62FF00";
 
+const tipClass =
+  "border border-white/10 bg-[#0A0509] text-white/70 font-mono text-[9px] tracking-wider uppercase px-2 py-1 rounded-sm shadow-none";
+
 export function Transport({
   state,
   dispatch,
-  onExportWav,
+  onExportLoop,
   onExportJson,
   onImportJson,
+  isSessionRecording,
+  onToggleSessionRecord,
 }: TransportProps) {
   const { isPlaying, bpm, mode } = state;
+  const [exportOpen, setExportOpen] = useState(false);
+  const [lastBars, setLastBars] = useState<1 | 2 | 4>(1);
+
+  function pickBars(bars: 1 | 2 | 4) {
+    setLastBars(bars);
+    setExportOpen(false);
+    onExportLoop?.(bars);
+  }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 flex-wrap justify-end">
       {/* Mode toggle */}
       <div
         className="flex rounded-sm overflow-hidden border border-white/10"
@@ -30,9 +55,7 @@ export function Transport({
         {(["live", "seq"] as GridMode[]).map((m) => (
           <button
             key={m}
-            onClick={() =>
-              dispatch({ type: "SET_MODE", mode: m })
-            }
+            onClick={() => dispatch({ type: "SET_MODE", mode: m })}
             className="px-2.5 py-1 font-mono tracking-widest uppercase transition-all duration-150"
             style={
               mode === m
@@ -49,7 +72,6 @@ export function Transport({
         ))}
       </div>
 
-      {/* Divider */}
       <div className="w-px h-4 bg-white/10" />
 
       {/* Play */}
@@ -92,6 +114,33 @@ export function Transport({
         )}
       </button>
 
+      {/* Session record */}
+      <button
+        onClick={onToggleSessionRecord}
+        className="h-7 px-2 flex items-center justify-center rounded-sm border transition-all duration-150"
+        style={
+          isSessionRecording
+            ? {
+                borderColor: `${ACCENT}60`,
+                background: `${ACCENT}20`,
+                color: ACCENT,
+              }
+            : {
+                borderColor: "rgba(255,255,255,0.12)",
+                color: "rgba(255,255,255,0.55)",
+              }
+        }
+        title={
+          isSessionRecording
+            ? "Stop session recording"
+            : "Record session (live + seq)"
+        }
+      >
+        <span className="text-[9px] font-mono tracking-wider uppercase">
+          {isSessionRecording ? "● Stop" : "Record"}
+        </span>
+      </button>
+
       {/* BPM */}
       <div className="flex items-center gap-1">
         <span className="text-white/25 text-[9px] font-mono tracking-widest">
@@ -112,68 +161,121 @@ export function Transport({
         />
       </div>
 
-      {/* Divider */}
       <div className="w-px h-4 bg-white/10" />
 
-      {/* Export WAV */}
-      <button
-        onClick={onExportWav}
-        className="w-6 h-6 flex items-center justify-center rounded-sm border border-white/10 hover:border-white/25 transition-colors"
-        title="Export loop as WAV"
-      >
-        <svg
-          className="w-3 h-3 text-white/35"
-          fill="none"
-          viewBox="0 0 16 16"
-          stroke="currentColor"
-          strokeWidth={1.5}
+      {/* Export loop popover */}
+      <Popover open={exportOpen} onOpenChange={setExportOpen}>
+        <PopoverTrigger asChild>
+          <button
+            className="h-6 px-2 flex items-center justify-center rounded-sm border border-white/10 hover:border-white/25 transition-colors"
+            style={
+              exportOpen
+                ? {
+                    borderColor: `${ACCENT}50`,
+                    color: ACCENT,
+                  }
+                : undefined
+            }
+          >
+            <span className="text-[9px] font-mono tracking-wider text-white/35 uppercase">
+              Export loop
+            </span>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="end"
+          sideOffset={6}
+          className="w-auto p-2 border-white/10 bg-[#0A0509] shadow-lg"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M8 3v7m0 0l-2.5-2.5M8 10l2.5-2.5M3 13h10"
-          />
-        </svg>
-      </button>
+          <p className="text-[8px] font-mono tracking-widest uppercase text-white/30 px-1 mb-1.5">
+            Bars
+          </p>
+          <div className="flex gap-1">
+            {([1, 2, 4] as const).map((b) => (
+              <button
+                key={b}
+                onClick={() => pickBars(b)}
+                className="min-w-9 px-2.5 py-1.5 text-[10px] font-mono tabular-nums rounded-sm border transition-all duration-150"
+                style={
+                  lastBars === b
+                    ? {
+                        background: `${ACCENT}28`,
+                        color: ACCENT,
+                        borderColor: `${ACCENT}50`,
+                      }
+                    : {
+                        color: "rgba(255,255,255,0.45)",
+                        borderColor: "rgba(255,255,255,0.10)",
+                      }
+                }
+              >
+                {b}
+              </button>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
 
       {/* Save JSON */}
-      <button
-        onClick={onExportJson}
-        className="w-6 h-6 flex items-center justify-center rounded-sm border border-white/10 hover:border-white/25 transition-colors"
-        title="Save project as JSON"
-      >
-        <svg
-          className="w-3 h-3 text-white/35"
-          fill="none"
-          viewBox="0 0 16 16"
-          stroke="currentColor"
-          strokeWidth={1.5}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={onExportJson}
+            className="w-6 h-6 flex items-center justify-center rounded-sm border border-white/10 hover:border-white/25 transition-colors"
+          >
+            <svg
+              className="w-3 h-3 text-white/35"
+              fill="none"
+              viewBox="0 0 16 16"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <rect x="3" y="2" width="10" height="12" rx="1" />
+              <path strokeLinecap="round" d="M6 6h4M6 9h4M6 12h2" />
+            </svg>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="bottom"
+          sideOffset={6}
+          showArrow={false}
+          className={tipClass}
         >
-          <rect x="3" y="2" width="10" height="12" rx="1" />
-          <path strokeLinecap="round" d="M6 6h4M6 9h4M6 12h2" />
-        </svg>
-      </button>
+          Save project
+        </TooltipContent>
+      </Tooltip>
 
       {/* Load JSON */}
-      <button
-        onClick={onImportJson}
-        className="w-6 h-6 flex items-center justify-center rounded-sm border border-white/10 hover:border-white/25 transition-colors"
-        title="Load project from JSON"
-      >
-        <svg
-          className="w-3 h-3 text-white/35"
-          fill="none"
-          viewBox="0 0 16 16"
-          stroke="currentColor"
-          strokeWidth={1.5}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={onImportJson}
+            className="w-6 h-6 flex items-center justify-center rounded-sm border border-white/10 hover:border-white/25 transition-colors"
+          >
+            <svg
+              className="w-3 h-3 text-white/35"
+              fill="none"
+              viewBox="0 0 16 16"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8 13V6m0 0l-2.5 2.5M8 6l2.5 2.5M3 3h10"
+              />
+            </svg>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="bottom"
+          sideOffset={6}
+          showArrow={false}
+          className={tipClass}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M8 13V6m0 0l-2.5 2.5M8 6l2.5 2.5M3 3h10"
-          />
-        </svg>
-      </button>
+          Load project
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }

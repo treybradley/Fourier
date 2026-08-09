@@ -54,64 +54,67 @@ export function AudioControls({
         )}
       </motion.button>
 
-      {/* Volume Control */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-1.5 text-white/50">
-            <Volume2 className="w-3 h-3" />
-            <span>Volume</span>
+      {/* Volume + Pitch — side by side when wide, stack when narrow */}
+      <div className="flex flex-wrap gap-3">
+        <div className="space-y-1.5 flex-1 min-w-[140px]">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5 text-white/50">
+              <Volume2 className="w-3 h-3" />
+              <span>Volume</span>
+            </div>
+            <span className="text-white/40">{Math.round(volume * 100)}%</span>
           </div>
-          <span className="text-white/40">{Math.round(volume * 100)}%</span>
+
+          <Slider.Root
+            className="relative flex items-center select-none touch-none w-full h-5"
+            value={[volume]}
+            onValueChange={(values) => onVolumeChange(values[0])}
+            max={2}
+            min={0}
+            step={0.01}
+            disabled={disabled}
+          >
+            <Slider.Track className="bg-white/10 relative grow rounded-full h-1">
+              <Slider.Range className="absolute bg-white/40 rounded-full h-full" />
+            </Slider.Track>
+            <Slider.Thumb
+              className="block w-3 h-3 bg-white rounded-full hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/50"
+              aria-label="Volume"
+            />
+          </Slider.Root>
         </div>
 
-        <Slider.Root
-          className="relative flex items-center select-none touch-none w-full h-5"
-          value={[volume]}
-          onValueChange={(values) => onVolumeChange(values[0])}
-          max={2}
-          min={0}
-          step={0.01}
-          disabled={disabled}
-        >
-          <Slider.Track className="bg-white/10 relative grow rounded-full h-1">
-            <Slider.Range className="absolute bg-white/40 rounded-full h-full" />
-          </Slider.Track>
-          <Slider.Thumb
-            className="block w-3 h-3 bg-white rounded-full hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/50"
-            aria-label="Volume"
-          />
-        </Slider.Root>
-      </div>
-
-      {/* Pitch Control */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-1.5 text-white/50">
-            <Music className="w-3 h-3" />
-            <span>Pitch</span>
+        <div className="space-y-1.5 flex-1 min-w-[140px]">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5 text-white/50">
+              <Music className="w-3 h-3" />
+              <span>Pitch</span>
+            </div>
+            <span className="text-white/40">
+              {detectedBpm
+                ? `${Math.round(detectedBpm * pitch)} BPM`
+                : `${Math.round(pitch * 100)}%`}
+            </span>
           </div>
-          <span className="text-white/40">
-            {detectedBpm ? `${Math.round(detectedBpm * pitch)} BPM` : `${Math.round(pitch * 100)}%`}
-          </span>
-        </div>
 
-        <Slider.Root
-          className="relative flex items-center select-none touch-none w-full h-5"
-          value={[pitch]}
-          onValueChange={(values) => onPitchChange(values[0])}
-          max={2}
-          min={0.5}
-          step={0.01}
-          disabled={disabled}
-        >
-          <Slider.Track className="bg-white/10 relative grow rounded-full h-1">
-            <Slider.Range className="absolute bg-white/40 rounded-full h-full" />
-          </Slider.Track>
-          <Slider.Thumb
-            className="block w-3 h-3 bg-white rounded-full hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/50"
-            aria-label="Pitch"
-          />
-        </Slider.Root>
+          <Slider.Root
+            className="relative flex items-center select-none touch-none w-full h-5"
+            value={[pitch]}
+            onValueChange={(values) => onPitchChange(values[0])}
+            max={2}
+            min={0.5}
+            step={0.01}
+            disabled={disabled}
+          >
+            <Slider.Track className="bg-white/10 relative grow rounded-full h-1">
+              <Slider.Range className="absolute bg-white/40 rounded-full h-full" />
+            </Slider.Track>
+            <Slider.Thumb
+              className="block w-3 h-3 bg-white rounded-full hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/50"
+              aria-label="Pitch"
+            />
+          </Slider.Root>
+        </div>
       </div>
     </div>
   );

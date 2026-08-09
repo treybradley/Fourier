@@ -7,13 +7,13 @@ const TOOLS = [
     slug: "stem-collage",
     index: "01",
     name: "STEM COLLAGE",
-    tagline: "Hand-tracked stem mixer",
+    tagline: "Multi-stem mixer",
     description:
-      "Load up to 4 audio stems and mix them live. Control volume, pitch, and cue points using hand gestures.",
+      "Load up to 4 audio stems and mix them live. Optional hand control for volume and pitch; keys 1–4 jump to cues.",
     features: [
       "4-track stem mixer",
-      "Hand gesture control",
-      "Cue point markers",
+      "Optional hand control",
+      "Cue points (keys 1–4)",
     ],
     status: "available" as const,
     accentA: "#0059CE",
@@ -64,7 +64,7 @@ const TOOLS = [
     name: "GRID",
     tagline: "Sampler & Sequencer",
     description:
-      "Drag in audio or paste YouTube links, assign to 9 pads, play live. Step sequencer, mic recording, WAV export.",
+      "Drag in audio, assign to 9 pads, play live. Step sequencer, mic recording, session record, WAV export.",
     features: ["9 pads", "Step sequencer", "Live mode"],
     status: "available" as const,
     accentA: "#6DE700",

@@ -10,18 +10,9 @@ import { Transport } from "./Transport";
 import { PadGrid } from "./PadGrid";
 import { SampleInspector } from "./SampleInspector";
 import { Sequencer } from "./Sequencer";
-import type {
-  Pad,
-  GridState,
-  GridAction,
-  GridMode,
-} from "./types";
-import {
-  makePad,
-  KEY_TO_PAD,
-  audioBufferToWav,
-  parseYouTubeVideoId,
-} from "./types";
+import { useGridSessionRecorder } from "./useGridSessionRecorder";
+import type { GridState, GridAction, GridMode } from "./types";
+import { makePad, KEY_TO_PAD, audioBufferToWav, detectPadBpm } from "./types";
 import {
   decodeAudioFile,
   isValidAudioFile,
@@ -33,9 +24,7 @@ function makeInitialState(): GridState {
   return {
     pads: Array.from({ length: 9 }, (_, i) => makePad(i)),
     selectedPadId: 0,
-    pattern: Array.from({ length: 9 }, () =>
-      Array(16).fill(false),
-    ),
+    pattern: Array.from({ length: 9 }, () => Array(16).fill(false)),
     bpm: 120,
     isPlaying: false,
     currentStep: -1,
@@ -43,35 +32,20 @@ function makeInitialState(): GridState {
   };
 }
 
-function gridReducer(
-  state: GridState,
-  action: GridAction,
-): GridState {
+function gridReducer(state: GridState, action: GridAction): GridState {
   switch (action.type) {
     case "LOAD_SAMPLE": {
       const pads = [...state.pads];
       pads[action.padId] = {
         ...pads[action.padId],
-        source: { type: "audio" },
         buffer: action.buffer,
         reverseBuffer: null,
         fileName: action.fileName,
+        detectedBpm: action.detectedBpm ?? null,
         reverse: false,
-      };
-      return { ...state, pads, selectedPadId: action.padId };
-    }
-    case "LOAD_YOUTUBE": {
-      const pads = [...state.pads];
-      pads[action.padId] = {
-        ...pads[action.padId],
-        source: {
-          type: "youtube",
-          videoId: action.videoId,
-          cueTime: action.cueTime,
-        },
-        buffer: null,
-        reverseBuffer: null,
-        fileName: null,
+        trimStart: 0,
+        trimEnd: 1,
+        speed: 1,
       };
       return { ...state, pads, selectedPadId: action.padId };
     }
@@ -130,23 +104,10 @@ function gridReducer(
     }
     case "SET_MODE":
       return { ...state, mode: action.mode as GridMode };
-    case "UPDATE_YT_CUE": {
-      const pads = [...state.pads];
-      const pad = pads[action.padId];
-      if (pad.source.type === "youtube") {
-        pads[action.padId] = {
-          ...pad,
-          source: { ...pad.source, cueTime: action.cueTime },
-        };
-      }
-      return { ...state, pads };
-    }
     default:
       return state;
   }
 }
-
-// ── Helpers ────────────────────────────────────────────────────────────────────
 
 function download(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob);
@@ -166,35 +127,48 @@ export function GridApp() {
     makeInitialState,
   );
   const engineRef = useRef<GridEngine | null>(null);
+  const [activePadIds, setActivePadIds] = useState<ReadonlySet<number>>(
+    new Set(),
+  );
+  const flashTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  );
+  const fileImportRef = useRef<HTMLInputElement>(null);
 
-  // Intercepts gain/drive changes to update engine nodes in real-time
   const dispatchAndSync = useCallback((action: GridAction) => {
     dispatch(action);
     if (action.type === "UPDATE_PAD_PARAM" && engineRef.current) {
-      if (action.param === "gain") engineRef.current.setPadGain(action.padId, action.value);
-      if (action.param === "drive") engineRef.current.setPadDrive(action.padId, action.value);
-      if (action.param === "speed") engineRef.current.setPadSpeed(action.padId, action.value);
+      if (action.param === "gain")
+        engineRef.current.setPadGain(action.padId, action.value);
+      if (action.param === "drive")
+        engineRef.current.setPadDrive(action.padId, action.value);
+      if (action.param === "speed")
+        engineRef.current.setPadSpeed(action.padId, action.value);
+    }
+    if (action.type === "SET_LOOP" && !action.loop) {
+      engineRef.current?.stopPad(action.padId);
+    }
+    if (action.type === "CLEAR_PAD") {
+      engineRef.current?.stopPad(action.padId);
     }
   }, []);
-  const [activePadIds, setActivePadIds] = useState<
-    ReadonlySet<number>
-  >(new Set());
-  const flashTimers = useRef<
-    Map<number, ReturnType<typeof setTimeout>>
-  >(new Map());
-  const fileImportRef = useRef<HTMLInputElement>(null);
 
-  // Stable refs for scheduler callbacks
   const stateRef = useRef(state);
   stateRef.current = state;
 
-  // ── Engine init ──────────────────────────────────────────────────────────────
-
   function getEngine(): GridEngine {
-    if (!engineRef.current)
-      engineRef.current = new GridEngine();
+    if (!engineRef.current) engineRef.current = new GridEngine();
     return engineRef.current;
   }
+
+  const {
+    isRecording: isSessionRecording,
+    startRecording: startSessionRecord,
+    stopRecording: stopSessionRecord,
+  } = useGridSessionRecorder(
+    () => getEngine().getMasterNode(),
+    () => getEngine().ctx,
+  );
 
   useEffect(() => {
     return () => {
@@ -202,14 +176,11 @@ export function GridApp() {
     };
   }, []);
 
-  // ── Trigger pad (manual) ─────────────────────────────────────────────────────
-
   const triggerPad = useCallback((padId: number) => {
     const pad = stateRef.current.pads[padId];
-    if (!pad.buffer && pad.source.type !== "youtube") return;
+    if (!pad.buffer) return;
     getEngine().playPad(pad);
 
-    // Flash animation
     setActivePadIds((prev) => {
       const next = new Set(prev);
       next.add(padId);
@@ -229,12 +200,9 @@ export function GridApp() {
     );
   }, []);
 
-  // ── Keyboard ─────────────────────────────────────────────────────────────────
-
   useEffect(() => {
     const held = new Set<string>();
     function onKeyDown(e: KeyboardEvent) {
-      // Ignore when typing in inputs
       if (
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement
@@ -252,7 +220,7 @@ export function GridApp() {
         return;
       }
 
-      if (held.has(key)) return; // prevent key-repeat
+      if (held.has(key)) return;
       held.add(key);
 
       const padId = KEY_TO_PAD[key];
@@ -272,8 +240,6 @@ export function GridApp() {
     };
   }, [triggerPad]);
 
-  // ── Sequencer ────────────────────────────────────────────────────────────────
-
   useEffect(() => {
     const engine = getEngine();
     if (state.isPlaying) {
@@ -283,7 +249,6 @@ export function GridApp() {
         () => stateRef.current.bpm,
         (step) => {
           dispatch({ type: "STEP_ADVANCE", step });
-          // Flash active pads for this step
           const pattern = stateRef.current.pattern;
           const fired = new Set<number>();
           for (let p = 0; p < 9; p++) {
@@ -312,14 +277,10 @@ export function GridApp() {
     };
   }, [state.isPlaying]);
 
-  // ── Reverse buffer ───────────────────────────────────────────────────────────
-
   useEffect(() => {
     for (const pad of state.pads) {
       if (pad.reverse && !pad.reverseBuffer && pad.buffer) {
-        const rev = getEngine().computeReverseBuffer(
-          pad.buffer,
-        );
+        const rev = getEngine().computeReverseBuffer(pad.buffer);
         dispatch({
           type: "SET_REVERSE_BUFFER",
           padId: pad.id,
@@ -336,8 +297,6 @@ export function GridApp() {
     }
   }, [state.pads.map((p) => `${p.id}:${p.reverse}`).join(",")]);
 
-  // ── File drop (page level) ───────────────────────────────────────────────────
-
   function handleDropFile(padId: number, file: File) {
     if (!isValidAudioFile(file)) return;
     const engine = getEngine();
@@ -347,11 +306,11 @@ export function GridApp() {
         padId,
         buffer,
         fileName: file.name,
+        detectedBpm: detectPadBpm(buffer),
       });
     });
   }
 
-  // Listen for file events from SampleInspector file picker
   useEffect(() => {
     function onLoadFile(e: Event) {
       const { padId, file } = (e as CustomEvent).detail;
@@ -362,67 +321,40 @@ export function GridApp() {
       window.removeEventListener("grid-load-file", onLoadFile);
   }, []);
 
-  // ── YouTube load ─────────────────────────────────────────────────────────────
-
-  function handleLoadYoutube(padId: number, videoId: string) {
-    dispatch({
-      type: "LOAD_YOUTUBE",
-      padId,
-      videoId,
-      cueTime: 0,
-    });
-    getEngine()
-      .loadYouTubePad(padId, videoId)
-      .catch(console.error);
-  }
-
-  // Also destroy YT player when pad is cleared
-  const prevPadsRef = useRef<Pad[]>(state.pads);
-  useEffect(() => {
-    state.pads.forEach((pad, i) => {
-      const prev = prevPadsRef.current[i];
-      if (
-        prev.source.type === "youtube" &&
-        pad.source.type !== "youtube"
-      ) {
-        engineRef.current?.destroyYouTubePad(pad.id);
-      }
-    });
-    prevPadsRef.current = state.pads;
-  }, [state.pads]);
-
-  // ── Export WAV ────────────────────────────────────────────────────────────────
-
-  async function exportWav() {
+  async function exportLoop(bars: 1 | 2 | 4) {
     const engine = getEngine();
     const buf = await engine.renderToBuffer(
       state.pads,
       state.pattern,
       state.bpm,
+      bars,
     );
     const blob = audioBufferToWav(buf);
-    download(blob, `fourier-grid-${state.bpm}bpm.wav`);
+    download(
+      blob,
+      `fourier-grid-${state.bpm}bpm-${bars}bar.wav`,
+    );
   }
 
-  // ── Export / Import JSON ──────────────────────────────────────────────────────
+  async function toggleSessionRecord() {
+    if (isSessionRecording) {
+      const blob = await stopSessionRecord();
+      if (blob) {
+        const ext = blob.type.includes("wav") ? "wav" : "webm";
+        download(blob, `fourier-grid-session.${ext}`);
+      }
+    } else {
+      await startSessionRecord();
+    }
+  }
 
   async function exportJson() {
     const padsJson = await Promise.all(
       state.pads.map(async (pad) => {
-        if (pad.source.type === "youtube") {
-          return {
-            id: pad.id,
-            type: "youtube",
-            videoId: pad.source.videoId,
-            cueTime: pad.source.cueTime,
-          };
-        }
         if (!pad.buffer) return { id: pad.id, type: "empty" };
         const wav = audioBufferToWav(pad.buffer);
         const ab = await wav.arrayBuffer();
-        const b64 = btoa(
-          String.fromCharCode(...new Uint8Array(ab)),
-        );
+        const b64 = btoa(String.fromCharCode(...new Uint8Array(ab)));
         return {
           id: pad.id,
           type: "audio",
@@ -432,13 +364,15 @@ export function GridApp() {
           trimEnd: pad.trimEnd,
           speed: pad.speed,
           gain: pad.gain,
+          drive: pad.drive,
           reverse: pad.reverse,
+          loop: pad.loop,
         };
       }),
     );
     const json = JSON.stringify(
       {
-        version: 1,
+        version: 2,
         bpm: state.bpm,
         pattern: state.pattern,
         pads: padsJson,
@@ -465,47 +399,33 @@ export function GridApp() {
     try {
       const text = await file.text();
       const data = JSON.parse(text);
-      if (data.bpm)
-        dispatch({ type: "SET_BPM", bpm: data.bpm });
+      if (data.bpm) dispatch({ type: "SET_BPM", bpm: data.bpm });
       if (data.pattern) {
         for (let p = 0; p < 9; p++) {
           for (let s = 0; s < 16; s++) {
             const want = data.pattern[p]?.[s] ?? false;
             if (want !== (state.pattern[p]?.[s] ?? false)) {
-              dispatch({
-                type: "TOGGLE_STEP",
-                padId: p,
-                step: s,
-              });
+              dispatch({ type: "TOGGLE_STEP", padId: p, step: s });
             }
           }
         }
       }
       const engine = getEngine();
       for (const padData of data.pads ?? []) {
-        if (padData.type === "empty") continue;
-        if (padData.type === "youtube") {
-          dispatch({
-            type: "LOAD_YOUTUBE",
-            padId: padData.id,
-            videoId: padData.videoId,
-            cueTime: padData.cueTime,
-          });
-          engine
-            .loadYouTubePad(padData.id, padData.videoId)
-            .catch(console.error);
-        } else if (padData.type === "audio" && padData.audio) {
-          const bytes = Uint8Array.from(
-            atob(padData.audio),
-            (c) => c.charCodeAt(0),
+        // Quietly skip legacy YouTube pads
+        if (padData.type === "empty" || padData.type === "youtube")
+          continue;
+        if (padData.type === "audio" && padData.audio) {
+          const bytes = Uint8Array.from(atob(padData.audio), (c) =>
+            c.charCodeAt(0),
           );
-          const ab = bytes.buffer;
-          const buffer = await engine.ctx.decodeAudioData(ab);
+          const buffer = await engine.ctx.decodeAudioData(bytes.buffer);
           dispatch({
             type: "LOAD_SAMPLE",
             padId: padData.id,
             buffer,
             fileName: padData.fileName ?? "sample.wav",
+            detectedBpm: detectPadBpm(buffer),
           });
           if (padData.trimStart !== undefined)
             dispatch({
@@ -535,11 +455,24 @@ export function GridApp() {
               param: "gain",
               value: padData.gain,
             });
+          if (padData.drive !== undefined)
+            dispatch({
+              type: "UPDATE_PAD_PARAM",
+              padId: padData.id,
+              param: "drive",
+              value: padData.drive,
+            });
           if (padData.reverse)
             dispatch({
               type: "SET_REVERSE",
               padId: padData.id,
               reverse: true,
+            });
+          if (padData.loop)
+            dispatch({
+              type: "SET_LOOP",
+              padId: padData.id,
+              loop: true,
             });
         }
       }
@@ -548,8 +481,6 @@ export function GridApp() {
     }
   }
 
-  // ── Page-level drag-and-drop ─────────────────────────────────────────────────
-
   function handlePageDragOver(e: React.DragEvent) {
     e.preventDefault();
   }
@@ -557,16 +488,11 @@ export function GridApp() {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (!file || !isValidAudioFile(file)) return;
-    // Drop to selected pad or first empty pad
     const target =
       state.selectedPadId ??
-      state.pads.findIndex(
-        (p) => !p.buffer && p.source.type === "audio",
-      );
+      state.pads.findIndex((p) => !p.buffer);
     if (target >= 0) handleDropFile(target, file);
   }
-
-  // ── Derived ──────────────────────────────────────────────────────────────────
 
   const selectedPad =
     state.selectedPadId !== null
@@ -579,7 +505,6 @@ export function GridApp() {
       onDragOver={handlePageDragOver}
       onDrop={handlePageDrop}
     >
-      {/* Transport */}
       <div className="flex flex-wrap items-center justify-between gap-y-2 flex-shrink-0">
         <span className="text-white/90 text-[9px] font-mono tracking-widest uppercase">
           {state.isPlaying
@@ -589,16 +514,16 @@ export function GridApp() {
         <Transport
           state={state}
           dispatch={dispatchAndSync}
-          onExportWav={exportWav}
-          onExportJson={exportJson}
+          onExportLoop={(bars) => void exportLoop(bars)}
+          onExportJson={() => void exportJson()}
           onImportJson={importJson}
+          isSessionRecording={isSessionRecording}
+          onToggleSessionRecord={() => void toggleSessionRecord()}
         />
       </div>
 
-      {/* Main area */}
       {state.mode === "live" ? (
         <div className="flex-1 min-h-0 flex flex-col md:flex-row gap-3 overflow-y-auto md:overflow-y-visible">
-          {/* Pad grid */}
           <div className="flex-1 min-w-0 min-h-0 md:h-full">
             <PadGrid
               pads={state.pads}
@@ -610,7 +535,6 @@ export function GridApp() {
             />
           </div>
 
-          {/* Inspector */}
           <div
             className="md:w-72 shrink-0 md:h-full rounded-[12px] overflow-hidden p-3"
             style={{
@@ -621,16 +545,20 @@ export function GridApp() {
             <SampleInspector
               pad={selectedPad}
               dispatch={dispatchAndSync}
-              getAudioCtx={() => engineRef.current?.ctx ?? null}
+              ensureAudioCtx={async () => {
+                const engine = getEngine();
+                await engine.ensureRunning();
+                return engine.ctx;
+              }}
               onRecord={(padId, buffer) => {
                 dispatch({
                   type: "LOAD_SAMPLE",
                   padId,
                   buffer,
-                  fileName: "recording.wav",
+                  fileName: "mic-recording.wav",
+                  detectedBpm: detectPadBpm(buffer),
                 });
               }}
-              onLoadYoutube={handleLoadYoutube}
             />
           </div>
         </div>
@@ -653,7 +581,6 @@ export function GridApp() {
         </div>
       )}
 
-      {/* Hint */}
       <div className="flex-shrink-0 flex items-center justify-between">
         <p className="text-white/15 text-[8px] font-mono tracking-wider">
           Keys: 123 · QWE · ASD &nbsp;·&nbsp; Space: play/stop
@@ -661,13 +588,12 @@ export function GridApp() {
         </p>
         {state.mode === "seq" && (
           <p className="text-white/15 text-[8px] font-mono tracking-wider">
-            Click pad labels to select &nbsp;·&nbsp; Switch to
-            Live to play
+            Click pad labels to select &nbsp;·&nbsp; Switch to Live
+            to play
           </p>
         )}
       </div>
 
-      {/* Hidden file inputs */}
       <input
         ref={fileImportRef}
         type="file"

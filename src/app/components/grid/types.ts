@@ -1,13 +1,12 @@
-export type PadSource =
-  | { type: "audio" }
-  | { type: "youtube"; videoId: string; cueTime: number };
+import getBpm from "bpm-detective";
 
 export type Pad = {
   id: number;
-  source: PadSource;
   buffer: AudioBuffer | null;
   reverseBuffer: AudioBuffer | null;
   fileName: string | null;
+  /** Detected sample tempo at 1× speed, if detection succeeded. */
+  detectedBpm: number | null;
   trimStart: number;
   trimEnd: number;
   speed: number;
@@ -30,29 +29,38 @@ export type GridState = {
 };
 
 export type GridAction =
-  | { type: "LOAD_SAMPLE"; padId: number; buffer: AudioBuffer; fileName: string }
-  | { type: "LOAD_YOUTUBE"; padId: number; videoId: string; cueTime: number }
+  | {
+      type: "LOAD_SAMPLE";
+      padId: number;
+      buffer: AudioBuffer;
+      fileName: string;
+      detectedBpm?: number | null;
+    }
   | { type: "SELECT_PAD"; padId: number | null }
   | { type: "TOGGLE_STEP"; padId: number; step: number }
   | { type: "SET_BPM"; bpm: number }
   | { type: "PLAY" }
   | { type: "STOP" }
   | { type: "STEP_ADVANCE"; step: number }
-  | { type: "UPDATE_PAD_PARAM"; padId: number; param: "trimStart" | "trimEnd" | "speed" | "gain" | "drive"; value: number }
+  | {
+      type: "UPDATE_PAD_PARAM";
+      padId: number;
+      param: "trimStart" | "trimEnd" | "speed" | "gain" | "drive";
+      value: number;
+    }
   | { type: "SET_REVERSE"; padId: number; reverse: boolean }
   | { type: "SET_LOOP"; padId: number; loop: boolean }
   | { type: "SET_REVERSE_BUFFER"; padId: number; buffer: AudioBuffer | null }
   | { type: "CLEAR_PAD"; padId: number }
-  | { type: "SET_MODE"; mode: GridMode }
-  | { type: "UPDATE_YT_CUE"; padId: number; cueTime: number };
+  | { type: "SET_MODE"; mode: GridMode };
 
 export function makePad(id: number): Pad {
   return {
     id,
-    source: { type: "audio" },
     buffer: null,
     reverseBuffer: null,
     fileName: null,
+    detectedBpm: null,
     trimStart: 0,
     trimEnd: 1,
     speed: 1,
@@ -63,27 +71,30 @@ export function makePad(id: number): Pad {
   };
 }
 
-export const PAD_KEYS = ["1","2","3","Q","W","E","A","S","D"];
+export const PAD_KEYS = ["1", "2", "3", "Q", "W", "E", "A", "S", "D"];
 
 export const KEY_TO_PAD: Record<string, number> = {
-  "1": 0, "2": 1, "3": 2,
-  "q": 3, "w": 4, "e": 5,
-  "a": 6, "s": 7, "d": 8,
+  "1": 0,
+  "2": 1,
+  "3": 2,
+  q: 3,
+  w: 4,
+  e: 5,
+  a: 6,
+  s: 7,
+  d: 8,
 };
 
-export function parseYouTubeVideoId(input: string): string | null {
-  const patterns = [
-    /[?&]v=([a-zA-Z0-9_-]{11})/,
-    /youtu\.be\/([a-zA-Z0-9_-]{11})/,
-    /embed\/([a-zA-Z0-9_-]{11})/,
-    /shorts\/([a-zA-Z0-9_-]{11})/,
-    /^([a-zA-Z0-9_-]{11})$/,
-  ];
-  for (const p of patterns) {
-    const m = input.match(p);
-    if (m) return m[1];
+/** Best-effort sample tempo at 1× (null if detection fails / too short). */
+export function detectPadBpm(buffer: AudioBuffer): number | null {
+  try {
+    const bpm = getBpm(buffer);
+    return typeof bpm === "number" && Number.isFinite(bpm) && bpm > 0
+      ? Math.round(bpm)
+      : null;
+  } catch {
+    return null;
   }
-  return null;
 }
 
 export function audioBufferToWav(buffer: AudioBuffer): Blob {
@@ -97,12 +108,19 @@ export function audioBufferToWav(buffer: AudioBuffer): Blob {
   const str = (off: number, s: string) => {
     for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i));
   };
-  str(0, "RIFF"); view.setUint32(4, 36 + dataSize, true);
-  str(8, "WAVE"); str(12, "fmt ");
-  view.setUint32(16, 16, true); view.setUint16(20, 1, true);
-  view.setUint16(22, nCh, true); view.setUint32(24, sr, true);
-  view.setUint32(28, sr * nCh * bps, true); view.setUint16(32, nCh * bps, true);
-  view.setUint16(34, 16, true); str(36, "data"); view.setUint32(40, dataSize, true);
+  str(0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  str(8, "WAVE");
+  str(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, nCh, true);
+  view.setUint32(24, sr, true);
+  view.setUint32(28, sr * nCh * bps, true);
+  view.setUint16(32, nCh * bps, true);
+  view.setUint16(34, 16, true);
+  str(36, "data");
+  view.setUint32(40, dataSize, true);
   const channels: Float32Array[] = [];
   for (let c = 0; c < nCh; c++) channels.push(buffer.getChannelData(c));
   let off = 44;

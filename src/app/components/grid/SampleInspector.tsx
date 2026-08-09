@@ -5,7 +5,6 @@ import {
   type Dispatch,
 } from "react";
 import type { Pad, GridAction } from "./types";
-import { parseYouTubeVideoId } from "./types";
 import { useGridRecorder } from "./useGridRecorder";
 
 const ACCENT_A = "#62FF00";
@@ -14,9 +13,8 @@ const ACCENT_B = "#FBFF00";
 interface SampleInspectorProps {
   pad: Pad | null;
   dispatch: Dispatch<GridAction>;
-  getAudioCtx: () => AudioContext | null;
+  ensureAudioCtx: () => Promise<AudioContext | null>;
   onRecord: (padId: number, buffer: AudioBuffer) => void;
-  onLoadYoutube: (padId: number, videoId: string) => void;
 }
 
 function WaveformCanvas({
@@ -49,10 +47,7 @@ function WaveformCanvas({
     const center = (trimStart + trimEnd) / 2;
     setZoom(newZoom);
     setViewStart(
-      Math.max(
-        0,
-        Math.min(center - newWidth / 2, 1 - newWidth),
-      ),
+      Math.max(0, Math.min(center - newWidth / 2, 1 - newWidth)),
     );
   }
 
@@ -62,10 +57,7 @@ function WaveformCanvas({
     const center = clampedViewStart + viewWidth / 2;
     setZoom(newZoom);
     setViewStart(
-      Math.max(
-        0,
-        Math.min(center - newWidth / 2, 1 - newWidth),
-      ),
+      Math.max(0, Math.min(center - newWidth / 2, 1 - newWidth)),
     );
   }
 
@@ -109,9 +101,7 @@ function WaveformCanvas({
     ctx.clearRect(0, 0, W, H);
 
     const data = buffer.getChannelData(0);
-    const startSample = Math.floor(
-      clampedViewStart * data.length,
-    );
+    const startSample = Math.floor(clampedViewStart * data.length);
     const endSample = Math.floor(viewEnd * data.length);
     const visibleSamples = Math.max(1, endSample - startSample);
     const step = Math.max(1, Math.ceil(visibleSamples / W));
@@ -136,7 +126,6 @@ function WaveformCanvas({
       ctx.stroke();
     }
 
-    // Trim markers — only draw if within view
     ctx.globalAlpha = 1;
     ctx.lineWidth = 1.5;
     ctx.strokeStyle = ACCENT_B;
@@ -150,7 +139,6 @@ function WaveformCanvas({
       ctx.stroke();
     });
 
-    // Off-screen marker arrows
     ctx.globalAlpha = 0.5;
     ctx.fillStyle = ACCENT_B;
     ctx.font = "8px monospace";
@@ -169,7 +157,6 @@ function WaveformCanvas({
 
   return (
     <div className="select-none flex flex-col gap-1">
-      {/* Zoom controls row */}
       <div className="flex items-center justify-end gap-1 px-[6px] py-[6px]">
         {zoom > 1 && (
           <span
@@ -184,8 +171,7 @@ function WaveformCanvas({
           disabled={zoom <= 1}
           className="w-5 h-5 flex items-center justify-center rounded-sm text-[10px] font-mono transition-colors border"
           style={{
-            color:
-              zoom <= 1 ? "rgba(255,255,255,0.15)" : ACCENT_A,
+            color: zoom <= 1 ? "rgba(255,255,255,0.15)" : ACCENT_A,
             borderColor:
               zoom <= 1
                 ? "rgba(255,255,255,0.06)"
@@ -210,7 +196,6 @@ function WaveformCanvas({
           +
         </button>
       </div>
-      {/* Waveform canvas */}
       <canvas
         ref={canvasRef}
         className="w-full rounded-sm"
@@ -223,7 +208,6 @@ function WaveformCanvas({
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
       />
-      {/* View scrubber when zoomed */}
       {zoom > 1 && (
         <div
           className="mt-0.5 h-0.5 w-full rounded-full"
@@ -251,6 +235,8 @@ function Slider({
   max,
   step,
   format,
+  valueWidthClass = "w-9",
+  labelClassName = "text-[9px] font-mono tracking-wider text-white/30 uppercase w-12 shrink-0",
   onChange,
 }: {
   label: string;
@@ -259,13 +245,13 @@ function Slider({
   max: number;
   step: number;
   format: (v: number) => string;
+  valueWidthClass?: string;
+  labelClassName?: string;
   onChange: (v: number) => void;
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[9px] font-mono tracking-wider text-white/30 uppercase w-12 shrink-0">
-        {label}
-      </span>
+      <span className={labelClassName}>{label}</span>
       <input
         type="range"
         min={min}
@@ -281,7 +267,9 @@ function Slider({
           } as React.CSSProperties
         }
       />
-      <span className="text-[9px] font-mono text-white/40 w-9 text-right tabular-nums shrink-0">
+      <span
+        className={`text-[9px] font-mono text-white/40 text-right tabular-nums shrink-0 ${valueWidthClass}`}
+      >
         {format(value)}
       </span>
     </div>
@@ -291,14 +279,12 @@ function Slider({
 export function SampleInspector({
   pad,
   dispatch,
-  getAudioCtx,
+  ensureAudioCtx,
   onRecord,
-  onLoadYoutube,
 }: SampleInspectorProps) {
   const { isRecording, startRecording, stopRecording } =
     useGridRecorder();
-  const [ytInput, setYtInput] = useState("");
-  const [ytError, setYtError] = useState("");
+  const [micError, setMicError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!pad) {
@@ -316,31 +302,21 @@ export function SampleInspector({
     );
   }
 
-  const isYt = pad.source.type === "youtube";
-  const ytSource =
-    pad.source.type === "youtube" ? pad.source : null;
-
-  function handleRecord() {
-    const audioCtx = getAudioCtx();
-    if (!audioCtx) return;
-    if (isRecording) {
-      stopRecording(audioCtx).then((buf) => {
-        if (buf) onRecord(pad!.id, buf);
-      });
-    } else {
-      startRecording();
-    }
-  }
-
-  function handleYtSubmit() {
-    setYtError("");
-    const id = parseYouTubeVideoId(ytInput.trim());
-    if (!id) {
-      setYtError("Invalid YouTube URL");
+  async function handleRecord() {
+    setMicError("");
+    const audioCtx = await ensureAudioCtx();
+    if (!audioCtx) {
+      setMicError("Audio unavailable");
       return;
     }
-    onLoadYoutube(pad.id, id);
-    setYtInput("");
+    if (isRecording) {
+      const buf = stopRecording(audioCtx);
+      if (buf && buf.duration > 0.05) onRecord(pad!.id, buf);
+      else setMicError("Nothing recorded");
+    } else {
+      const ok = await startRecording(audioCtx);
+      if (!ok) setMicError("Mic permission denied");
+    }
   }
 
   function handleFileClick() {
@@ -349,20 +325,14 @@ export function SampleInspector({
 
   return (
     <div className="h-full flex flex-col gap-3 overflow-y-auto">
-      {/* Header */}
       <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
           <div
             className="w-1.5 h-1.5 rounded-full"
-            style={{ background: isYt ? "#FF0000" : ACCENT_A }}
+            style={{ background: ACCENT_A }}
           />
           <span className="text-[9px] font-mono tracking-widest uppercase text-white/40">
-            {isYt
-              ? "YouTube Pad"
-              : pad.buffer
-                ? "Audio Pad"
-                : "Empty Pad"}{" "}
-            · {pad.id + 1}
+            {pad.buffer ? "Audio Pad" : "Empty Pad"} · {pad.id + 1}
           </span>
         </div>
         <button
@@ -375,8 +345,7 @@ export function SampleInspector({
         </button>
       </div>
 
-      {/* Waveform (audio pads only) */}
-      {pad.buffer && !isYt && (
+      {pad.buffer && (
         <div className="flex-shrink-0 rounded-sm overflow-hidden bg-black/20">
           <WaveformCanvas
             buffer={pad.buffer}
@@ -386,32 +355,6 @@ export function SampleInspector({
         </div>
       )}
 
-      {/* YouTube thumbnail + info */}
-      {isYt && ytSource && (
-        <div className="flex-shrink-0 rounded-sm overflow-hidden bg-black/30 relative">
-          <img
-            src={`https://img.youtube.com/vi/${ytSource.videoId}/mqdefault.jpg`}
-            alt="YouTube thumbnail"
-            className="w-full object-cover opacity-60"
-            style={{ height: "72px" }}
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <svg
-              className="w-8 h-8 opacity-80"
-              viewBox="0 0 24 24"
-              fill="#FF0000"
-            >
-              <path d="M23.5 6.2a3.01 3.01 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3.01 3.01 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3.01 3.01 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3.01 3.01 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8z" />
-              <polygon
-                points="9.6,15.6 15.8,12 9.6,8.4"
-                fill="white"
-              />
-            </svg>
-          </div>
-        </div>
-      )}
-
-      {/* Source section */}
       <div className="flex-shrink-0 space-y-2">
         <div className="flex items-center gap-2">
           <div className="flex-1 h-px bg-white/8" />
@@ -421,7 +364,6 @@ export function SampleInspector({
           <div className="flex-1 h-px bg-white/8" />
         </div>
 
-        {/* Load audio file */}
         <div className="flex gap-1.5">
           <button
             onClick={handleFileClick}
@@ -430,7 +372,7 @@ export function SampleInspector({
             Load file
           </button>
           <button
-            onClick={handleRecord}
+            onClick={() => void handleRecord()}
             className="flex-1 py-1.5 text-[9px] font-mono tracking-wider rounded-sm border transition-all duration-150"
             style={
               isRecording
@@ -445,9 +387,14 @@ export function SampleInspector({
                   }
             }
           >
-            {isRecording ? "● Stop" : "Rec"}
+            {isRecording ? "● Stop" : "Record mic"}
           </button>
         </div>
+        {micError && (
+          <p className="text-[8px] font-mono text-red-400/70">
+            {micError}
+          </p>
+        )}
         <input
           ref={fileInputRef}
           type="file"
@@ -464,111 +411,63 @@ export function SampleInspector({
             e.target.value = "";
           }}
         />
-
-        {/* YouTube URL */}
-        <div className="space-y-1">
-          <div className="flex gap-1">
-            <input
-              type="text"
-              placeholder="YouTube URL or ID"
-              value={ytInput}
-              onChange={(e) => setYtInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleYtSubmit();
-              }}
-              className="flex-1 text-[9px] font-mono text-white/60 bg-white/5 border border-white/10 rounded-sm px-2 py-1.5 focus:outline-none focus:border-white/25 placeholder:text-white/20"
-            />
-            <button
-              onClick={handleYtSubmit}
-              className="px-2 py-1 text-[9px] font-mono rounded-sm border border-white/10 hover:border-white/20 text-white/40 hover:text-white/70 transition-colors"
-            >
-              Add
-            </button>
-          </div>
-          {ytError && (
-            <p className="text-[8px] font-mono text-red-400/70">
-              {ytError}
-            </p>
-          )}
-        </div>
-
-        {/* Cue time for YouTube pads */}
-        {isYt && ytSource && (
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] font-mono text-white/30 uppercase tracking-wider w-12 shrink-0">
-              Cue
-            </span>
-            <input
-              type="number"
-              min={0}
-              step={0.1}
-              value={ytSource.cueTime}
-              onChange={(e) =>
-                dispatch({
-                  type: "UPDATE_YT_CUE",
-                  padId: pad.id,
-                  cueTime: Math.max(0, Number(e.target.value)),
-                })
-              }
-              className="w-16 text-[9px] font-mono text-white/60 bg-white/5 border border-white/10 rounded-sm px-2 py-1 focus:outline-none focus:border-white/25"
-            />
-            <span className="text-[9px] font-mono text-white/25">
-              s
-            </span>
-          </div>
-        )}
       </div>
 
-      {/* Audio controls (audio pads only) */}
-      {!isYt && (
-        <div className="flex-shrink-0 space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-px bg-white/8" />
-            <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">
-              Edit
-            </span>
-            <div className="flex-1 h-px bg-white/8" />
-          </div>
+      <div className="flex-shrink-0 space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-px bg-white/8" />
+          <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">
+            Edit
+          </span>
+          <div className="flex-1 h-px bg-white/8" />
+        </div>
 
+        <Slider
+          label="Start"
+          value={pad.trimStart}
+          min={0}
+          max={pad.trimEnd - 0.01}
+          step={0.001}
+          format={(v) => `${Math.round(v * 100)}%`}
+          onChange={(v) =>
+            dispatch({
+              type: "UPDATE_PAD_PARAM",
+              padId: pad.id,
+              param: "trimStart",
+              value: v,
+            })
+          }
+        />
+        <Slider
+          label="End"
+          value={pad.trimEnd}
+          min={pad.trimStart + 0.01}
+          max={1}
+          step={0.001}
+          format={(v) => `${Math.round(v * 100)}%`}
+          onChange={(v) =>
+            dispatch({
+              type: "UPDATE_PAD_PARAM",
+              padId: pad.id,
+              param: "trimEnd",
+              value: v,
+            })
+          }
+        />
+        <div className="space-y-0.5">
           <Slider
-            label="Start"
-            value={pad.trimStart}
-            min={0}
-            max={pad.trimEnd - 0.01}
-            step={0.001}
-            format={(v) => `${Math.round(v * 100)}%`}
-            onChange={(v) =>
-              dispatch({
-                type: "UPDATE_PAD_PARAM",
-                padId: pad.id,
-                param: "trimStart",
-                value: v,
-              })
-            }
-          />
-          <Slider
-            label="End"
-            value={pad.trimEnd}
-            min={pad.trimStart + 0.01}
-            max={1}
-            step={0.001}
-            format={(v) => `${Math.round(v * 100)}%`}
-            onChange={(v) =>
-              dispatch({
-                type: "UPDATE_PAD_PARAM",
-                padId: pad.id,
-                param: "trimEnd",
-                value: v,
-              })
-            }
-          />
-          <Slider
-            label="Speed"
+            label={`${pad.speed.toFixed(2)}×`}
+            labelClassName="text-[9px] font-mono text-white/40 tabular-nums w-12 shrink-0"
             value={pad.speed}
             min={0.25}
             max={4}
             step={0.01}
-            format={(v) => `${v.toFixed(2)}×`}
+            valueWidthClass="w-10"
+            format={(v) =>
+              pad.detectedBpm
+                ? `${Math.round(pad.detectedBpm * v)}bpm`
+                : "—"
+            }
             onChange={(v) =>
               dispatch({
                 type: "UPDATE_PAD_PARAM",
@@ -578,94 +477,98 @@ export function SampleInspector({
               })
             }
           />
-          <Slider
-            label="Gain"
-            value={pad.gain}
-            min={0}
-            max={1}
-            step={0.01}
-            format={(v) => `${Math.round(v * 100)}%`}
-            onChange={(v) =>
-              dispatch({
-                type: "UPDATE_PAD_PARAM",
-                padId: pad.id,
-                param: "gain",
-                value: v,
-              })
-            }
-          />
-          <Slider
-            label="Drive"
-            value={pad.drive}
-            min={0}
-            max={1}
-            step={0.01}
-            format={(v) =>
-              v === 0 ? "off" : `${Math.round(v * 100)}%`
-            }
-            onChange={(v) =>
-              dispatch({
-                type: "UPDATE_PAD_PARAM",
-                padId: pad.id,
-                param: "drive",
-                value: v,
-              })
-            }
-          />
-
-          {/* Reverse + Loop toggles */}
-          <div className="flex gap-1.5">
-            <button
-              onClick={() =>
-                dispatch({
-                  type: "SET_REVERSE",
-                  padId: pad.id,
-                  reverse: !pad.reverse,
-                })
-              }
-              className="flex-1 py-1.5 text-[9px] font-mono tracking-wider rounded-sm border transition-all duration-150"
-              style={
-                pad.reverse
-                  ? {
-                      color: ACCENT_B,
-                      borderColor: `${ACCENT_B}60`,
-                      background: `${ACCENT_B}18`,
-                    }
-                  : {
-                      color: "rgba(255,255,255,0.35)",
-                      borderColor: "rgba(255,255,255,0.10)",
-                    }
-              }
-            >
-              {pad.reverse ? "⟵ Rev" : "Reverse"}
-            </button>
-            <button
-              onClick={() =>
-                dispatch({
-                  type: "SET_LOOP",
-                  padId: pad.id,
-                  loop: !pad.loop,
-                })
-              }
-              className="flex-1 py-1.5 text-[9px] font-mono tracking-wider rounded-sm border transition-all duration-150"
-              style={
-                pad.loop
-                  ? {
-                      color: ACCENT_A,
-                      borderColor: `${ACCENT_A}60`,
-                      background: `${ACCENT_A}18`,
-                    }
-                  : {
-                      color: "rgba(255,255,255,0.35)",
-                      borderColor: "rgba(255,255,255,0.10)",
-                    }
-              }
-            >
-              {pad.loop ? "↻ Loop" : "Loop"}
-            </button>
-          </div>
+          {pad.detectedBpm != null && Math.abs(pad.speed - 1) > 0.005 && (
+            <p className="text-[8px] font-mono text-white/25 text-right pr-0.5">
+              {pad.detectedBpm} bpm at 1×
+            </p>
+          )}
         </div>
-      )}
+        <Slider
+          label="Gain"
+          value={pad.gain}
+          min={0}
+          max={1}
+          step={0.01}
+          format={(v) => `${Math.round(v * 100)}%`}
+          onChange={(v) =>
+            dispatch({
+              type: "UPDATE_PAD_PARAM",
+              padId: pad.id,
+              param: "gain",
+              value: v,
+            })
+          }
+        />
+        <Slider
+          label="Drive"
+          value={pad.drive}
+          min={0}
+          max={1}
+          step={0.01}
+          format={(v) =>
+            v === 0 ? "off" : `${Math.round(v * 100)}%`
+          }
+          onChange={(v) =>
+            dispatch({
+              type: "UPDATE_PAD_PARAM",
+              padId: pad.id,
+              param: "drive",
+              value: v,
+            })
+          }
+        />
+
+        <div className="flex gap-1.5">
+          <button
+            onClick={() =>
+              dispatch({
+                type: "SET_REVERSE",
+                padId: pad.id,
+                reverse: !pad.reverse,
+              })
+            }
+            className="flex-1 py-1.5 text-[9px] font-mono tracking-wider rounded-sm border transition-all duration-150"
+            style={
+              pad.reverse
+                ? {
+                    color: ACCENT_B,
+                    borderColor: `${ACCENT_B}60`,
+                    background: `${ACCENT_B}18`,
+                  }
+                : {
+                    color: "rgba(255,255,255,0.35)",
+                    borderColor: "rgba(255,255,255,0.10)",
+                  }
+            }
+          >
+            {pad.reverse ? "⟵ Rev" : "Reverse"}
+          </button>
+          <button
+            onClick={() =>
+              dispatch({
+                type: "SET_LOOP",
+                padId: pad.id,
+                loop: !pad.loop,
+              })
+            }
+            className="flex-1 py-1.5 text-[9px] font-mono tracking-wider rounded-sm border transition-all duration-150"
+            style={
+              pad.loop
+                ? {
+                    color: ACCENT_A,
+                    borderColor: `${ACCENT_A}60`,
+                    background: `${ACCENT_A}18`,
+                  }
+                : {
+                    color: "rgba(255,255,255,0.35)",
+                    borderColor: "rgba(255,255,255,0.10)",
+                  }
+            }
+          >
+            {pad.loop ? "↻ Loop" : "Loop"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
