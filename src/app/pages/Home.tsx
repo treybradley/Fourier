@@ -12,8 +12,8 @@ const TOOLS = [
       "Load up to 4 audio stems and mix them live. Optional hand control for volume and pitch; keys 1–4 jump to cues.",
     features: [
       "4-track stem mixer",
-      "Optional hand control",
       "Cue points (keys 1–4)",
+      "Optional hand control",
     ],
     status: "available" as const,
     accentA: "#0059CE",
@@ -39,28 +39,9 @@ const TOOLS = [
     tagColor: "text-[#6ee7d0]/80",
   },
   {
-    id: "gato",
-    slug: "gato",
-    index: "04",
-    name: "GATO CAT (SYNTH)",
-    tagline: "Concatenative synthesis explorer",
-    description:
-      "Upload any audio and scatter its grains across a 2D feature space. Navigate the corpus to trigger grains in real time.",
-    features: [
-      "Corpus analysis",
-      "6 audio features",
-      "Hand-tracked",
-    ],
-    status: "available" as const,
-    // Papaya: #AD1888 → #FF6100
-    accentA: "#AD1888",
-    accentB: "#FF6100",
-    tagColor: "text-[#f472b6]/80",
-  },
-  {
     id: "grid",
     slug: "grid",
-    index: "05",
+    index: "03",
     name: "GRID",
     tagline: "Sampler & Sequencer",
     description:
@@ -72,9 +53,27 @@ const TOOLS = [
     tagColor: "text-[#62FF00]/80",
   },
   {
+    id: "stem-separator",
+    slug: "stem-separator",
+    index: "04",
+    name: "STEM SEPARATOR",
+    tagline: "Open source separation",
+    description:
+      "Drop any track and isolate vocals, drums, bass, and other instruments — fully in the browser.",
+    features: [
+      "4-stem separation",
+      "Runs locally",
+      "WAV export",
+    ],
+    status: "available" as const,
+    accentA: "#FFA100",
+    accentB: "#97FC61",
+    tagColor: "text-[#fbbf24]/80",
+  },
+  {
     id: "arc",
     slug: "arc",
-    index: "06",
+    index: "05",
     name: "ARC",
     tagline: "Music planning workspace",
     description:
@@ -90,22 +89,23 @@ const TOOLS = [
     tagColor: "text-[#009DFF]/80",
   },
   {
-    id: "stem-separator",
-    slug: "stem-separator",
-    index: "03",
-    name: "STEM SEPARATOR",
-    tagline: "Open source separation",
+    id: "gato",
+    slug: "gato",
+    index: "06",
+    name: "GATO CAT (SYNTH)",
+    tagline: "Concatenative synthesis explorer",
     description:
-      "Drop any track and isolate vocals, drums, bass, and other instruments — fully in the browser.",
+      "Upload any audio and scatter its grains across a 2D feature space. Navigate the corpus to trigger grains in real time.",
     features: [
-      "4-stem separation",
-      "Runs locally",
-      "WAV export",
+      "Corpus analysis",
+      "6 audio features",
+      "Hand-tracked",
     ],
     status: "available" as const,
-    accentA: "#FFA100",
-    accentB: "#97FC61",
-    tagColor: "text-[#fbbf24]/80",
+    // Papaya: #AD1888 → #FF6100
+    accentA: "#AD1888",
+    accentB: "#FF6100",
+    tagColor: "text-[#f472b6]/80",
   },
 ];
 
