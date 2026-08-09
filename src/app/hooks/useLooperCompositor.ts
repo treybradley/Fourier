@@ -5,7 +5,7 @@ import {
   EXPORT_WIDTH,
   IG_SAFE,
   TRACK_WAVE_COLORS,
-} from "../components/looper/exportAspect";
+} from "../utils/exportFormat";
 
 const WAVE_CACHE_BARS = 64;
 

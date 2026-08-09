@@ -63,6 +63,41 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 /**
+ * Encode an AudioBuffer as a 16-bit PCM WAV blob
+ */
+export function audioBufferToWav(buffer: AudioBuffer): Blob {
+  const nCh = buffer.numberOfChannels;
+  const nSamples = buffer.length;
+  const sr = buffer.sampleRate;
+  const bps = 2;
+  const dataSize = nSamples * nCh * bps;
+  const ab = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(ab);
+
+  const str = (off: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i));
+  };
+  str(0, "RIFF"); view.setUint32(4, 36 + dataSize, true);
+  str(8, "WAVE"); str(12, "fmt ");
+  view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+  view.setUint16(22, nCh, true); view.setUint32(24, sr, true);
+  view.setUint32(28, sr * nCh * bps, true); view.setUint16(32, nCh * bps, true);
+  view.setUint16(34, 16, true); str(36, "data"); view.setUint32(40, dataSize, true);
+
+  const channels: Float32Array[] = [];
+  for (let c = 0; c < nCh; c++) channels.push(buffer.getChannelData(c));
+  let off = 44;
+  for (let i = 0; i < nSamples; i++) {
+    for (let c = 0; c < nCh; c++) {
+      const s = Math.max(-1, Math.min(1, channels[c][i]));
+      view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+      off += 2;
+    }
+  }
+  return new Blob([ab], { type: "audio/wav" });
+}
+
+/**
  * Map a value from one range to another
  */
 export function mapRange(

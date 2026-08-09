@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { EXPORT_HEIGHT, EXPORT_WIDTH } from "./exportAspect";
+import { EXPORT_HEIGHT, EXPORT_WIDTH } from "../../utils/exportFormat";
 
 interface LooperCameraProps {
   videoRef: React.Ref<HTMLVideoElement>;
@@ -8,13 +8,7 @@ interface LooperCameraProps {
   error: string | null;
   onStart: () => void;
   onStop: () => void;
-  isCapturing: boolean;
-  captureBlob: Blob | null;
-  format: "mp4" | "webm";
-  onStartCapture: () => void;
-  onStopCapture: () => void;
-  onDownload: () => void;
-  canCapture: boolean;
+  isCapturing?: boolean;
 }
 
 export function LooperCamera({
@@ -25,12 +19,6 @@ export function LooperCamera({
   onStart,
   onStop,
   isCapturing,
-  captureBlob,
-  format,
-  onStartCapture,
-  onStopCapture,
-  onDownload,
-  canCapture,
 }: LooperCameraProps) {
   const aspectRatio = `${EXPORT_WIDTH} / ${EXPORT_HEIGHT}`;
 
@@ -67,7 +55,8 @@ export function LooperCamera({
                   Record video
                 </p>
                 <p className="text-white/40 text-[9px] font-mono max-w-[14rem]">
-                  Capture and share your loops
+                  Capture 9:16 video, or record the session as WAV with the
+                  camera off
                 </p>
               </div>
 
@@ -93,67 +82,28 @@ export function LooperCamera({
           )}
 
           {started && !error && (
-            <>
-              <div className="absolute top-2 right-2 z-10">
-                <motion.button
-                  type="button"
-                  onClick={onStop}
-                  className="flex items-center gap-1.5 bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/10 hover:border-white/20 text-white/40 hover:text-white/70 text-[9px] font-mono rounded-sm px-2 py-1 transition-colors"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  off
-                </motion.button>
-              </div>
+            <div className="absolute top-2 right-2 z-10">
+              <motion.button
+                type="button"
+                onClick={onStop}
+                className="flex items-center gap-1.5 bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/10 hover:border-white/20 text-white/40 hover:text-white/70 text-[9px] font-mono rounded-sm px-2 py-1 transition-colors"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                off
+              </motion.button>
+            </div>
+          )}
 
-              <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center gap-2">
-                {!isCapturing ? (
-                  <motion.button
-                    type="button"
-                    disabled={!canCapture}
-                    onClick={onStartCapture}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-black/55 hover:bg-black/70 disabled:opacity-35 disabled:cursor-not-allowed backdrop-blur-sm border border-white/12 text-white/70 hover:text-white/90 text-[9px] font-mono tracking-wider uppercase rounded-sm px-2 py-1.5 transition-colors"
-                    whileHover={canCapture ? { scale: 1.02 } : undefined}
-                    whileTap={canCapture ? { scale: 0.98 } : undefined}
-                    title={
-                      canCapture
-                        ? "Record vertical video + loops + mic"
-                        : "Enable mic and camera first"
-                    }
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400/80" />
-                    Rec session
-                  </motion.button>
-                ) : (
-                  <motion.button
-                    type="button"
-                    onClick={onStopCapture}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm border border-red-400/40 text-red-200/90 text-[9px] font-mono tracking-wider uppercase rounded-sm px-2 py-1.5 transition-colors"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
-                    Stop
-                  </motion.button>
-                )}
-
-                {captureBlob && !isCapturing && (
-                  <motion.button
-                    type="button"
-                    onClick={onDownload}
-                    className="flex items-center justify-center bg-black/55 hover:bg-black/70 backdrop-blur-sm border border-white/12 text-white/70 hover:text-white/90 text-[9px] font-mono tracking-wider uppercase rounded-sm px-2.5 py-1.5 transition-colors"
-                    initial={{ opacity: 0, x: 6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Save .{format}
-                  </motion.button>
-                )}
-              </div>
-            </>
+          {isCapturing && (
+            <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm border border-red-400/30 rounded-sm px-2 py-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+              <span className="text-red-200/90 text-[9px] font-mono tracking-wider uppercase">
+                Rec
+              </span>
+            </div>
           )}
         </div>
       </div>

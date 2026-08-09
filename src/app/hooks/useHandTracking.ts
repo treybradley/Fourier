@@ -9,11 +9,13 @@ const RING_TIP = 16;
 const PINKY_TIP = 20;
 const MIDDLE_MCP = 9;
 
-// Zones in landmark normalized space. Display is mirrored: displayX = (1 - lm.x) * w
-// Pitch zone: far right edge of mirrored display (low lm.x), display cols 82-98%
-export const PITCH_ZONE = { xMin: 0.02, xMax: 0.18, yMin: 0.12, yMax: 0.78 };
-// Volume zone: far left edge of mirrored display (high lm.x), display cols 2-18%
-export const VOLUME_ZONE = { xMin: 0.82, xMax: 0.98, yMin: 0.12, yMax: 0.78 };
+/**
+ * Control bands, in *visible frame* space (0-1 of what the composited frame
+ * shows, already mirrored like the selfie view). Stacked near the bottom with
+ * a tight gap; each maps left→right for the continuous control.
+ */
+export const PITCH_BAND = { xMin: 0.06, xMax: 0.94, yMin: 0.72, yMax: 0.825 };
+export const VOLUME_BAND = { xMin: 0.06, xMax: 0.94, yMin: 0.84, yMax: 0.945 };
 
 export interface HandLandmark {
   x: number;
@@ -30,10 +32,13 @@ export interface ProcessedHand {
   thumbTip: HandLandmark;
   indexTip: HandLandmark;
   wrist: HandLandmark;
+  /** Pinch midpoint in visible-frame space, mirrored to match the on-screen view. */
+  pinchFrameX: number;
+  pinchFrameY: number;
   isPinchInPitchZone: boolean;
-  pitchZoneNormalizedY: number; // 0=top(high pitch), 1=bottom(low pitch)
+  pitchZoneNormalizedX: number; // 0=left(low pitch), 1=right(high pitch)
   isPinchInVolumeZone: boolean;
-  volumeZoneNormalizedY: number; // 0=top(loud), 1=bottom(quiet)
+  volumeZoneNormalizedX: number; // 0=left(quiet), 1=right(loud)
 }
 
 export interface HandTrackingState {
@@ -45,7 +50,6 @@ export interface HandTrackingState {
 
 export interface UseHandTrackingReturn extends HandTrackingState {
   videoRef: React.RefObject<HTMLVideoElement>;
-  overlayCanvasRef: React.RefObject<HTMLCanvasElement>;
   start: () => void;
   stop: () => void;
   started: boolean;
@@ -57,7 +61,43 @@ function dist(a: HandLandmark, b: HandLandmark, width: number, height: number): 
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-function processHand(landmarks: HandLandmark[], videoWidth: number, videoHeight: number): ProcessedHand {
+/**
+ * Map a landmark into the frame the user actually sees: object-cover crop of the
+ * camera into `frameAspect`, then mirrored horizontally. Values outside 0-1 are
+ * off-frame. Pass no aspect for the camera's own framing.
+ */
+export function toFrameSpace(
+  lm: { x: number; y: number },
+  videoWidth: number,
+  videoHeight: number,
+  frameAspect?: number,
+): { x: number; y: number } {
+  const videoAspect = videoWidth / videoHeight;
+  const target = frameAspect ?? videoAspect;
+  const visibleW = target < videoAspect ? target / videoAspect : 1;
+  const visibleH = target < videoAspect ? 1 : videoAspect / target;
+  const cropX = (1 - visibleW) / 2;
+  const cropY = (1 - visibleH) / 2;
+  return {
+    x: 1 - (lm.x - cropX) / visibleW,
+    y: (lm.y - cropY) / visibleH,
+  };
+}
+
+function inBand(band: typeof PITCH_BAND, x: number, y: number): boolean {
+  return x >= band.xMin && x <= band.xMax && y >= band.yMin && y <= band.yMax;
+}
+
+function bandProgress(band: typeof PITCH_BAND, x: number): number {
+  return Math.max(0, Math.min(1, (x - band.xMin) / (band.xMax - band.xMin)));
+}
+
+function processHand(
+  landmarks: HandLandmark[],
+  videoWidth: number,
+  videoHeight: number,
+  frameAspect?: number,
+): ProcessedHand {
   const thumbTip = landmarks[THUMB_TIP];
   const indexTip = landmarks[INDEX_TIP];
   const middleTip = landmarks[MIDDLE_TIP];
@@ -75,41 +115,36 @@ function processHand(landmarks: HandLandmark[], videoWidth: number, videoHeight:
   const fingersExtended = extended.length;
   const isOpen = fingersExtended >= 3;
 
-  // Zone detection: midpoint of thumb + index tips
-  const pinchMidX = (thumbTip.x + indexTip.x) / 2;
-  const pinchMidY = (thumbTip.y + indexTip.y) / 2;
-
-  const isPinchInPitchZone =
-    pinchMidX >= PITCH_ZONE.xMin && pinchMidX <= PITCH_ZONE.xMax &&
-    pinchMidY >= PITCH_ZONE.yMin && pinchMidY <= PITCH_ZONE.yMax;
-  const pitchZoneNormalizedY = Math.max(0, Math.min(1,
-    (pinchMidY - PITCH_ZONE.yMin) / (PITCH_ZONE.yMax - PITCH_ZONE.yMin)
-  ));
-
-  const isPinchInVolumeZone =
-    pinchMidX >= VOLUME_ZONE.xMin && pinchMidX <= VOLUME_ZONE.xMax &&
-    pinchMidY >= VOLUME_ZONE.yMin && pinchMidY <= VOLUME_ZONE.yMax;
-  const volumeZoneNormalizedY = Math.max(0, Math.min(1,
-    (pinchMidY - VOLUME_ZONE.yMin) / (VOLUME_ZONE.yMax - VOLUME_ZONE.yMin)
-  ));
+  // Band detection uses the midpoint of thumb + index tips
+  const pinch = toFrameSpace(
+    { x: (thumbTip.x + indexTip.x) / 2, y: (thumbTip.y + indexTip.y) / 2 },
+    videoWidth,
+    videoHeight,
+    frameAspect,
+  );
 
   return {
     landmarks, pinchDistance, isPinching, fingersExtended, isOpen,
     thumbTip, indexTip, wrist: landmarks[WRIST],
-    isPinchInPitchZone, pitchZoneNormalizedY,
-    isPinchInVolumeZone, volumeZoneNormalizedY,
+    pinchFrameX: pinch.x,
+    pinchFrameY: pinch.y,
+    isPinchInPitchZone: inBand(PITCH_BAND, pinch.x, pinch.y),
+    pitchZoneNormalizedX: bandProgress(PITCH_BAND, pinch.x),
+    isPinchInVolumeZone: inBand(VOLUME_BAND, pinch.x, pinch.y),
+    volumeZoneNormalizedX: bandProgress(VOLUME_BAND, pinch.x),
   };
 }
 
 function classifyHands(
   detections: { landmarks: HandLandmark[]; handedness: string }[],
   videoWidth: number,
-  videoHeight: number
+  videoHeight: number,
+  frameAspect?: number,
 ): { left: ProcessedHand | null; right: ProcessedHand | null } {
   let left: ProcessedHand | null = null;
   let right: ProcessedHand | null = null;
   for (const det of detections) {
-    const processed = processHand(det.landmarks, videoWidth, videoHeight);
+    const processed = processHand(det.landmarks, videoWidth, videoHeight, frameAspect);
     // Use MediaPipe's handedness (person's Left/Right), not image geometry —
     // the old index-vs-wrist heuristic swapped hands on selfie cameras.
     const label = det.handedness.toLowerCase();
@@ -121,20 +156,16 @@ function classifyHands(
 
 export function useHandTracking(
   externalVideoRef?: React.RefObject<HTMLVideoElement>,
-  {
-    showPitchZone = false,
-    showLeftHand = true,
-    solidRightHand = false,
-  } = {}
+  /** Aspect (w/h) of the frame the user sees, so bands land where they're drawn. */
+  { frameAspect }: { frameAspect?: number } = {},
 ): UseHandTrackingReturn {
   const ownVideoRef = useRef<HTMLVideoElement>(null!);
   const videoRef = externalVideoRef ?? ownVideoRef;
-  const overlayCanvasRef = useRef<HTMLCanvasElement>(null!);
   const rafRef = useRef<number>();
   const handLandmarkerRef = useRef<unknown>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const optionsRef = useRef({ showPitchZone, showLeftHand, solidRightHand });
-  optionsRef.current = { showPitchZone, showLeftHand, solidRightHand };
+  const frameAspectRef = useRef(frameAspect);
+  frameAspectRef.current = frameAspect;
   const [started, setStarted] = useState(false);
 
   const [state, setState] = useState<HandTrackingState>({
@@ -151,154 +182,6 @@ export function useHandTracking(
     handLandmarkerRef.current = null;
     setStarted(false);
     setState({ leftHand: null, rightHand: null, isReady: false, error: null });
-    const canvas = overlayCanvasRef.current;
-    if (canvas) canvas.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
-  }, []);
-
-  const drawOverlay = useCallback((
-    canvas: HTMLCanvasElement,
-    video: HTMLVideoElement,
-    left: ProcessedHand | null,
-    right: ProcessedHand | null
-  ) => {
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const { showPitchZone: zones, showLeftHand, solidRightHand } =
-      optionsRef.current;
-
-    const displayW = canvas.clientWidth || canvas.offsetWidth;
-    const displayH = canvas.clientHeight || canvas.offsetHeight;
-    if (displayW <= 0 || displayH <= 0) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const bufW = Math.round(displayW * dpr);
-    const bufH = Math.round(displayH * dpr);
-    if (canvas.width !== bufW || canvas.height !== bufH) {
-      canvas.width = bufW;
-      canvas.height = bufH;
-    }
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, displayW, displayH);
-
-    const vw = video.videoWidth || displayW;
-    const vh = video.videoHeight || displayH;
-    // Match video `object-cover` so landmarks and circles aren't CSS-stretched
-    const scale = Math.max(displayW / vw, displayH / vh);
-    const drawnW = vw * scale;
-    const drawnH = vh * scale;
-    const offsetX = (displayW - drawnW) / 2;
-    const offsetY = (displayH - drawnH) / 2;
-
-    function toPixel(lm: HandLandmark) {
-      return {
-        x: offsetX + (1 - lm.x) * drawnW,
-        y: offsetY + lm.y * drawnH,
-      };
-    }
-
-    function drawDot(x: number, y: number, radius: number) {
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function drawYellowHand(hand: ProcessedHand) {
-      const thumb = toPixel(hand.thumbTip);
-      const index = toPixel(hand.indexTip);
-      const dotAlpha = solidRightHand ? 1 : hand.isPinching ? 0.9 : 0.6;
-      const lineAlpha = solidRightHand ? 1 : hand.isPinching ? 0.9 : 0.4;
-      ctx.fillStyle = `rgba(255,220,0,${dotAlpha})`;
-      drawDot(thumb.x, thumb.y, 6);
-      drawDot(index.x, index.y, 6);
-      ctx.strokeStyle = `rgba(255,220,0,${lineAlpha})`;
-      ctx.lineWidth = 2;
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(thumb.x, thumb.y);
-      ctx.lineTo(index.x, index.y);
-      ctx.stroke();
-    }
-
-    // ── Gesture zones (stem collage only) ────────────────────
-    if (zones) {
-      function drawZone(
-        zone: typeof PITCH_ZONE,
-        active: boolean,
-        normalizedY: number | null,
-        label: string,
-        colorActive: string,
-        colorInactive: string,
-      ) {
-        const zX = offsetX + (1 - zone.xMax) * drawnW;
-        const zW = (zone.xMax - zone.xMin) * drawnW;
-        const zY = offsetY + zone.yMin * drawnH;
-        const zH = (zone.yMax - zone.yMin) * drawnH;
-
-        ctx.save();
-        ctx.fillStyle = active ? colorActive.replace("COLOR", "0.07") : "rgba(255,255,255,0.025)";
-        ctx.fillRect(zX, zY, zW, zH);
-        ctx.strokeStyle = active ? colorActive.replace("COLOR", "0.65") : colorInactive;
-        ctx.lineWidth = active ? 1.5 : 1;
-        ctx.setLineDash([5, 4]);
-        ctx.strokeRect(zX, zY, zW, zH);
-        ctx.setLineDash([]);
-        ctx.fillStyle = active ? colorActive.replace("COLOR", "0.75") : "rgba(255,255,255,0.22)";
-        ctx.font = "bold 9px monospace";
-        ctx.fillText(label, zX + 6, zY + 13);
-        ctx.font = "10px monospace";
-        ctx.fillText("↕", zX + zW / 2 - 4, zY + 22);
-        if (active && normalizedY !== null) {
-          const tickY = zY + normalizedY * zH;
-          ctx.strokeStyle = colorActive.replace("COLOR", "0.85");
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(zX + 4, tickY);
-          ctx.lineTo(zX + zW - 4, tickY);
-          ctx.stroke();
-        }
-        ctx.restore();
-      }
-
-      const pitchActive = !!(right?.isPinching && right?.isPinchInPitchZone);
-      drawZone(
-        PITCH_ZONE, pitchActive,
-        pitchActive && right ? right.pitchZoneNormalizedY : null,
-        "PITCH",
-        "rgba(251,191,36,COLOR)", "rgba(255,255,255,0.18)",
-      );
-
-      const volActive = !!(left?.isPinching && left?.isPinchInVolumeZone);
-      drawZone(
-        VOLUME_ZONE, volActive,
-        volActive && left ? left.volumeZoneNormalizedY : null,
-        "VOL",
-        "rgba(251,113,133,COLOR)", "rgba(255,255,255,0.18)",
-      );
-    }
-
-    if (!showLeftHand) {
-      // Loop Station: yellow overlay on the person's right hand only — no left fallback
-      if (right) drawYellowHand(right);
-      return;
-    }
-
-    if (right) drawYellowHand(right);
-
-    if (left) {
-      const thumb = toPixel(left.thumbTip);
-      const index = toPixel(left.indexTip);
-      ctx.fillStyle = left.isPinching ? "rgba(255,60,60,0.9)" : "rgba(255,60,60,0.6)";
-      drawDot(thumb.x, thumb.y, 6);
-      drawDot(index.x, index.y, 6);
-      ctx.strokeStyle = "rgba(255,60,60,0.7)";
-      ctx.lineWidth = 2;
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(thumb.x, thumb.y);
-      ctx.lineTo(index.x, index.y);
-      ctx.stroke();
-    }
   }, []);
 
   useEffect(() => {
@@ -368,12 +251,11 @@ export function useHandTracking(
 
           const vw = video.videoWidth || 640;
           const vh = video.videoHeight || 480;
-          const { left, right } = classifyHands(detections, vw, vh);
+          const { left, right } = classifyHands(
+            detections, vw, vh, frameAspectRef.current,
+          );
 
           setState({ leftHand: left, rightHand: right, isReady: true, error: null });
-
-          const canvas = overlayCanvasRef.current;
-          if (canvas) drawOverlay(canvas, video, left, right);
 
           rafRef.current = requestAnimationFrame(detect);
         };
@@ -396,7 +278,7 @@ export function useHandTracking(
       streamRef.current = null;
       (handLandmarkerRef.current as { close?: () => void } | null)?.close?.();
     };
-  }, [started, drawOverlay, externalVideoRef, videoRef]);
+  }, [started, externalVideoRef, videoRef]);
 
-  return { ...state, videoRef, overlayCanvasRef, start, stop, started };
+  return { ...state, videoRef, start, stop, started };
 }

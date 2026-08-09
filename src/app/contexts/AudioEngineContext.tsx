@@ -22,7 +22,7 @@ export interface StemState {
   detectedBpm: number | null;
 }
 
-interface AudioEngineContextValue {
+export interface AudioEngineContextValue {
   stems: StemState[];
   isAnyPlaying: boolean;
 
@@ -50,6 +50,10 @@ interface AudioEngineContextValue {
   removeMarker: (stemIndex: number, markerIndex: number) => void;
   seekToMarker: (stemIndex: number, markerIndex: number) => void;
 
+  // Capture taps — every stem is summed into the master bus
+  getAudioContext: () => AudioContext;
+  getMasterNode: () => GainNode | null;
+
   // State
   isLoading: boolean;
   error: string | null;
@@ -74,6 +78,7 @@ interface SourceNodeRef {
 
 export function AudioEngineProvider({ children }: { children: React.ReactNode }) {
   const audioContextRef = useRef<AudioContext | null>(null);
+  const masterGainRef = useRef<GainNode | null>(null);
   const sourceNodesRef = useRef<SourceNodeRef[]>([
     { source: null, gainNode: null, startTime: 0, startOffset: 0 },
     { source: null, gainNode: null, startTime: 0, startOffset: 0 },
@@ -150,13 +155,21 @@ export function AudioEngineProvider({ children }: { children: React.ReactNode })
 
   const isAnyPlaying = stems.some((stem) => stem.isPlaying);
 
-  // Initialize AudioContext lazily
+  // Initialize AudioContext (and its master bus) lazily
   const getAudioContext = () => {
     if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContext();
+      const ctx = new AudioContext();
+      const master = ctx.createGain();
+      master.gain.value = 1;
+      master.connect(ctx.destination);
+      audioContextRef.current = ctx;
+      masterGainRef.current = master;
     }
     return audioContextRef.current;
   };
+
+  // Null until an AudioContext exists so callers can't spin one up during render
+  const getMasterNode = () => masterGainRef.current;
 
   // Load audio file
   const loadFile = async (stemIndex: number, file: File) => {
@@ -259,14 +272,15 @@ export function AudioEngineProvider({ children }: { children: React.ReactNode })
 
     gainNode.gain.value = effectiveVolume;
 
-    // Connect: source -> gain -> analyser -> destination
+    // Connect: source -> gain -> analyser -> master -> destination
+    const master = masterGainRef.current ?? audioContext.destination;
     source.connect(gainNode);
 
     if (stem.analyserNode) {
       gainNode.connect(stem.analyserNode);
-      stem.analyserNode.connect(audioContext.destination);
+      stem.analyserNode.connect(master);
     } else {
-      gainNode.connect(audioContext.destination);
+      gainNode.connect(master);
     }
 
     // Handle playback end
@@ -524,12 +538,13 @@ export function AudioEngineProvider({ children }: { children: React.ReactNode })
         gainNode.gain.value = effectiveVolume;
 
         // Connect audio graph
+        const master = masterGainRef.current ?? audioContext.destination;
         source.connect(gainNode);
         if (stem.analyserNode) {
           gainNode.connect(stem.analyserNode);
-          stem.analyserNode.connect(audioContext.destination);
+          stem.analyserNode.connect(master);
         } else {
-          gainNode.connect(audioContext.destination);
+          gainNode.connect(master);
         }
 
         // Handle playback end
@@ -661,6 +676,7 @@ export function AudioEngineProvider({ children }: { children: React.ReactNode })
   useEffect(() => {
     return () => {
       stopAll();
+      masterGainRef.current = null;
       if (audioContextRef.current) {
         audioContextRef.current.close();
       }
@@ -686,6 +702,8 @@ export function AudioEngineProvider({ children }: { children: React.ReactNode })
     addMarker,
     removeMarker,
     seekToMarker,
+    getAudioContext,
+    getMasterNode,
     isLoading,
     error,
   };

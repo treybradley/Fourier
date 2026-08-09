@@ -9,7 +9,7 @@ import {
 import { LoopTrack } from "../components/looper/LoopTrack";
 import { LooperCamera } from "../components/looper/LooperCamera";
 import { useCamera } from "../hooks/useCamera";
-import { useLooperRecorder } from "../hooks/useLooperRecorder";
+import { useSessionRecorder } from "../hooks/useSessionRecorder";
 import { useLooperCompositor } from "../hooks/useLooperCompositor";
 
 function LooperInner() {
@@ -44,34 +44,49 @@ function LooperInner() {
     active: started && !cameraError,
   });
 
+  const cameraLive = started && !cameraError;
+  const getVideoStream = useCallback(
+    () => (cameraLive ? getCanvasStream() : null),
+    [cameraLive, getCanvasStream],
+  );
+  const getExtraAudioNodes = useCallback(
+    () => [getMicSourceNode()],
+    [getMicSourceNode],
+  );
+
   const {
     isCapturing,
+    isFinalizing,
     captureBlob,
     format,
+    hasVideo,
     startCapture,
     stopCapture,
     download,
-  } = useLooperRecorder(
-    getMasterNode,
+  } = useSessionRecorder({
     getAudioContext,
-    getMicSourceNode,
-    getCanvasStream,
-  );
+    getMasterNode,
+    getVideoStream,
+    getExtraAudioNodes,
+    fileBaseName: "loop-session",
+  });
 
   const start = useCallback(async () => {
     await startCamera();
   }, [startCamera]);
 
+  // Turning the camera off mid-video-capture ends the take rather than
+  // silently switching to audio (the video track would freeze).
   const stop = useCallback(() => {
-    if (isCapturing) stopCapture();
+    if (isCapturing && hasVideo) stopCapture();
     stopCamera();
-  }, [isCapturing, stopCapture, stopCamera]);
+  }, [isCapturing, hasVideo, stopCapture, stopCamera]);
 
   const selectedStatus = tracks[selectedTrack]?.status;
   const isRecording =
     selectedStatus === "recording" ||
     selectedStatus === "overdubbing";
-  const canCapture = started && isListening && !!getMasterNode();
+  const canCapture = isListening && !!getMasterNode();
 
   return (
     <div
@@ -162,29 +177,82 @@ function LooperInner() {
         <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
           {/* Left: controls + camera */}
           <div className="flex-shrink-0 lg:w-90 flex flex-col gap-3 min-h-0">
-            {/* Mic toggle */}
-            <motion.button
-              className={`
-                flex items-center justify-center gap-2 py-3 rounded-sm border font-mono text-xs tracking-widest uppercase transition-all flex-shrink-0
-                ${
-                  isListening
-                    ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300/80 hover:bg-emerald-500/20"
-                    : "bg-white/5 border-white/15 text-white/50 hover:bg-white/8 hover:border-white/25"
+            {/* Mic + session record */}
+            <div className="flex items-stretch gap-2 flex-shrink-0">
+              <motion.button
+                className={`
+                  flex-1 min-w-0 flex items-center justify-center gap-2 py-3 rounded-sm border font-mono text-xs tracking-widest uppercase transition-all
+                  ${
+                    isListening
+                      ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300/80 hover:bg-emerald-500/20"
+                      : "bg-white/5 border-white/15 text-white/50 hover:bg-white/8 hover:border-white/25"
+                  }
+                `}
+                onClick={() =>
+                  isListening ? stopListening() : startListening()
                 }
-              `}
-              onClick={() =>
-                isListening ? stopListening() : startListening()
-              }
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {isListening ? (
-                <Mic className="w-3.5 h-3.5" />
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {isListening ? (
+                  <Mic className="w-3.5 h-3.5" />
+                ) : (
+                  <MicOff className="w-3.5 h-3.5" />
+                )}
+                {isListening ? "Mic on" : "Enable mic"}
+              </motion.button>
+
+              {!isCapturing ? (
+                <motion.button
+                  type="button"
+                  disabled={!canCapture || isFinalizing}
+                  onClick={() => void startCapture()}
+                  className="flex-1 min-w-0 flex items-center justify-center gap-1.5 py-3 rounded-sm border font-mono text-xs tracking-widest uppercase transition-all disabled:opacity-35 disabled:cursor-not-allowed bg-white/5 border-white/15 text-white/50 hover:bg-white/8 hover:border-white/25 hover:text-white/80"
+                  whileHover={canCapture ? { scale: 1.02 } : undefined}
+                  whileTap={canCapture ? { scale: 0.98 } : undefined}
+                  title={
+                    !canCapture
+                      ? "Enable mic first"
+                      : started && !cameraError
+                        ? "Record 9:16 video + loops + mic"
+                        : "Record loops + mic as WAV (enable camera for video)"
+                  }
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400/85" />
+                  {isFinalizing
+                    ? "…"
+                    : started && !cameraError
+                      ? "Rec · 9:16"
+                      : "Rec · wav"}
+                </motion.button>
               ) : (
-                <MicOff className="w-3.5 h-3.5" />
+                <motion.button
+                  type="button"
+                  onClick={() => void stopCapture()}
+                  className="flex-1 min-w-0 flex items-center justify-center gap-1.5 py-3 rounded-sm border font-mono text-xs tracking-widest uppercase transition-all bg-red-500/20 border-red-400/40 text-red-200/90 hover:bg-red-500/30"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                  Stop
+                </motion.button>
               )}
-              {isListening ? "Mic on" : "Enable mic"}
-            </motion.button>
+
+              {captureBlob && !isCapturing && (
+                <motion.button
+                  type="button"
+                  onClick={download}
+                  className="flex items-center justify-center px-2.5 py-3 rounded-sm border font-mono text-[10px] tracking-wider uppercase transition-all bg-white/5 border-white/15 text-white/55 hover:bg-white/8 hover:border-white/25 hover:text-white/80"
+                  initial={{ opacity: 0, x: 6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  title={`Save .${format}`}
+                >
+                  Save
+                </motion.button>
+              )}
+            </div>
 
             {audioError && (
               <p className="text-red-400/70 text-[10px] font-mono text-center flex-shrink-0">
@@ -228,12 +296,6 @@ function LooperInner() {
                 onStart={start}
                 onStop={stop}
                 isCapturing={isCapturing}
-                captureBlob={captureBlob}
-                format={format}
-                onStartCapture={startCapture}
-                onStopCapture={stopCapture}
-                onDownload={download}
-                canCapture={canCapture}
               />
             </div>
           </div>

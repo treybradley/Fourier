@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { WebcamFeed } from "../components/WebcamFeed";
 import { StemVisualizer } from "../components/StemVisualizer";
@@ -6,6 +6,9 @@ import { AudioEngineProvider } from "../contexts/AudioEngineContext";
 import { useAudioEngine } from "../contexts/AudioEngineContext";
 import { useHandTracking } from "../hooks/useHandTracking";
 import { useGestureController } from "../hooks/useGestureController";
+import { useStemCompositor } from "../hooks/useStemCompositor";
+import { useSessionRecorder } from "../hooks/useSessionRecorder";
+import { EXPORT_ASPECT } from "../utils/exportFormat";
 import {
   Tooltip,
   TooltipContent,
@@ -20,9 +23,9 @@ function StemCollageInner() {
   const [selectedStem, setSelectedStem] = useState(0);
   const [handControl, setHandControl] = useState(false);
   const audioEngine = useAudioEngine();
+
   const {
     videoRef,
-    overlayCanvasRef,
     isReady,
     started,
     start,
@@ -30,7 +33,18 @@ function StemCollageInner() {
     error,
     leftHand,
     rightHand,
-  } = useHandTracking(undefined, { showPitchZone: true });
+  } = useHandTracking(undefined, { frameAspect: EXPORT_ASPECT });
+
+  const cameraLive = handControl && started && !error;
+
+  const { canvasRef, getCanvasStream } = useStemCompositor({
+    videoRef,
+    stems: audioEngine.stems,
+    selectedStem,
+    leftHand,
+    rightHand,
+    active: cameraLive,
+  });
 
   useGestureController({
     leftHand,
@@ -38,7 +52,26 @@ function StemCollageInner() {
     selectedStem,
     setSelectedStem,
     audioEngine,
-    enabled: handControl && started,
+    enabled: cameraLive,
+  });
+
+  const getVideoStream = useCallback(
+    () => (cameraLive ? getCanvasStream() : null),
+    [cameraLive, getCanvasStream],
+  );
+
+  const {
+    isCapturing,
+    isFinalizing,
+    format,
+    hasVideo,
+    startCapture,
+    stopCapture,
+  } = useSessionRecorder({
+    getAudioContext: audioEngine.getAudioContext,
+    getMasterNode: audioEngine.getMasterNode,
+    getVideoStream,
+    fileBaseName: "stem-collage-session",
   });
 
   // Keys 1–4 → jump to cue markers on the selected stem
@@ -64,18 +97,74 @@ function StemCollageInner() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [audioEngine, selectedStem]);
 
+  function downloadBlob(blob: Blob, ext: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `stem-collage-session.${ext}`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
+  async function toggleRecord() {
+    if (isCapturing) {
+      const blob = await stopCapture();
+      if (blob) {
+        const ext = blob.type.includes("wav")
+          ? "wav"
+          : blob.type.includes("mp4")
+            ? "mp4"
+            : format;
+        downloadBlob(blob, ext);
+      }
+      return;
+    }
+    // Ensure master bus exists before arming
+    audioEngine.getAudioContext();
+    await startCapture();
+  }
+
+  async function exitHandControl() {
+    if (isCapturing && hasVideo) {
+      const blob = await stopCapture();
+      if (blob) {
+        const ext = blob.type.includes("wav")
+          ? "wav"
+          : blob.type.includes("mp4")
+            ? "mp4"
+            : format;
+        downloadBlob(blob, ext);
+      }
+    }
+    stop();
+    setHandControl(false);
+  }
+
   function toggleHandControl() {
     if (handControl) {
-      stop();
-      setHandControl(false);
+      void exitHandControl();
     } else {
       setHandControl(true);
     }
   }
 
-  function handleStopCamera() {
+  async function handleStopCamera() {
+    if (isCapturing && hasVideo) {
+      const blob = await stopCapture();
+      if (blob) {
+        const ext = blob.type.includes("wav")
+          ? "wav"
+          : blob.type.includes("mp4")
+            ? "mp4"
+            : format;
+        downloadBlob(blob, ext);
+      }
+    }
     stop();
   }
+
+  const videoMode = cameraLive;
+  const canCapture = !isFinalizing;
 
   return (
     <div
@@ -137,21 +226,16 @@ function StemCollageInner() {
 
         <div className="flex-1 flex flex-col lg:flex-row gap-3 min-h-0">
           {handControl && (
-            <div className="flex-1 lg:flex-none lg:w-[60%] min-h-[220px] lg:min-h-0">
+            <div className="flex-1 lg:flex-none lg:w-[32%] xl:w-[30%] min-h-[260px] lg:min-h-0">
               <WebcamFeed
                 videoRef={videoRef}
-                overlayCanvasRef={overlayCanvasRef}
+                canvasRef={canvasRef}
                 isReady={isReady}
                 started={started}
                 error={error}
-                selectedStem={selectedStem}
-                selectedStemBpm={
-                  audioEngine.stems[selectedStem]?.detectedBpm ?? null
-                }
-                leftHand={leftHand}
-                rightHand={rightHand}
+                isCapturing={isCapturing && hasVideo}
                 onStart={start}
-                onStop={handleStopCamera}
+                onStop={() => void handleStopCamera()}
               />
             </div>
           )}
@@ -159,56 +243,111 @@ function StemCollageInner() {
           <div
             className={`min-h-0 flex gap-2 ${
               handControl
-                ? "flex-1 lg:flex-none lg:w-[39%]"
+                ? "flex-1 lg:flex-none lg:w-[66%] xl:w-[68%]"
                 : "flex-1 w-full"
             }`}
           >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={toggleHandControl}
-                  className="shrink-0 self-start w-15 h-15 flex items-center justify-center rounded-sm border transition-all duration-150"
-                  style={
-                    handControl
-                      ? {
-                          borderColor: "rgba(255,100,227,0.55)",
-                          background: "rgba(255,100,227,0.14)",
-                          color: "rgba(255,180,240,0.95)",
-                        }
-                      : {
-                          borderColor: "rgba(255,255,255,0.12)",
-                          color: "rgba(255,255,255,0.45)",
-                        }
-                  }
-                  aria-label={
-                    handControl ? "Exit hand control" : "Hand control"
-                  }
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
+            {/* Rec + Hand control rail */}
+            <div className="shrink-0 self-start flex flex-col gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => void toggleRecord()}
+                    disabled={!canCapture}
+                    className="w-9 h-9 flex items-center justify-center rounded-sm border transition-all duration-150 disabled:opacity-40"
+                    style={
+                      isCapturing
+                        ? {
+                            borderColor: "rgba(248,113,113,0.65)",
+                            background: "rgba(248,113,113,0.18)",
+                            color: "rgba(254,202,202,0.95)",
+                          }
+                        : {
+                            borderColor: "rgba(255,255,255,0.12)",
+                            color: "rgba(255,255,255,0.45)",
+                          }
+                    }
+                    aria-label={
+                      isCapturing
+                        ? "Stop session recording"
+                        : videoMode
+                          ? "Record 9:16 session"
+                          : "Record session audio"
+                    }
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"
-                    />
-                  </svg>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent
-                side="right"
-                sideOffset={8}
-                showArrow={false}
-                className={tipClass}
-              >
-                {handControl ? "Exit hand control" : "Hand control"}
-              </TooltipContent>
-            </Tooltip>
+                    {isFinalizing ? (
+                      <span className="w-3.5 h-3.5 border border-white/30 border-t-white/70 rounded-full animate-spin" />
+                    ) : isCapturing ? (
+                      <span className="w-3 h-3 rounded-[2px] bg-red-400" />
+                    ) : (
+                      <span className="w-3 h-3 rounded-full bg-red-400/85" />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  sideOffset={8}
+                  showArrow={false}
+                  className={tipClass}
+                >
+                  {isCapturing
+                    ? "Stop recording"
+                    : isFinalizing
+                      ? "Saving…"
+                      : videoMode
+                        ? "Record 9:16 video"
+                        : "Record session · WAV"}
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={toggleHandControl}
+                    className="w-9 h-9 flex items-center justify-center rounded-sm border transition-all duration-150"
+                    style={
+                      handControl
+                        ? {
+                            borderColor: "rgba(255,100,227,0.55)",
+                            background: "rgba(255,100,227,0.14)",
+                            color: "rgba(255,180,240,0.95)",
+                          }
+                        : {
+                            borderColor: "rgba(255,255,255,0.12)",
+                            color: "rgba(255,255,255,0.45)",
+                          }
+                    }
+                    aria-label={
+                      handControl ? "Exit hand control" : "Hand control"
+                    }
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"
+                      />
+                    </svg>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  sideOffset={8}
+                  showArrow={false}
+                  className={tipClass}
+                >
+                  {handControl ? "Exit hand control" : "Hand control"}
+                </TooltipContent>
+              </Tooltip>
+            </div>
 
             <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-3 overflow-y-auto p-0">
               {[1, 2, 3, 4].map((num, index) => (
@@ -227,8 +366,8 @@ function StemCollageInner() {
         <p className="flex-shrink-0 text-white/20 text-[8px] font-mono tracking-wider">
           Keys 1–4: jump to cues on selected stem
           {handControl
-            ? " · Pinch / zones: pitch, volume, switch stem, play/pause"
-            : ""}
+            ? " · Pitch / volume bands at bottom · Pinch outside band to switch stem"
+            : " · Rec captures stems as WAV (enable Hand control for 9:16 video)"}
         </p>
       </div>
     </div>

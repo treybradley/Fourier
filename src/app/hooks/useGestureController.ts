@@ -52,12 +52,12 @@ export function useGestureController({
 
     // ── RIGHT HAND ────────────────────────────────────────────────
     if (rightHand) {
-      const { isPinching, isPinchInPitchZone, pitchZoneNormalizedY } = rightHand;
+      const { isPinching, isPinchInPitchZone, pitchZoneNormalizedX } = rightHand;
 
       if (isPinching) {
         if (isPinchInPitchZone) {
-          // Pinch inside pitch zone: Y position controls pitch (top=2.0, bottom=0.5)
-          const rawPitch = 2.0 - pitchZoneNormalizedY * 1.5;
+          // Pinch inside the pitch band: X controls pitch (left=0.5, right=2.0)
+          const rawPitch = 0.5 + pitchZoneNormalizedX * 1.5;
           smoothedPitchRef.current = smoothValue(
             smoothedPitchRef.current,
             rawPitch,
@@ -79,11 +79,12 @@ export function useGestureController({
 
     // ── LEFT HAND ─────────────────────────────────────────────────
     if (leftHand) {
-      const { isPinching, isPinchInVolumeZone, volumeZoneNormalizedY, isOpen } =
+      const { isPinching, isPinchInVolumeZone, volumeZoneNormalizedX, isOpen } =
         leftHand;
 
       if (isPinching && isPinchInVolumeZone) {
-        const rawVolume = 2.0 - volumeZoneNormalizedY * 2.0;
+        // X controls volume (left=silent, right=200%)
+        const rawVolume = volumeZoneNormalizedX * 2.0;
         smoothedVolumeRef.current = smoothValue(
           smoothedVolumeRef.current,
           rawVolume,

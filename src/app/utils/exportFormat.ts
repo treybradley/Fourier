@@ -1,6 +1,7 @@
 /** Fixed social export: 9:16 vertical (IG Reels / TikTok / Shorts). */
 export const EXPORT_WIDTH = 1080;
 export const EXPORT_HEIGHT = 1920;
+export const EXPORT_ASPECT = EXPORT_WIDTH / EXPORT_HEIGHT;
 
 /**
  * Instagram Reels-ish safe margins (approx).
@@ -13,7 +14,7 @@ export const IG_SAFE = {
   side: 0.06,
 } as const;
 
-/** Match LoopTrack waveform colors (purple → blue → green → yellow → red). */
+/** Match LoopTrack / StemVisualizer waveform colors (purple → blue → green → yellow → red). */
 export const TRACK_WAVE_COLORS = [
   "#8b5cf6",
   "#38bdf8",
