@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { Link } from "react-router";
 import { motion } from "motion/react";
 import { Mic, MicOff } from "lucide-react";
 import {
@@ -8,6 +7,7 @@ import {
 } from "../contexts/LooperContext";
 import { LoopTrack } from "../components/looper/LoopTrack";
 import { LooperCamera } from "../components/looper/LooperCamera";
+import { MiniAppHeader } from "../components/MiniAppHeader";
 import { useCamera } from "../hooks/useCamera";
 import { useSessionRecorder } from "../hooks/useSessionRecorder";
 import { useLooperCompositor } from "../hooks/useLooperCompositor";
@@ -114,64 +114,34 @@ function LooperInner() {
       />
       <div className="relative h-full flex flex-col p-4 gap-4">
         {/* Header */}
-        <motion.div
-          className="flex items-center justify-between flex-shrink-0"
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Link
-            to="/"
-            className="text-white/30 hover:text-white/60 text-[10px] font-mono tracking-widest uppercase transition-colors flex items-center gap-1.5"
-          >
-            <svg
-              className="w-3 h-3"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Fourier
-          </Link>
-
-          <div className="text-center">
-            <h1 className="text-sm font-medium text-white/90 tracking-widest uppercase">
-              Loop Station
-            </h1>
-            <p className="text-white/30 text-[10px] font-mono tracking-wider">
-              multi-track looper in the browser
-            </p>
-          </div>
-
-          {/* Master info */}
-          <div className="flex items-center gap-3">
-            {masterBpm && (
-              <div className="text-right">
-                <div className="text-white/70 text-sm font-mono font-medium">
-                  {masterBpm}
+        <MiniAppHeader
+          title="Loop Station"
+          subtitle="multi-track looper"
+          right={
+            <>
+              {masterBpm && (
+                <div className="text-right">
+                  <div className="text-white/70 text-sm font-mono font-medium">
+                    {masterBpm}
+                  </div>
+                  <div className="text-white/25 text-[9px] font-mono tracking-wider">
+                    BPM EST
+                  </div>
                 </div>
-                <div className="text-white/25 text-[9px] font-mono tracking-wider">
-                  BPM EST
+              )}
+              {masterLength && (
+                <div className="text-right">
+                  <div className="text-white/70 text-sm font-mono font-medium">
+                    {masterLength.toFixed(2)}s
+                  </div>
+                  <div className="text-white/25 text-[9px] font-mono tracking-wider">
+                    LOOP LEN
+                  </div>
                 </div>
-              </div>
-            )}
-            {masterLength && (
-              <div className="text-right">
-                <div className="text-white/70 text-sm font-mono font-medium">
-                  {masterLength.toFixed(2)}s
-                </div>
-                <div className="text-white/25 text-[9px] font-mono tracking-wider">
-                  LOOP LEN
-                </div>
-              </div>
-            )}
-          </div>
-        </motion.div>
+              )}
+            </>
+          }
+        />
 
         {/* Main content */}
         <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">

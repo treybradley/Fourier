@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
-import { Link } from "react-router";
 import { ArcApp } from "../components/arc/ArcApp";
+import { MiniAppHeader } from "../components/MiniAppHeader";
 
 export function ArcPage() {
   return (
@@ -29,39 +29,13 @@ export function ArcPage() {
       />
 
       <div className="relative h-full flex flex-col">
-        {/* Header strip */}
-        <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
-          <Link
-            to="/"
-            className="text-white/30 hover:text-white/60 text-[10px] font-mono tracking-widest uppercase transition-colors flex items-center gap-1.5"
-          >
-            <svg
-              className="w-3 h-3"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Fourier
-          </Link>
-
-          <div className="text-center">
-            <h1 className="text-sm font-medium text-white/90 tracking-[0.25em] uppercase">
-              Arc
-            </h1>
-            <p className="text-white/25 text-[9px] font-mono tracking-wider">
-              music planning workspace
-            </p>
-          </div>
-
-          <div className="w-16" />
-        </div>
+        <MiniAppHeader
+          title="Arc"
+          subtitle="music planning workspace"
+          titleClassName="text-white/90 tracking-[0.25em]"
+          subtitleClassName="text-white/25 text-[9px]"
+          className="px-4 py-3"
+        />
 
         {/* App */}
         <motion.div

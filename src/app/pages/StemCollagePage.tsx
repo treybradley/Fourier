@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router";
 import { WebcamFeed } from "../components/WebcamFeed";
 import { StemVisualizer } from "../components/StemVisualizer";
+import { MiniAppHeader } from "../components/MiniAppHeader";
 import { AudioEngineProvider } from "../contexts/AudioEngineContext";
 import { useAudioEngine } from "../contexts/AudioEngineContext";
 import { useHandTracking } from "../hooks/useHandTracking";
@@ -189,40 +189,13 @@ function StemCollageInner() {
         }}
       />
       <div className="relative h-full flex flex-col p-4 gap-4">
-        <motion.div
-          className="flex items-center justify-between flex-shrink-0 gap-3"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Link
-            to="/"
-            className="text-white/30 hover:text-white/60 text-[10px] font-mono tracking-widest uppercase transition-colors flex items-center gap-1.5 shrink-0"
-          >
-            <svg
-              className="w-3 h-3"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Fourier
-          </Link>
-          <div className="text-center min-w-0">
-            <h1 className="text-sm font-medium bg-gradient-to-r from-white/90 to-white/60 bg-clip-text text-transparent tracking-widest uppercase">
-              Stem Collage
-            </h1>
-            <p className="text-white/30 text-[10px] font-mono tracking-wider">
-              multi-stem player
-            </p>
-          </div>
-          <div className="w-16 shrink-0" />
-        </motion.div>
+        <MiniAppHeader
+          title="Stem Collage"
+          subtitle="multi-stem player"
+          titleClassName="bg-gradient-to-r from-white/90 to-white/60 bg-clip-text text-transparent"
+          className="gap-3"
+          yOffset={-20}
+        />
 
         <div className="flex-1 flex flex-col lg:flex-row gap-3 min-h-0">
           {handControl && (

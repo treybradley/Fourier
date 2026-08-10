@@ -78,10 +78,10 @@ export function LoopTrack({ track, isSelected, onSelect }: LoopTrackProps) {
       animate={isActive ? { boxShadow: ["0 0 0px rgba(255,0,0,0)", "0 0 12px rgba(255,80,80,0.15)", "0 0 0px rgba(255,0,0,0)"] } : {}}
       transition={isActive ? { duration: 1, repeat: Infinity } : {}}
     >
-      <div className="flex items-center gap-3 px-4 py-3">
+      <div className="flex items-center gap-1.5 sm:gap-3 px-2 sm:px-4 py-3">
 
         {/* Track number + status */}
-        <div className="flex flex-col items-center gap-1 w-8 flex-shrink-0">
+        <div className="flex flex-col items-center gap-1 w-6 sm:w-8 flex-shrink-0">
           <div
             className={`text-[10px] font-mono font-medium ${
               isSelected ? "text-white/80" : "text-white/30"
@@ -96,8 +96,8 @@ export function LoopTrack({ track, isSelected, onSelect }: LoopTrackProps) {
           />
         </div>
 
-        {/* Waveform / empty area */}
-        <div className="flex-1 min-w-0 h-10 relative">
+        {/* Waveform — desktop only (mobile needs the horizontal room) */}
+        <div className="hidden sm:block flex-1 min-w-0 h-10 relative">
           {hasAudio ? (
             <WaveformDisplay buffer={track.audioBuffer!} status={track.status} trackId={track.id} />
           ) : (
@@ -107,13 +107,16 @@ export function LoopTrack({ track, isSelected, onSelect }: LoopTrackProps) {
           )}
         </div>
 
-        {/* Status label */}
-        <div className={`text-[10px] font-mono tracking-widest w-10 text-right flex-shrink-0 ${STATUS_COLOR[track.status]}`}>
+        {/* Status label — grows on mobile to fill leftover width */}
+        <div
+          className={`text-[10px] font-mono tracking-wider flex-1 min-w-[2.5rem] truncate text-left sm:flex-none sm:w-10 sm:max-w-none sm:text-right flex-shrink-0 ${STATUS_COLOR[track.status]}`}
+          title={STATUS_LABEL[track.status]}
+        >
           {STATUS_LABEL[track.status]}
         </div>
 
-        {/* Duration */}
-        <div className="text-[10px] font-mono text-white/25 w-12 text-right flex-shrink-0">
+        {/* Duration — desktop only */}
+        <div className="hidden sm:block text-[10px] font-mono text-white/25 w-12 text-right flex-shrink-0">
           {hasAudio ? `${track.duration.toFixed(1)}s` : "—"}
         </div>
 
@@ -129,7 +132,7 @@ export function LoopTrack({ track, isSelected, onSelect }: LoopTrackProps) {
             setTrackVolume(track.id, parseFloat(e.target.value));
           }}
           onClick={(e) => e.stopPropagation()}
-          className="w-16 flex-shrink-0 accent-white/60 h-1 cursor-pointer"
+          className="w-14 min-w-[3.5rem] sm:w-16 flex-shrink-0 accent-white/60 h-1 cursor-pointer"
           style={{ accentColor: "rgba(255,255,255,0.5)" }}
         />
 

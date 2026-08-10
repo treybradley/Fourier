@@ -1,6 +1,6 @@
-import { Link } from "react-router";
 import { motion } from "motion/react";
 import { GatoApp } from "../components/gato/GatoApp";
+import { MiniAppHeader } from "../components/MiniAppHeader";
 
 export function GatoPage() {
   return (
@@ -28,29 +28,12 @@ export function GatoPage() {
       />
 
       <div className="relative h-full flex flex-col p-4 gap-4">
-        {/* Header */}
-        <motion.div
-          className="flex items-center justify-between flex-shrink-0"
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Link
-            to="/"
-            className="text-white/30 hover:text-white/60 text-[10px] font-mono tracking-widest uppercase transition-colors flex items-center gap-1.5"
-          >
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Fourier
-          </Link>
-
-          <div className="text-center">
-            <h1 className="text-sm font-medium text-white/90 tracking-widest uppercase">Gato Cat (Synth)</h1>
-            <p className="text-white/30 text-[9px] font-mono tracking-wider">concatenative synthesis explorer</p>
-          </div>
-
-          <div className="w-16" />
-        </motion.div>
+        <MiniAppHeader
+          title="Gato Cat (Synth)"
+          subtitle="concatenative synthesis explorer"
+          subtitleClassName="text-white/30 text-[9px]"
+          yOffset={-12}
+        />
 
         {/* Main app */}
         <motion.div

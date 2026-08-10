@@ -55,8 +55,7 @@ export function LooperCamera({
                   Record video
                 </p>
                 <p className="text-white/40 text-[9px] font-mono max-w-[14rem]">
-                  Capture 9:16 video, or record the session as WAV with the
-                  camera off
+                  Capture 9:16 video to share your loops.
                 </p>
               </div>
 
