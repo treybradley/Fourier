@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { motion } from "motion/react";
 import { Mic, MicOff } from "lucide-react";
 import {
@@ -11,6 +11,7 @@ import { MiniAppHeader } from "../components/MiniAppHeader";
 import { useCamera } from "../hooks/useCamera";
 import { useSessionRecorder } from "../hooks/useSessionRecorder";
 import { useLooperCompositor } from "../hooks/useLooperCompositor";
+import { useLooperTrackPinch } from "../hooks/useLooperTrackPinch";
 
 function LooperInner() {
   const {
@@ -26,6 +27,7 @@ function LooperInner() {
     getAudioContext,
     getMasterNode,
     getMicSourceNode,
+    getLoopPhase,
   } = useLooper();
 
   const {
@@ -36,15 +38,26 @@ function LooperInner() {
     stop: stopCamera,
   } = useCamera();
 
+  const cameraLive = started && !cameraError;
+
+  const { rightHand } = useLooperTrackPinch({
+    videoRef,
+    enabled: cameraLive,
+    trackCount: tracks.length,
+    onCycleTrack: () =>
+      setSelectedTrack((selectedTrack + 1) % tracks.length),
+  });
+
   const { canvasRef, getCanvasStream } = useLooperCompositor({
     videoRef,
     tracks,
+    selectedTrack,
     masterBpm,
     masterLength,
-    active: started && !cameraError,
+    rightHand,
+    getLoopPhase,
+    active: cameraLive,
   });
-
-  const cameraLive = started && !cameraError;
   const getVideoStream = useCallback(
     () => (cameraLive ? getCanvasStream() : null),
     [cameraLive, getCanvasStream],
@@ -238,6 +251,7 @@ function LooperInner() {
               {[
                 { key: "Space", action: "Record / stop" },
                 { key: "Keys 1-5", action: "Select track" },
+                { key: "R pinch", action: "Cycle track (camera)" },
               ].map(({ key, action }) => (
                 <div
                   key={key}

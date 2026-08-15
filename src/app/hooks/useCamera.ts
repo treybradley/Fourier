@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 
 export function useCamera() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -25,6 +25,14 @@ export function useCamera() {
     streamRef.current = null;
     if (videoRef.current) videoRef.current.srcObject = null;
     setStarted(false);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+      if (videoRef.current) videoRef.current.srcObject = null;
+    };
   }, []);
 
   const getVideoTrack = useCallback((): MediaStreamTrack | null => {

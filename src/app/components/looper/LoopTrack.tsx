@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { Square, Play, Trash2, Volume2, VolumeX } from "lucide-react";
 import type { LoopTrack as LoopTrackType, TrackStatus } from "../../contexts/LooperContext";
@@ -260,37 +261,75 @@ function WaveformDisplay({
   status: TrackStatus;
   trackId: number;
 }) {
-  const data = buffer.getChannelData(0);
-  const samples = 80;
-  const blockSize = Math.floor(data.length / samples);
-  const points: number[] = [];
+  const { getLoopPhase } = useLooper();
+  const isActive =
+    status === "playing" || status === "overdubbing" || status === "pending";
+  const [phase, setPhase] = useState(0);
+  const [now, setNow] = useState(0);
 
-  for (let i = 0; i < samples; i++) {
-    let max = 0;
-    for (let j = 0; j < blockSize; j++) {
-      max = Math.max(max, Math.abs(data[i * blockSize + j] ?? 0));
+  const points = useMemo(() => {
+    const data = buffer.getChannelData(0);
+    const samples = 80;
+    const blockSize = Math.max(1, Math.floor(data.length / samples));
+    const next: number[] = [];
+    for (let i = 0; i < samples; i++) {
+      let max = 0;
+      for (let j = 0; j < blockSize; j++) {
+        max = Math.max(max, Math.abs(data[i * blockSize + j] ?? 0));
+      }
+      next.push(0.22 + Math.pow(max, 0.45) * 0.78);
     }
-    points.push(max);
-  }
+    return next;
+  }, [buffer]);
+
+  useEffect(() => {
+    if (!isActive) {
+      setNow(0);
+      return;
+    }
+    let id = 0;
+    const tick = () => {
+      setPhase(getLoopPhase());
+      setNow(performance.now());
+      id = requestAnimationFrame(tick);
+    };
+    id = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(id);
+  }, [isActive, getLoopPhase]);
 
   const COLORS = ["#8b5cf6", "#38bdf8", "#34d399", "#fbbf24", "#fb7185"];
   const color = COLORS[trackId] ?? "#ffffff";
-  const isActive = status === "playing" || status === "overdubbing" || status === "pending";
-  const opacity = status === "pending" ? 0.5 : isActive ? 0.7 : 0.35;
+  const samples = points.length;
 
   return (
     <svg viewBox={`0 0 ${samples} 1`} preserveAspectRatio="none" className="w-full h-full">
-      {points.map((v, i) => (
-        <rect
-          key={i}
-          x={i}
-          y={(1 - v) / 2}
-          width={0.7}
-          height={v}
-          fill={color}
-          opacity={opacity}
-        />
-      ))}
+      {points.map((v, i) => {
+        const currentBar = isActive
+          ? Math.min(samples - 1, Math.floor(phase * samples))
+          : -1;
+        const headPulse =
+          i === currentBar
+            ? 1.15 + 0.45 * Math.abs(Math.sin(now / 140))
+            : 1;
+        const h = Math.max(0.12, v * headPulse);
+        const played = isActive && i / samples <= phase;
+        const opacity = status === "pending"
+          ? played ? 0.5 : 0.38
+          : isActive
+            ? played ? 0.78 : 0.55
+            : 0.4;
+        return (
+          <rect
+            key={i}
+            x={i}
+            y={(1 - h) / 2}
+            width={0.7}
+            height={h}
+            fill={color}
+            opacity={opacity}
+          />
+        );
+      })}
     </svg>
   );
 }

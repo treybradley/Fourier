@@ -1,13 +1,21 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { LoopTrack } from "../contexts/LooperContext";
 import {
+  EXPORT_ASPECT,
   EXPORT_HEIGHT,
   EXPORT_WIDTH,
   IG_SAFE,
   TRACK_WAVE_COLORS,
 } from "../utils/exportFormat";
+import {
+  TRACK_PINCH_ZONE,
+  type LooperPinchHand,
+} from "./useLooperTrackPinch";
+import { toFrameSpace } from "./useHandTracking";
 
 const WAVE_CACHE_BARS = 64;
+const THUMB_TIP = 4;
+const INDEX_TIP = 8;
 
 function peaksFromBuffer(buffer: AudioBuffer, bars = WAVE_CACHE_BARS): number[] {
   const data = buffer.getChannelData(0);
@@ -45,17 +53,81 @@ function drawCoverMirrored(
   ctx.restore();
 }
 
+function roundRectPath(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
+function drawPinchHand(
+  ctx: CanvasRenderingContext2D,
+  hand: LooperPinchHand,
+  video: HTMLVideoElement,
+  cw: number,
+  ch: number,
+  color: string,
+) {
+  const vw = video.videoWidth || 640;
+  const vh = video.videoHeight || 480;
+  const thumb = toFrameSpace(hand.landmarks[THUMB_TIP], vw, vh, EXPORT_ASPECT);
+  const index = toFrameSpace(hand.landmarks[INDEX_TIP], vw, vh, EXPORT_ASPECT);
+  const onFrame = (p: { x: number; y: number }) =>
+    p.x >= -0.05 && p.x <= 1.05 && p.y >= -0.05 && p.y <= 1.05;
+  if (!onFrame(thumb) && !onFrame(index)) return;
+
+  const r = Math.max(10, cw * 0.011);
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = Math.max(2.5, cw * 0.003);
+  ctx.lineCap = "round";
+
+  if (onFrame(thumb) && onFrame(index)) {
+    ctx.beginPath();
+    ctx.moveTo(thumb.x * cw, thumb.y * ch);
+    ctx.lineTo(index.x * cw, index.y * ch);
+    ctx.stroke();
+  }
+  if (onFrame(thumb)) {
+    ctx.beginPath();
+    ctx.arc(thumb.x * cw, thumb.y * ch, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  if (onFrame(index)) {
+    ctx.beginPath();
+    ctx.arc(index.x * cw, index.y * ch, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
 export function useLooperCompositor({
   videoRef,
   tracks,
+  selectedTrack,
   masterBpm,
   masterLength,
+  rightHand,
+  getLoopPhase,
   active,
 }: {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   tracks: LoopTrack[];
+  selectedTrack: number;
   masterBpm: number | null;
   masterLength: number | null;
+  rightHand: LooperPinchHand | null;
+  getLoopPhase: () => number;
   active: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -63,10 +135,16 @@ export function useLooperCompositor({
   const peaksCacheRef = useRef<Map<string, number[]>>(new Map());
   const tracksRef = useRef(tracks);
   tracksRef.current = tracks;
+  const selectedRef = useRef(selectedTrack);
+  selectedRef.current = selectedTrack;
   const bpmRef = useRef(masterBpm);
   bpmRef.current = masterBpm;
   const lengthRef = useRef(masterLength);
   lengthRef.current = masterLength;
+  const handRef = useRef(rightHand);
+  handRef.current = rightHand;
+  const phaseFnRef = useRef(getLoopPhase);
+  phaseFnRef.current = getLoopPhase;
 
   const getCanvasStream = useCallback((fps = 30) => {
     const canvas = canvasRef.current;
@@ -113,36 +191,64 @@ export function useLooperCompositor({
       const topSafe = Math.round(ch * IG_SAFE.top);
       const bottomSafe = Math.round(ch * IG_SAFE.bottom);
 
-      // Soft top gradient behind wordmark
-      const topGrad = ctx.createLinearGradient(0, 0, 0, topSafe + 40);
-      topGrad.addColorStop(0, "rgba(3,8,16,0.7)");
+      const topGrad = ctx.createLinearGradient(0, 0, 0, topSafe + 80);
+      topGrad.addColorStop(0, "rgba(3,8,16,0.72)");
       topGrad.addColorStop(1, "rgba(3,8,16,0)");
       ctx.fillStyle = topGrad;
-      ctx.fillRect(0, 0, cw, topSafe + 40);
+      ctx.fillRect(0, 0, cw, topSafe + 80);
 
       const fontSm = Math.max(22, Math.round(cw * 0.026));
-
-      // Wordmark + BPM on one line (IG top safe zone)
+      const fontMeta = Math.max(18, Math.round(cw * 0.022));
       const bpm = bpmRef.current;
       const loopLen = lengthRef.current;
-      let header = "Fourier · Loop Station";
-      if (bpm) {
-        header += ` · ${bpm} BPM`;
-        if (loopLen) header += ` · ${loopLen.toFixed(2)}s`;
-      }
 
       ctx.fillStyle = "rgba(255,255,255,0.78)";
       ctx.font = `600 ${fontSm}px ui-monospace, SFMono-Regular, Menlo, monospace`;
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
-      ctx.fillText(header, sidePad, topSafe);
+      ctx.fillText("Fourier · Loop Station", sidePad, topSafe);
 
-      // Fixed-height rows (don't shrink as tracks are added), stacked tightly
+      if (bpm) {
+        let meta = `${bpm} BPM`;
+        if (loopLen) meta += ` · ${loopLen.toFixed(2)}s`;
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.font = `500 ${fontMeta}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+        ctx.fillText(meta, sidePad, topSafe + fontSm + 10);
+      }
+
+      const selected = selectedRef.current;
+      const zoneActive = !!(
+        handRef.current?.isPinching && handRef.current.isPinchInZone
+      );
+      const accent = TRACK_WAVE_COLORS[selected % TRACK_WAVE_COLORS.length];
+      const zx = TRACK_PINCH_ZONE.xMin * cw;
+      const zy = TRACK_PINCH_ZONE.yMin * ch;
+      const zw = (TRACK_PINCH_ZONE.xMax - TRACK_PINCH_ZONE.xMin) * cw;
+      const zh = (TRACK_PINCH_ZONE.yMax - TRACK_PINCH_ZONE.yMin) * ch;
+      const zr = Math.max(8, Math.round(cw * 0.01));
+
+      ctx.fillStyle = zoneActive ? `${accent}33` : "rgba(255,255,255,0.08)";
+      ctx.strokeStyle = zoneActive ? `${accent}cc` : "rgba(255,255,255,0.28)";
+      ctx.lineWidth = Math.max(2, cw * 0.002);
+      roundRectPath(ctx, zx, zy, zw, zh, zr);
+      ctx.fill();
+      roundRectPath(ctx, zx, zy, zw, zh, zr);
+      ctx.stroke();
+
+      ctx.fillStyle = zoneActive ? `${accent}ee` : "rgba(255,255,255,0.72)";
+      ctx.font = `600 ${Math.max(20, Math.round(ch * 0.016))}px ui-monospace, Menlo, monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`TRACK ${selected + 1}`, zx + zw / 2, zy + zh / 2 - 14);
+      ctx.fillStyle = "rgba(255,255,255,0.4)";
+      ctx.font = `500 ${Math.max(14, Math.round(ch * 0.011))}px ui-monospace, Menlo, monospace`;
+      ctx.fillText("PINCH TO SWITCH", zx + zw / 2, zy + zh / 2 + 16);
+
       const withAudio = tracksRef.current.filter((t) => t.audioBuffer);
       if (withAudio.length > 0) {
-        const rowH = Math.round(ch * 0.048); // ~92px @ 1920 — same for 1 or 5 tracks
-        const rowGap = 3;
-        const railBottom = ch - bottomSafe;
+        const rowH = Math.round(ch * 0.06);
+        const rowGap = .5;
+        const railBottom = ch - bottomSafe + 10;
         const usedH =
           rowH * withAudio.length + rowGap * Math.max(0, withAudio.length - 1);
 
@@ -169,24 +275,40 @@ export function useLooperCompositor({
             track.status === "overdubbing" ||
             track.status === "pending";
           const color = TRACK_WAVE_COLORS[track.id % TRACK_WAVE_COLORS.length];
-          const baseAlpha = isActive ? 0.9 : 0.35;
+          const baseAlpha = isActive ? 0.95 : 0.45;
 
           const bars = peaks.length;
           const barGap = 1;
           const usableW = cw - sidePad * 2;
           const barW = Math.max(1, (usableW - barGap * (bars - 1)) / bars);
+          const phase = phaseFnRef.current();
+          const currentBar = isActive
+            ? Math.min(bars - 1, Math.floor(phase * bars))
+            : -1;
+          const headPulse = isActive
+            ? 1.15 + 0.45 * Math.abs(Math.sin(performance.now() / 140))
+            : 1;
 
           for (let i = 0; i < bars; i++) {
-            const h = Math.max(2, peaks[i] * rowH);
+            const boosted = 0.22 + Math.pow(peaks[i], 0.45) * 0.78;
+            const h = Math.max(8, boosted * rowH * (i === currentBar ? headPulse : 1));
             const x = sidePad + i * (barW + barGap);
+            const played = isActive && i / bars <= phase;
             ctx.fillStyle = color;
-            ctx.globalAlpha = baseAlpha * (0.45 + peaks[i] * 0.55);
+            ctx.globalAlpha = played
+              ? baseAlpha
+              : baseAlpha * (isActive ? 0.72 : 0.55);
             ctx.fillRect(x, y + rowH - h, barW, h);
           }
           ctx.globalAlpha = 1;
 
           y += rowH + rowGap;
         }
+      }
+
+      const hand = handRef.current;
+      if (hand && video && video.readyState >= 2) {
+        drawPinchHand(ctx, hand, video, cw, ch, "rgba(139,92,246,0.95)");
       }
 
       rafRef.current = requestAnimationFrame(draw);
