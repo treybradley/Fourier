@@ -1,11 +1,27 @@
 import { MiniAppHeader } from "../components/MiniAppHeader";
+import { HarmonizerTrackCard } from "../components/harmonizer/HarmonizerTrackCard";
+import { IntervalGrid } from "../components/harmonizer/IntervalGrid";
 import {
   HarmonizerProvider,
   useHarmonizer,
 } from "../contexts/HarmonizerContext";
 
 function HarmonizerInner() {
-  const { masterLength, isPlaying, play, stop, error } = useHarmonizer();
+  const {
+    tracks,
+    selectedTrack,
+    setSelectedTrack,
+    masterLength,
+    isPlaying,
+    play,
+    stop,
+    error,
+    clearError,
+    toggleVoice,
+    shiftingSemitone,
+  } = useHarmonizer();
+
+  const selected = tracks[selectedTrack];
 
   return (
     <div
@@ -56,14 +72,48 @@ function HarmonizerInner() {
         />
 
         {error && (
-          <div className="font-mono text-[11px] text-red-300/90 border border-red-400/25 bg-red-500/10 px-3 py-2 rounded-sm">
-            {error}
-          </div>
+          <button
+            type="button"
+            onClick={clearError}
+            className="text-left font-mono text-[11px] text-red-300/90 border border-red-400/25 bg-red-500/10 px-3 py-2 rounded-sm"
+          >
+            {error} · dismiss
+          </button>
         )}
 
-        <div className="flex-1 min-h-0 text-white/40 font-mono text-xs">
-          {/* Track list + grid land in Task 7 */}
-          Harmonizer shell
+        <div className="flex-1 flex flex-col lg:flex-row gap-3 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
+            {([0, 1, 2] as const).map((id) => (
+              <HarmonizerTrackCard
+                key={id}
+                trackId={id}
+                selected={selectedTrack === id}
+                onSelect={() => setSelectedTrack(id)}
+              />
+            ))}
+          </div>
+
+          <div className="lg:w-[42%] shrink-0 rounded-sm border border-white/10 bg-white/[0.03] p-3 flex flex-col gap-3 min-h-[180px]">
+            <div className="font-mono text-[10px] tracking-widest uppercase text-white/45">
+              Track {selectedTrack + 1} harmonies
+            </div>
+            {selected?.rootBuffer ? (
+              <IntervalGrid
+                activeSemitones={selected.voices.map((v) => v.semitones)}
+                shiftingSemitone={
+                  shiftingSemitone?.trackId === selectedTrack
+                    ? shiftingSemitone.semitones
+                    : null
+                }
+                onToggle={(s) => void toggleVoice(selectedTrack, s)}
+              />
+            ) : (
+              <p className="font-mono text-[11px] text-white/30 leading-relaxed">
+                Record or upload a root on this track, then stack parallel
+                intervals. Track 1 sets the master loop length.
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
