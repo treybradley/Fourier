@@ -107,6 +107,20 @@ const TOOLS = [
     accentB: "#FF6100",
     tagColor: "text-[#f472b6]/80",
   },
+  {
+    id: "harmonizer",
+    slug: "harmonizer",
+    index: "07",
+    name: "HARMONIZER",
+    tagline: "Parallel interval stacks",
+    description:
+      "Record or upload a vocal take, stack parallel harmonies on a ±12 semitone grid, layer up to 3 tracks, and export audio or 9:16 video.",
+    features: ["3 tracks", "±12 interval grid", "Video or WAV export"],
+    status: "available" as const,
+    accentA: "#FF4D6D",
+    accentB: "#F59E0B",
+    tagColor: "text-[#fb7185]/80",
+  },
 ];
 
 export function Home() {

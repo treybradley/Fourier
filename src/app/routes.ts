@@ -9,6 +9,7 @@ import {
   GatoLoader,
   GridLoader,
   ArcLoader,
+  HarmonizerLoader,
 } from "./components/PageLoader";
 
 const StemCollagePage   = lazy(() => import("./pages/StemCollagePage").then(m => ({ default: m.StemCollagePage })));
@@ -17,6 +18,7 @@ const StemSeparatorPage = lazy(() => import("./pages/StemSeparatorPage").then(m 
 const GatoPage          = lazy(() => import("./pages/GatoPage").then(m => ({ default: m.GatoPage })));
 const GridPage          = lazy(() => import("./pages/GridPage").then(m => ({ default: m.GridPage })));
 const ArcPage           = lazy(() => import("./pages/ArcPage").then(m => ({ default: m.ArcPage })));
+const HarmonizerPage    = lazy(() => import("./pages/HarmonizerPage").then(m => ({ default: m.HarmonizerPage })));
 
 const wrap = (Component: React.ComponentType, Loader: React.ComponentType) => () =>
   createElement(Suspense, { fallback: createElement(Loader) }, createElement(Component));
@@ -33,6 +35,7 @@ export const router = createBrowserRouter([
       { path: "gato",           Component: wrap(GatoPage,          GatoLoader) },
       { path: "grid",           Component: wrap(GridPage,          GridLoader) },
       { path: "arc",            Component: wrap(ArcPage,           ArcLoader) },
+      { path: "harmonizer",     Component: wrap(HarmonizerPage,    HarmonizerLoader) },
     ],
   },
 ]);

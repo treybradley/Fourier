@@ -192,3 +192,21 @@ export function GatoLoader() {
     />
   );
 }
+
+export function HarmonizerLoader() {
+  return (
+    <PageLoader
+      name="Harmonizer"
+      index="07"
+      tagline="Parallel interval stacks"
+      accentA="#FF4D6D"
+      accentB="#F59E0B"
+      background="#0A060C"
+      glows={[
+        "radial-gradient(ellipse 65% 55% at 8% 88%, rgba(255,77,109,0.24) 0%, transparent 68%)",
+        "radial-gradient(ellipse 55% 60% at 92% 12%, rgba(245,158,11,0.18) 0%, transparent 65%)",
+        "radial-gradient(ellipse 40% 40% at 50% 50%, rgba(180,40,60,0.07) 0%, transparent 70%)",
+      ]}
+    />
+  );
+}
