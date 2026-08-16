@@ -4,32 +4,37 @@ import {
   canEnableVoice,
 } from "../../utils/harmonizer/voiceCap";
 
-const INTERVAL_LABELS: Record<number, string> = {
-  [-12]: "−oct",
-  [-11]: "−M7",
-  [-10]: "−m7",
-  [-9]: "−M6",
-  [-8]: "−m6",
-  [-7]: "−P5",
-  [-6]: "−TT",
-  [-5]: "−P4",
-  [-4]: "−M3",
-  [-3]: "−m3",
-  [-2]: "−M2",
-  [-1]: "−m2",
-  1: "+m2",
-  2: "+M2",
-  3: "+m3",
-  4: "+M3",
-  5: "+P4",
-  6: "+TT",
-  7: "+P5",
-  8: "+m6",
-  9: "+M6",
-  10: "+m7",
-  11: "+M7",
-  12: "+oct",
+/** Human-readable names for tooltips (button text uses ±semitones). */
+const INTERVAL_NAMES: Record<number, string> = {
+  [-12]: "octave down",
+  [-11]: "major 7th down",
+  [-10]: "minor 7th down",
+  [-9]: "major 6th down",
+  [-8]: "minor 6th down",
+  [-7]: "perfect 5th down",
+  [-6]: "tritone down",
+  [-5]: "perfect 4th down",
+  [-4]: "major 3rd down",
+  [-3]: "minor 3rd down",
+  [-2]: "major 2nd down",
+  [-1]: "minor 2nd down",
+  1: "minor 2nd up",
+  2: "major 2nd up",
+  3: "minor 3rd up",
+  4: "major 3rd up",
+  5: "perfect 4th up",
+  6: "tritone up",
+  7: "perfect 5th up",
+  8: "minor 6th up",
+  9: "major 6th up",
+  10: "minor 7th up",
+  11: "major 7th up",
+  12: "octave up",
 };
+
+function formatSemitone(s: number): string {
+  return s > 0 ? `+${s}` : `${s}`;
+}
 
 const CELLS: number[] = [];
 for (let s = SEMITONE_MIN; s <= SEMITONE_MAX; s++) {
@@ -56,7 +61,7 @@ export function IntervalGrid({
           Interval grid
         </span>
         <span className="font-mono text-[9px] tracking-wider uppercase text-white/25">
-          Root · dry
+          Semitones · root dry
         </span>
       </div>
       <div className="flex flex-wrap gap-1">
@@ -65,6 +70,7 @@ export function IntervalGrid({
           const atCap = !active && !canEnableVoice(activeSemitones, s);
           const shifting = shiftingSemitone === s;
           const blocked = disabled || atCap;
+          const name = INTERVAL_NAMES[s] ?? formatSemitone(s);
           return (
             <button
               key={s}
@@ -73,10 +79,10 @@ export function IntervalGrid({
               title={
                 atCap && !active
                   ? "Mute a voice first (max 4)"
-                  : `${INTERVAL_LABELS[s] ?? s} (${s > 0 ? "+" : ""}${s})`
+                  : `${formatSemitone(s)} · ${name}`
               }
               onClick={() => onToggle(s)}
-              className="min-w-[2.5rem] px-1.5 py-1.5 rounded-sm border font-mono text-[9px] tracking-wide uppercase transition-colors disabled:opacity-35 disabled:cursor-not-allowed"
+              className="min-w-[2.25rem] px-1.5 py-1.5 rounded-sm border font-mono text-[10px] tracking-wide tabular-nums transition-colors disabled:opacity-35 disabled:cursor-not-allowed"
               style={
                 active
                   ? {
@@ -90,7 +96,7 @@ export function IntervalGrid({
                     }
               }
             >
-              {shifting ? "…" : INTERVAL_LABELS[s] ?? `${s > 0 ? "+" : ""}${s}`}
+              {shifting ? "…" : formatSemitone(s)}
             </button>
           );
         })}

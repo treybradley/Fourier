@@ -53,6 +53,7 @@ export function useHarmonizerCompositor({
   getLoopPhase,
   active,
   preferClip,
+  isPlaying,
 }: {
   cameraVideoRef: React.RefObject<HTMLVideoElement | null>;
   clipVideoRef: React.RefObject<HTMLVideoElement | null>;
@@ -60,6 +61,7 @@ export function useHarmonizerCompositor({
   getLoopPhase: () => number;
   active: boolean;
   preferClip: boolean;
+  isPlaying: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
@@ -69,6 +71,9 @@ export function useHarmonizerCompositor({
   phaseFnRef.current = getLoopPhase;
   const preferClipRef = useRef(preferClip);
   preferClipRef.current = preferClip;
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+  const lastPhaseRef = useRef(0);
 
   const getCanvasStream = useCallback((fps = 30) => {
     const canvas = canvasRef.current;
@@ -114,15 +119,28 @@ export function useHarmonizerCompositor({
 
       if (useClip) {
         const phase = phaseFnRef.current();
-        if (clip.duration && Number.isFinite(clip.duration) && clip.duration > 0) {
-          const target = phase * clip.duration;
-          if (Math.abs(clip.currentTime - target) > 0.12) {
-            try {
-              clip.currentTime = target;
-            } catch {
-              /* ignore seek errors */
+        const dur = clip.duration;
+        if (dur && Number.isFinite(dur) && dur > 0) {
+          const target = phase * dur;
+          const playing = isPlayingRef.current;
+
+          if (!playing) {
+            if (!clip.paused) clip.pause();
+            // Seek handled on transport stop; avoid per-frame currentTime writes
+          } else {
+            if (clip.paused) void clip.play().catch(() => undefined);
+            const wrapped = phase + 0.5 < lastPhaseRef.current;
+            const drift = Math.abs(clip.currentTime - target);
+            // Resync on loop wrap or large drift only
+            if (wrapped || drift > 0.35) {
+              try {
+                clip.currentTime = target;
+              } catch {
+                /* ignore */
+              }
             }
           }
+          lastPhaseRef.current = phase;
         }
         drawCover(ctx, clip, cw, ch, false);
       } else if (cam && cam.readyState >= 2) {

@@ -62,6 +62,7 @@ function HarmonizerInner() {
     getLoopPhase,
     active: mediaActive,
     preferClip,
+    isPlaying,
   });
 
   useEffect(() => {
@@ -70,12 +71,32 @@ function HarmonizerInner() {
     if (track0VideoUrl) {
       el.src = track0VideoUrl;
       el.load();
-      void el.play().catch(() => undefined);
+      el.pause();
+      try {
+        el.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
     } else {
       el.removeAttribute("src");
       el.load();
     }
   }, [track0VideoUrl]);
+
+  useEffect(() => {
+    const el = clipVideoRef.current;
+    if (!el || !track0VideoUrl) return;
+    if (isPlaying) {
+      void el.play().catch(() => undefined);
+    } else {
+      el.pause();
+      try {
+        el.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [isPlaying, track0VideoUrl]);
 
   const stopCamera = useCallback(() => {
     cameraStreamRef.current?.getTracks().forEach((t) => t.stop());
