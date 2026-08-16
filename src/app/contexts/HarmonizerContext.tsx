@@ -176,6 +176,7 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
   const graphsRef = useRef<(TrackGraph | null)[]>([null, null, null]);
   const pitchCacheRef = useRef(new PitchShiftCache());
   const masterSamplesRef = useRef<number | null>(null);
+  const masterDurationRef = useRef<number | null>(null);
 
   const streamRef = useRef<MediaStream | null>(null);
   const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
@@ -245,7 +246,7 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
     masterStartRef.current = 0;
   }, []);
 
-  const buildGraph = useCallback(() => {
+  const buildGraph = useCallback((snapshot?: HarmonizerTrack[]) => {
     const ctx = getCtx();
     const master = masterGainRef.current;
     if (!master) return;
@@ -253,8 +254,9 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
 
     const when = ctx.currentTime + 0.02;
     masterStartRef.current = when;
+    const list = snapshot ?? tracksRef.current;
 
-    tracksRef.current.forEach((track, trackId) => {
+    list.forEach((track, trackId) => {
       if (!track.rootBuffer) return;
 
       const trackGain = ctx.createGain();
@@ -291,7 +293,7 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
     const ctx = getCtx();
     if (ctx.state === "suspended") void ctx.resume();
     if (!tracksRef.current.some((t) => t.rootBuffer)) return;
-    buildGraph();
+    buildGraph(tracksRef.current);
     setIsPlaying(true);
   }, [buildGraph, getCtx]);
 
@@ -300,9 +302,12 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
     setIsPlaying(false);
   }, [stopGraph]);
 
-  const rebuildIfPlaying = useCallback(() => {
-    if (isPlayingRef.current) buildGraph();
-  }, [buildGraph]);
+  const rebuildIfPlaying = useCallback(
+    (snapshot?: HarmonizerTrack[]) => {
+      if (isPlayingRef.current) buildGraph(snapshot ?? tracksRef.current);
+    },
+    [buildGraph],
+  );
 
   const applyGains = useCallback(() => {
     tracksRef.current.forEach((track, i) => {
@@ -329,9 +334,9 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
         if (trackId === 0) {
           if (prev[0].videoUrl) URL.revokeObjectURL(prev[0].videoUrl);
           pitchCacheRef.current.clearAll();
+          masterDurationRef.current = mono.duration;
           masterSamplesRef.current = mono.length;
-          const masterDur = mono.duration;
-          setMasterLength(masterDur);
+          setMasterLength(mono.duration);
 
           next[0] = {
             ...makeEmptyTrack(0),
@@ -345,10 +350,18 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
           for (let i = 1; i < TRACK_COUNT; i++) {
             const t = prev[i];
             if (!t.rootBuffer) {
-              next[i] = { ...makeEmptyTrack(i as 0 | 1 | 2), volume: t.volume, harmonyMix: t.harmonyMix };
+              next[i] = {
+                ...makeEmptyTrack(i as 0 | 1 | 2),
+                volume: t.volume,
+                harmonyMix: t.harmonyMix,
+              };
               continue;
             }
-            const fitted = fitBufferToLength(ctx, t.rootBuffer, mono.length);
+            const targetSamples = Math.max(
+              1,
+              Math.round(mono.duration * t.rootBuffer.sampleRate),
+            );
+            const fitted = fitBufferToLength(ctx, t.rootBuffer, targetSamples);
             next[i] = {
               ...t,
               rootBuffer: fitted,
@@ -357,13 +370,17 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
             };
           }
         } else {
-          const masterSamples = masterSamplesRef.current;
-          if (!masterSamples) {
+          const masterDur = masterDurationRef.current;
+          if (!masterDur || masterDur <= 0) {
             setError("Load Track 1 first to set the master timeline");
             return prev;
           }
           pitchCacheRef.current.clearTrack(trackId);
-          const fitted = fitBufferToLength(ctx, mono, masterSamples);
+          const targetSamples = Math.max(
+            1,
+            Math.round(masterDur * mono.sampleRate),
+          );
+          const fitted = fitBufferToLength(ctx, mono, targetSamples);
           next[trackId] = {
             ...makeEmptyTrack(trackId as 0 | 1 | 2),
             rootBuffer: fitted,
@@ -373,14 +390,16 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
           };
         }
 
+        // Sync ref before any microtask rebuild so the graph sees the new roots
+        tracksRef.current = next;
         return next;
       });
 
       queueMicrotask(() => {
-        if (isPlayingRef.current) buildGraph();
+        rebuildIfPlaying(tracksRef.current);
       });
     },
-    [buildGraph, getCtx],
+    [getCtx, rebuildIfPlaying],
   );
 
   const loadAudioFile = useCallback(
@@ -416,13 +435,23 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
 
   const startMicRecord = useCallback(
     async (trackId: number) => {
-      if (trackId !== 0 && !masterSamplesRef.current) {
+      if (trackId !== 0 && !masterDurationRef.current) {
         setError("Load Track 1 first to set the master timeline");
         return;
       }
       try {
         const ctx = getCtx();
         if (ctx.state === "suspended") await ctx.resume();
+
+        // Layer against Track 1 while capturing additional takes
+        if (
+          trackId !== 0 &&
+          tracksRef.current[0]?.rootBuffer &&
+          !isPlayingRef.current
+        ) {
+          buildGraph(tracksRef.current);
+          setIsPlaying(true);
+        }
 
         let stream: MediaStream;
         try {
@@ -476,7 +505,7 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
         setError(err instanceof Error ? err.message : "Microphone unavailable");
       }
     },
-    [getCtx],
+    [buildGraph, getCtx],
   );
 
   const stopMicRecord = useCallback(async () => {
@@ -524,9 +553,10 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
             ...next[trackId],
             voices: next[trackId].voices.filter((v) => v.semitones !== semitones),
           };
+          tracksRef.current = next;
           return next;
         });
-        queueMicrotask(rebuildIfPlaying);
+        queueMicrotask(() => rebuildIfPlaying(tracksRef.current));
         return;
       }
 
@@ -560,10 +590,11 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
               (a, b) => a.semitones - b.semitones,
             ),
           };
+          tracksRef.current = next;
           return next;
         });
         setError(null);
-        queueMicrotask(rebuildIfPlaying);
+        queueMicrotask(() => rebuildIfPlaying(tracksRef.current));
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Pitch shift failed",
@@ -580,6 +611,7 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
       setTracks((prev) => {
         const next = [...prev];
         next[trackId] = { ...next[trackId], volume };
+        tracksRef.current = next;
         return next;
       });
       queueMicrotask(applyGains);
@@ -592,6 +624,7 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
       setTracks((prev) => {
         const next = [...prev];
         next[trackId] = { ...next[trackId], harmonyMix: mix };
+        tracksRef.current = next;
         return next;
       });
       queueMicrotask(applyGains);
@@ -607,6 +640,7 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
           ...next[trackId],
           isMuted: !next[trackId].isMuted,
         };
+        tracksRef.current = next;
         return next;
       });
       queueMicrotask(applyGains);
@@ -627,14 +661,16 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
         if (trackId === 0) {
           pitchCacheRef.current.clearAll();
           masterSamplesRef.current = null;
+          masterDurationRef.current = null;
           setMasterLength(null);
           for (let i = 1; i < TRACK_COUNT; i++) {
             next[i] = makeEmptyTrack(i as 0 | 1 | 2);
           }
           stop();
         } else {
-          queueMicrotask(rebuildIfPlaying);
+          queueMicrotask(() => rebuildIfPlaying(tracksRef.current));
         }
+        tracksRef.current = next;
         return next;
       });
     },
