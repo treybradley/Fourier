@@ -3,6 +3,7 @@ import { GranularEngine } from "./GranularEngine";
 import { extractGrains, type Grain, type FeatureKey } from "./featureExtraction";
 import { CorpusCanvas } from "./CorpusCanvas";
 import { GatoControls } from "./GatoControls";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 type AppState = "idle" | "analyzing" | "ready";
 
@@ -17,6 +18,7 @@ export function GatoApp() {
   const [overlapFactor, setOverlapFactor] = useState(0.5);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { mono } = useVisualMode();
 
   const engineRef = useRef<GranularEngine | null>(null);
   const bufferRef = useRef<AudioBuffer | null>(null);
@@ -75,7 +77,7 @@ export function GatoApp() {
         {/* Controls — fixed width left panel */}
         <div
           className="w-full lg:w-[330px] shrink-0 lg:h-full rounded-[15px] overflow-hidden"
-          style={{ background: "rgba(0,0,0,0.25)", backdropFilter: "blur(8px)" }}
+          style={{ background: mono ? "rgba(0,0,0,0.04)" : "rgba(0,0,0,0.25)", backdropFilter: "blur(8px)" }}
         >
           <GatoControls
             fileName={fileName}
@@ -96,7 +98,7 @@ export function GatoApp() {
         </div>
 
         {/* Canvas — fills remaining space */}
-        <div className="flex-1 min-w-0 h-64 lg:h-full rounded-[15px] overflow-hidden" style={{ background: "#0D050A" }}>
+        <div className="flex-1 min-w-0 h-64 lg:h-full rounded-[15px] overflow-hidden border border-white/8" style={{ background: mono ? "#f4f4f4" : "#0D050A" }}>
           <CorpusCanvas
             grains={grains}
             xAxis={xAxis}

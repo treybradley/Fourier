@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { useVisualMode } from "../hooks/useVisualMode";
 
 interface PageLoaderProps {
   name: string;
@@ -11,17 +12,20 @@ interface PageLoaderProps {
 }
 
 export function PageLoader({ name, index, tagline, accentA, accentB, background, glows }: PageLoaderProps) {
+  const { mono } = useVisualMode();
+  const a = mono ? "#111111" : accentA;
+  const b = mono ? "#555555" : accentB;
   return (
-    <div className="h-screen w-full overflow-hidden relative flex items-center justify-center" style={{ background }}>
+    <div className="app-page h-screen w-full overflow-hidden relative flex items-center justify-center" style={{ background }}>
       {/* Gradient atmosphere */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-atmosphere pointer-events-none absolute inset-0"
         style={{ background: glows.join(", ") }}
       />
 
       {/* Grain */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-grain pointer-events-none absolute inset-0"
         style={{
           opacity: 0.14,
           mixBlendMode: "screen",
@@ -38,7 +42,7 @@ export function PageLoader({ name, index, tagline, accentA, accentB, background,
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="text-[10px] font-mono tracking-widest"
-          style={{ color: `${accentA}60` }}
+          style={{ color: `${a}60` }}
         >
           {index}
         </motion.div>
@@ -69,11 +73,11 @@ export function PageLoader({ name, index, tagline, accentA, accentB, background,
           animate={{ opacity: 1 }}
           transition={{ delay: 0.18, duration: 0.3 }}
           className="w-32 h-px mt-1 overflow-hidden rounded-full"
-          style={{ background: "rgba(255,255,255,0.08)" }}
+          style={{ background: mono ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.08)" }}
         >
           <motion.div
             className="h-full rounded-full"
-            style={{ background: `linear-gradient(90deg, ${accentA}, ${accentB})` }}
+            style={{ background: `linear-gradient(90deg, ${a}, ${b})` }}
             initial={{ x: "-100%" }}
             animate={{ x: "100%" }}
             transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.1 }}

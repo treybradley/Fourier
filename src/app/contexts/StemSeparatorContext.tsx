@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   separateStems,
   audioBufferToWav,
@@ -287,6 +287,27 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
     stemVolumesRef.current = makeRecord(1);
     mutedStemsRef.current = makeRecord(false);
     setState(INITIAL_STATE);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+      isPlayingRef.current = false;
+      STEM_NAMES.forEach((stem) => {
+        try {
+          sourceNodesRef.current[stem]?.stop();
+        } catch {
+          /* already stopped */
+        }
+        sourceNodesRef.current[stem] = null;
+      });
+      try {
+        audioCtxRef.current?.close();
+      } catch {
+        /* already closed */
+      }
+      audioCtxRef.current = null;
+    };
   }, []);
 
   return (

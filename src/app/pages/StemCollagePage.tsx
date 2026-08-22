@@ -15,6 +15,7 @@ import {
   TooltipTrigger,
 } from "../components/ui/tooltip";
 import { motion } from "motion/react";
+import { useVisualMode } from "../hooks/useVisualMode";
 
 const tipClass =
   "border border-white/10 bg-[#04050F] text-white/70 font-mono text-[9px] tracking-wider uppercase px-2 py-1 rounded-sm shadow-none";
@@ -23,6 +24,7 @@ function StemCollageInner() {
   const [selectedStem, setSelectedStem] = useState(0);
   const [handControl, setHandControl] = useState(false);
   const audioEngine = useAudioEngine();
+  const { mono, ink, inkFg } = useVisualMode();
 
   const {
     videoRef,
@@ -168,11 +170,11 @@ function StemCollageInner() {
 
   return (
     <div
-      className="h-screen w-full overflow-hidden relative"
+      className="app-page h-screen w-full overflow-hidden relative"
       style={{ background: "#04050F" }}
     >
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-atmosphere pointer-events-none absolute inset-0"
         style={{
           background: [
             "radial-gradient(ellipse 65% 55% at 8% 85%, rgba(0,89,206,0.28) 0%, transparent 70%)",
@@ -182,7 +184,7 @@ function StemCollageInner() {
         }}
       />
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
+        className="app-grain pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E")`,
           backgroundSize: "300px 300px",
@@ -237,8 +239,9 @@ function StemCollageInner() {
                             color: "rgba(254,202,202,0.95)",
                           }
                         : {
-                            borderColor: "rgba(255,255,255,0.12)",
-                            color: "rgba(255,255,255,0.45)",
+                            borderColor: ink(0.3),
+                            background: mono ? "rgba(0,0,0,0.06)" : "transparent",
+                            color: inkFg(0.75),
                           }
                     }
                     aria-label={
@@ -283,13 +286,20 @@ function StemCollageInner() {
                     style={
                       handControl
                         ? {
-                            borderColor: "rgba(255,100,227,0.55)",
-                            background: "rgba(255,100,227,0.14)",
-                            color: "rgba(255,180,240,0.95)",
+                            borderColor: mono
+                              ? "rgba(0,0,0,0.55)"
+                              : "rgba(255,100,227,0.55)",
+                            background: mono
+                              ? "rgba(0,0,0,0.12)"
+                              : "rgba(255,100,227,0.14)",
+                            color: mono
+                              ? "rgba(17,17,17,0.95)"
+                              : "rgba(255,180,240,0.95)",
                           }
                         : {
-                            borderColor: "rgba(255,255,255,0.12)",
-                            color: "rgba(255,255,255,0.45)",
+                            borderColor: ink(0.3),
+                            background: mono ? "rgba(0,0,0,0.06)" : "transparent",
+                            color: inkFg(0.75),
                           }
                     }
                     aria-label={
@@ -336,7 +346,7 @@ function StemCollageInner() {
           </div>
         </div>
 
-        <p className="flex-shrink-0 text-white/20 text-[8px] font-mono tracking-wider">
+        <p className="flex-shrink-0 text-white/45 text-[8px] font-mono tracking-wider">
           Keys 1–4: jump to cues on selected stem
           {handControl
             ? " · Pitch / volume bands at bottom · Pinch outside band to switch stem"

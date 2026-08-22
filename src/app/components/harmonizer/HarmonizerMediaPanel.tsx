@@ -1,4 +1,5 @@
 import { EXPORT_HEIGHT, EXPORT_WIDTH } from "../../utils/exportFormat";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 interface HarmonizerMediaPanelProps {
   cameraVideoRef: React.RefObject<HTMLVideoElement | null>;
@@ -17,13 +18,13 @@ export function HarmonizerMediaPanel({
   clipVideoRef,
   canvasRef,
   mode,
-  cameraLive,
   isCapturing,
   onStartCamera,
   onStopCamera,
   error,
 }: HarmonizerMediaPanelProps) {
   const aspectRatio = `${EXPORT_WIDTH} / ${EXPORT_HEIGHT}`;
+  const { mono } = useVisualMode();
 
   return (
     <div className="h-full flex flex-col min-h-0 gap-2">
@@ -51,17 +52,50 @@ export function HarmonizerMediaPanel({
             className="absolute inset-0 w-full h-full object-contain rounded-sm"
           />
           {mode === "idle" && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center px-4">
-              <p className="font-mono text-[10px] tracking-widest uppercase text-white/40">
+            <div
+              className={`absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-4 ${
+                mono ? "bg-white/90" : "bg-black/40"
+              }`}
+            >
+              <p
+                className={`font-mono text-[10px] tracking-widest uppercase ${
+                  mono ? "text-black/80" : "text-white/70"
+                }`}
+              >
                 Preview off
               </p>
-              <p className="font-mono text-[9px] text-white/25 leading-relaxed">
+              <p
+                className={`font-mono text-[9px] leading-relaxed max-w-[14rem] ${
+                  mono ? "text-black/70" : "text-white/50"
+                }`}
+              >
                 Upload a Track 1 video or enable camera for 9:16 export
               </p>
+              <button
+                type="button"
+                onClick={onStartCamera}
+                className={`px-3 py-1.5 rounded-sm border font-mono text-[10px] tracking-widest uppercase transition-colors ${
+                  mono
+                    ? "border-black/35 bg-black hover:bg-black/85"
+                    : "border-white/20 text-white/70 hover:text-white/90 hover:border-white/40"
+                }`}
+                style={mono ? { color: "#ffffff" } : undefined}
+              >
+                Start camera
+              </button>
             </div>
           )}
+          {mode === "camera" && (
+            <button
+              type="button"
+              onClick={onStopCamera}
+              className="absolute top-2 right-2 z-10 px-2 py-1 rounded-sm border border-white/15 bg-black/50 font-mono text-[9px] tracking-widest uppercase text-white/70 hover:text-white"
+            >
+              Stop camera
+            </button>
+          )}
           {isCapturing && (
-            <div className="absolute top-2 right-2 font-mono text-[9px] tracking-widest uppercase text-red-300/90">
+            <div className="absolute top-2 left-2 font-mono text-[9px] tracking-widest uppercase text-red-300/90">
               Rec
             </div>
           )}
@@ -70,16 +104,6 @@ export function HarmonizerMediaPanel({
 
       {error && (
         <p className="font-mono text-[10px] text-red-300/80">{error}</p>
-      )}
-
-      {mode !== "clip" && (
-        <button
-          type="button"
-          onClick={() => (cameraLive ? onStopCamera() : onStartCamera())}
-          className="self-start px-3 py-1.5 rounded-sm border border-white/12 font-mono text-[10px] tracking-widest uppercase text-white/50 hover:text-white/80"
-        >
-          {cameraLive ? "Stop camera" : "Start camera"}
-        </button>
       )}
     </div>
   );

@@ -17,6 +17,7 @@ import {
   decodeAudioFile,
   isValidAudioFile,
 } from "../../utils/audioUtils";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 // ── Reducer ────────────────────────────────────────────────────────────────────
 
@@ -498,6 +499,7 @@ export function GridApp() {
     state.selectedPadId !== null
       ? state.pads[state.selectedPadId]
       : null;
+  const { mono } = useVisualMode();
 
   return (
     <div
@@ -538,8 +540,10 @@ export function GridApp() {
           <div
             className="md:w-72 shrink-0 md:h-full rounded-[12px] overflow-hidden p-3"
             style={{
-              background: "rgba(0,0,0,0.25)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: mono ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.25)",
+              border: mono
+                ? "1px solid rgba(0,0,0,0.21)"
+                : "1px solid rgba(255,255,255,0.06)",
             }}
           >
             <SampleInspector

@@ -4,6 +4,7 @@ import { bridgeId, makeBridge } from "./types";
 import { PlanWorkspace } from "./PlanWorkspace";
 import { StoryWorkspace } from "./StoryWorkspace";
 import { useArcAnalyzer } from "../../hooks/useArcAnalyzer";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 const INITIAL_STATE: ArcState = {
   projectTitle: "Untitled Project (edit)",
@@ -96,6 +97,7 @@ function reducer(state: ArcState, action: ArcAction): ArcState {
 export function ArcApp() {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const { analyzeFile } = useArcAnalyzer();
+  const { mono } = useVisualMode();
 
   const handleFiles = useCallback(
     async (files: FileList | File[]) => {
@@ -170,15 +172,23 @@ export function ArcApp() {
               onClick={() => dispatch({ type: "SET_TAB", tab })}
               className={`px-3 py-1 text-[10px] font-mono tracking-widest uppercase rounded-sm transition-all ${
                 state.activeTab === tab
-                  ? "text-white/90"
+                  ? mono
+                    ? "text-white"
+                    : "text-white/90"
                   : "text-white/30 hover:text-white/55"
               }`}
               style={
                 state.activeTab === tab
-                  ? {
-                      background: "rgba(0,157,255,0.20)",
-                      borderRadius: "2px",
-                    }
+                  ? mono
+                    ? {
+                        background: "#111111",
+                        color: "#ffffff",
+                        borderRadius: "2px",
+                      }
+                    : {
+                        background: "rgba(0,157,255,0.20)",
+                        borderRadius: "2px",
+                      }
                   : {}
               }
             >

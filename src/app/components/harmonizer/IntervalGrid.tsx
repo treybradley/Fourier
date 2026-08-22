@@ -9,6 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 /**
  * Chord-tone / scale-degree shorthand relative to the sung note as root.
@@ -97,6 +98,9 @@ export function IntervalGrid({
   onToggle,
 }: IntervalGridProps) {
   const [mode, setMode] = useState<LabelMode>("degree");
+  const { mono, ink, inkFg } = useVisualMode();
+  const selectedFill = mono ? "#111111" : "rgba(255,77,109,0.2)";
+  const selectedFg = mono ? "#ffffff" : "rgba(255,200,210,0.95)";
 
   return (
     <div className="flex flex-col gap-2">
@@ -116,10 +120,10 @@ export function IntervalGrid({
             style={
               mode === "degree"
                 ? {
-                    background: "rgba(255,77,109,0.2)",
-                    color: "rgba(255,200,210,0.95)",
+                    background: selectedFill,
+                    color: selectedFg,
                   }
-                : { color: "rgba(255,255,255,0.35)" }
+                : { color: inkFg(0.55) }
             }
           >
             Name
@@ -131,10 +135,10 @@ export function IntervalGrid({
             style={
               mode === "semitone"
                 ? {
-                    background: "rgba(255,77,109,0.2)",
-                    color: "rgba(255,200,210,0.95)",
+                    background: selectedFill,
+                    color: selectedFg,
                   }
-                : { color: "rgba(255,255,255,0.35)" }
+                : { color: inkFg(0.55) }
             }
           >
             ±st
@@ -167,13 +171,14 @@ export function IntervalGrid({
                   style={
                     active
                       ? {
-                          borderColor: "rgba(255,77,109,0.65)",
-                          background: "rgba(255,77,109,0.18)",
-                          color: "rgba(255,200,210,0.95)",
+                          borderColor: mono ? "rgba(0,0,0,0.7)" : "rgba(255,77,109,0.65)",
+                          background: mono ? "#111111" : "rgba(255,77,109,0.18)",
+                          color: mono ? "#ffffff" : "rgba(255,200,210,0.95)",
                         }
                       : {
-                          borderColor: "rgba(255,255,255,0.12)",
-                          color: "rgba(255,255,255,0.45)",
+                          borderColor: ink(0.28),
+                          background: mono ? "rgba(0,0,0,0.04)" : "transparent",
+                          color: inkFg(0.78),
                         }
                   }
                 >

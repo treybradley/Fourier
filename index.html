@@ -45,6 +45,17 @@
         height: 100%;
       }
     </style>
+    <script>
+      (function () {
+        try {
+          var m = localStorage.getItem("fourier-visual");
+          document.documentElement.dataset.visual =
+            m === "mono" || m === "color" ? m : "color";
+        } catch (e) {
+          document.documentElement.dataset.visual = "color";
+        }
+      })();
+    </script>
   </head>
 
   <body>

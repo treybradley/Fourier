@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Square, Play, Trash2, Volume2, VolumeX } from "lucide-react";
 import type { LoopTrack as LoopTrackType, TrackStatus } from "../../contexts/LooperContext";
 import { useLooper } from "../../contexts/LooperContext";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 interface LoopTrackProps {
   track: LoopTrackType;
@@ -56,6 +57,7 @@ const TRACK_GLOW = [
 
 export function LoopTrack({ track, isSelected, onSelect }: LoopTrackProps) {
   const { tracks, recordStop, stopTrack, playTrack, clearTrack, clearAll, setTrackVolume, toggleMute } = useLooper();
+  const { mono } = useVisualMode();
 
   // If this is the last track with content, clearing it resets everything (BPM, loop length, etc.)
   const nonEmptyCount = tracks.filter((t) => t.status !== "empty").length;
@@ -70,9 +72,9 @@ export function LoopTrack({ track, isSelected, onSelect }: LoopTrackProps) {
   return (
     <motion.div
       className={`
-        relative rounded-sm border border-white/8 border-l-2 ${TRACK_ACCENT[track.id]}
+        relative rounded-sm border border-white/8 border-l-2 ${mono ? "border-l-black/50" : TRACK_ACCENT[track.id]}
         bg-white/[0.03] backdrop-blur-sm transition-all duration-200
-        ${isSelected ? `shadow-lg ${TRACK_GLOW[track.id]} bg-white/[0.05]` : ""}
+        ${isSelected ? `shadow-lg ${mono ? "shadow-black/10" : TRACK_GLOW[track.id]} bg-white/[0.05]` : ""}
         ${isActive ? "border-white/15" : ""}
       `}
       onClick={onSelect}
@@ -262,6 +264,7 @@ function WaveformDisplay({
   trackId: number;
 }) {
   const { getLoopPhase } = useLooper();
+  const { mono } = useVisualMode();
   const isActive =
     status === "playing" || status === "overdubbing" || status === "pending";
   const [phase, setPhase] = useState(0);
@@ -297,7 +300,9 @@ function WaveformDisplay({
     return () => cancelAnimationFrame(id);
   }, [isActive, getLoopPhase]);
 
-  const COLORS = ["#8b5cf6", "#38bdf8", "#34d399", "#fbbf24", "#fb7185"];
+  const COLORS = mono
+    ? ["#111111", "#333333", "#555555", "#777777", "#000000"]
+    : ["#8b5cf6", "#38bdf8", "#34d399", "#fbbf24", "#fb7185"];
   const color = COLORS[trackId] ?? "#ffffff";
   const samples = points.length;
 

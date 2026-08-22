@@ -16,6 +16,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../components/ui/tooltip";
+import { useVisualMode } from "../hooks/useVisualMode";
 
 const tipClass =
   "border border-white/10 bg-[#0A060C] text-white/70 font-mono text-[9px] tracking-wider uppercase px-2 py-1 rounded-sm shadow-none";
@@ -37,6 +38,7 @@ function HarmonizerInner() {
     getMasterNode,
     getLoopPhase,
   } = useHarmonizer();
+  const { mono, ink, inkFg } = useVisualMode();
 
   const selected = tracks[selectedTrack];
   const track0VideoUrl = tracks[0]?.videoUrl ?? null;
@@ -185,11 +187,11 @@ function HarmonizerInner() {
 
   return (
     <div
-      className="h-screen w-full overflow-hidden relative"
+      className="app-page h-screen w-full overflow-hidden relative"
       style={{ background: "#0A060C" }}
     >
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-atmosphere pointer-events-none absolute inset-0"
         style={{
           background: [
             "radial-gradient(ellipse 65% 55% at 8% 85%, rgba(255,77,109,0.22) 0%, transparent 70%)",
@@ -199,7 +201,7 @@ function HarmonizerInner() {
         }}
       />
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
+        className="app-grain pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E")`,
           backgroundSize: "300px 300px",
@@ -273,8 +275,9 @@ function HarmonizerInner() {
                             color: "rgba(254,202,202,0.95)",
                           }
                         : {
-                            borderColor: "rgba(255,255,255,0.12)",
-                            color: "rgba(255,255,255,0.45)",
+                            borderColor: ink(0.3),
+                            background: mono ? "rgba(0,0,0,0.06)" : "transparent",
+                            color: inkFg(0.75),
                           }
                     }
                     aria-label={

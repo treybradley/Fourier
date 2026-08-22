@@ -10,6 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 interface TransportProps {
   state: GridState;
@@ -21,7 +22,7 @@ interface TransportProps {
   onToggleSessionRecord?: () => void;
 }
 
-const ACCENT = "#62FF00";
+const ACCENT_COLOR = "#62FF00";
 
 const tipClass =
   "border border-white/10 bg-[#0A0509] text-white/70 font-mono text-[9px] tracking-wider uppercase px-2 py-1 rounded-sm shadow-none";
@@ -36,6 +37,8 @@ export function Transport({
   onToggleSessionRecord,
 }: TransportProps) {
   const { isPlaying, bpm, mode } = state;
+  const { accent, ink, inkFg, mono } = useVisualMode();
+  const ACCENT = accent(ACCENT_COLOR);
   const [exportOpen, setExportOpen] = useState(false);
   const [lastBars, setLastBars] = useState<1 | 2 | 4>(1);
 
@@ -64,7 +67,7 @@ export function Transport({
                     color: ACCENT,
                     borderColor: "transparent",
                   }
-                : { color: "rgba(255,255,255,0.30)" }
+                : { color: inkFg(0.55) }
             }
           >
             {m}
@@ -88,8 +91,9 @@ export function Transport({
                 color: ACCENT,
               }
             : {
-                borderColor: "rgba(255,255,255,0.12)",
-                color: "rgba(255,255,255,0.55)",
+                borderColor: ink(0.28),
+                color: inkFg(0.7),
+                background: mono ? "rgba(0,0,0,0.05)" : "transparent",
               }
         }
         title={isPlaying ? "Stop (Space)" : "Play (Space)"}
@@ -126,8 +130,9 @@ export function Transport({
                 color: ACCENT,
               }
             : {
-                borderColor: "rgba(255,255,255,0.12)",
-                color: "rgba(255,255,255,0.55)",
+                borderColor: ink(0.28),
+                color: inkFg(0.7),
+                background: mono ? "rgba(0,0,0,0.05)" : "transparent",
               }
         }
         title={
@@ -177,7 +182,7 @@ export function Transport({
                 : undefined
             }
           >
-            <span className="text-[9px] font-mono tracking-wider text-white/35 uppercase">
+            <span className="text-[9px] font-mono tracking-wider text-white/55 uppercase">
               Export loop
             </span>
           </button>
@@ -224,7 +229,7 @@ export function Transport({
             className="w-6 h-6 flex items-center justify-center rounded-sm border border-white/10 hover:border-white/25 transition-colors"
           >
             <svg
-              className="w-3 h-3 text-white/35"
+              className="w-3 h-3 text-white/55"
               fill="none"
               viewBox="0 0 16 16"
               stroke="currentColor"
@@ -253,7 +258,7 @@ export function Transport({
             className="w-6 h-6 flex items-center justify-center rounded-sm border border-white/10 hover:border-white/25 transition-colors"
           >
             <svg
-              className="w-3 h-3 text-white/35"
+              className="w-3 h-3 text-white/55"
               fill="none"
               viewBox="0 0 16 16"
               stroke="currentColor"

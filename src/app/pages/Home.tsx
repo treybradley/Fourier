@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { motion } from "motion/react";
+import { useVisualMode } from "../hooks/useVisualMode";
 
 const TOOLS = [
   {
@@ -124,14 +125,16 @@ const TOOLS = [
 ];
 
 export function Home() {
+  const { mode, setMode } = useVisualMode();
+
   return (
     <div
-      className="min-h-screen w-full overflow-hidden"
+      className="app-page min-h-screen w-full overflow-hidden"
       style={{ background: "#04060E" }}
     >
       {/* Cerulean gradient atmosphere */}
       <div
-        className="pointer-events-none fixed inset-0"
+        className="app-atmosphere pointer-events-none fixed inset-0"
         style={{
           background: [
             "radial-gradient(ellipse 65% 55% at 10% 90%, rgba(0,100,186,0.32) 0%, transparent 70%)",
@@ -142,7 +145,7 @@ export function Home() {
       />
       {/* Grain noise */}
       <div
-        className="pointer-events-none fixed inset-0"
+        className="app-grain pointer-events-none fixed inset-0"
         style={{
           opacity: 0.12,
           mixBlendMode: "screen",
@@ -167,8 +170,26 @@ export function Home() {
               Web-based music tools
             </div>
           </div>
-          <div className="text-white/20 text-[10px] font-mono tracking-widest mt-1">
-            v0.1
+          <div className="flex flex-col items-end gap-2 mt-1">
+            <div className="flex rounded-sm overflow-hidden border border-white/15">
+              {(["color", "mono"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMode(m)}
+                  className={`px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase transition-colors ${
+                    mode === m
+                      ? "bg-white/15 text-white/90"
+                      : "text-white/30 hover:text-white/60"
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+            <div className="text-white/20 text-[10px] font-mono tracking-widest">
+              v0.1
+            </div>
           </div>
         </motion.header>
 
@@ -212,7 +233,7 @@ export function Home() {
                 delay: 0.2 + i * 0.1,
               }}
             >
-              <ToolCard tool={tool} />
+              <ToolCard tool={tool} mono={mode === "mono"} />
             </motion.div>
           ))}
         </div>
@@ -235,8 +256,10 @@ export function Home() {
 
 type Tool = (typeof TOOLS)[number];
 
-function ToolCard({ tool }: { tool: Tool }) {
+function ToolCard({ tool, mono }: { tool: Tool; mono: boolean }) {
   const isAvailable = tool.status === "available";
+  const accentA = mono ? "#111111" : tool.accentA;
+  const accentB = mono ? "#555555" : tool.accentB;
 
   const inner = (
     <div
@@ -249,9 +272,9 @@ function ToolCard({ tool }: { tool: Tool }) {
       ].join(" ")}
       style={
         {
-          "--ab-dim": `${tool.accentA}4D`,
-          "--ab-bright": `${tool.accentA}99`,
-          background: "rgba(8,14,35,0.40)",
+          "--ab-dim": `${accentA}4D`,
+          "--ab-bright": `${accentA}99`,
+          background: mono ? "rgba(0,0,0,0.03)" : "rgba(8,14,35,0.40)",
           backdropFilter: "blur(18px)",
           WebkitBackdropFilter: "blur(18px)",
           cursor: isAvailable ? "pointer" : "default",
@@ -264,7 +287,7 @@ function ToolCard({ tool }: { tool: Tool }) {
         className="pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-sm"
         style={{
           background: isAvailable
-            ? `linear-gradient(90deg, transparent, ${tool.accentA}70, ${tool.accentB}70, transparent)`
+            ? `linear-gradient(90deg, transparent, ${accentA}70, ${accentB}70, transparent)`
             : "linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)",
         }}
       />
@@ -275,7 +298,9 @@ function ToolCard({ tool }: { tool: Tool }) {
           {tool.name}
         </h2>
         <p
-          className={`text-[11px] font-mono tracking-wider uppercase ${tool.tagColor}`}
+          className={`text-[11px] font-mono tracking-wider uppercase ${
+            mono ? "text-black/70" : tool.tagColor
+          }`}
         >
           {tool.tagline}
         </p>
@@ -291,7 +316,11 @@ function ToolCard({ tool }: { tool: Tool }) {
         {tool.features.map((f) => (
           <span
             key={f}
-            className="text-[9px] font-mono tracking-wider uppercase text-white/30 border border-white/8 rounded-sm px-2 py-0.5"
+            className={`text-[9px] font-mono tracking-wider uppercase rounded-sm px-2 py-0.5 border ${
+              mono
+                ? "text-black/70 border-black/25"
+                : "text-white/30 border-white/8"
+            }`}
           >
             {f}
           </span>
@@ -311,10 +340,10 @@ function ToolCard({ tool }: { tool: Tool }) {
         style={
           isAvailable
             ? ({
-                "--ab-dim": `${tool.accentA}50`,
-                "--ab-bright": `${tool.accentA}90`,
-                "--ab-bg": `${tool.accentA}12`,
-                "--ab-bg-hover": `${tool.accentA}22`,
+                "--ab-dim": `${accentA}50`,
+                "--ab-bright": `${accentA}90`,
+                "--ab-bg": `${accentA}12`,
+                "--ab-bg-hover": `${accentA}22`,
               } as React.CSSProperties)
             : {}
         }

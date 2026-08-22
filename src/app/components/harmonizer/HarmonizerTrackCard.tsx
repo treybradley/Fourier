@@ -1,5 +1,6 @@
 import { useMemo, useRef } from "react";
 import { useHarmonizer } from "../../contexts/HarmonizerContext";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 function peaksFromBuffer(buffer: AudioBuffer, bars = 48): number[] {
   const data = buffer.getChannelData(0);
@@ -39,6 +40,7 @@ export function HarmonizerTrackCard({
     toggleMute,
     clearTrack,
   } = useHarmonizer();
+  const { mono, ink } = useVisualMode();
 
   const track = tracks[trackId];
   const audioInputRef = useRef<HTMLInputElement>(null);
@@ -65,12 +67,12 @@ export function HarmonizerTrackCard({
       style={
         selected
           ? {
-              borderColor: "rgba(255,77,109,0.45)",
-              background: "rgba(255,77,109,0.08)",
+              borderColor: mono ? "rgba(0,0,0,0.4)" : "rgba(255,77,109,0.45)",
+              background: mono ? "rgba(0,0,0,0.06)" : "rgba(255,77,109,0.08)",
             }
           : {
-              borderColor: "rgba(255,255,255,0.1)",
-              background: "rgba(255,255,255,0.03)",
+              borderColor: ink(0.1),
+              background: ink(0.03),
             }
       }
     >
@@ -94,8 +96,10 @@ export function HarmonizerTrackCard({
               style={{
                 height: `${Math.max(8, p * 100)}%`,
                 background: selected
-                  ? "rgba(255,77,109,0.75)"
-                  : "rgba(255,255,255,0.35)",
+                  ? mono
+                    ? "rgba(0,0,0,0.75)"
+                    : "rgba(255,77,109,0.75)"
+                  : ink(0.35),
               }}
             />
           ))
@@ -113,7 +117,7 @@ export function HarmonizerTrackCard({
               step={0.01}
               value={track.volume}
               onChange={(e) => setTrackVolume(trackId, Number(e.target.value))}
-              className="flex-1 accent-[#FF4D6D]"
+              className={`flex-1 ${mono ? "accent-black" : "accent-[#FF4D6D]"}`}
             />
           </label>
           <label className="flex items-center gap-2 font-mono text-[9px] tracking-wider uppercase text-white/35">
@@ -125,7 +129,7 @@ export function HarmonizerTrackCard({
               step={0.01}
               value={track.harmonyMix}
               onChange={(e) => setHarmonyMix(trackId, Number(e.target.value))}
-              className="flex-1 accent-[#F59E0B]"
+              className={`flex-1 ${mono ? "accent-black" : "accent-[#F59E0B]"}`}
             />
           </label>
         </div>

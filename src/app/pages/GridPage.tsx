@@ -5,12 +5,12 @@ import { MiniAppHeader } from "../components/MiniAppHeader";
 export function GridPage() {
   return (
     <div
-      className="h-screen w-full overflow-hidden relative"
+      className="app-page h-screen w-full overflow-hidden relative"
       style={{ background: "#0A0509" }}
     >
       {/* Flash gradient atmosphere — #FFF047 → #B5D100 */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-atmosphere pointer-events-none absolute inset-0"
         style={{
           background: [
             "radial-gradient(ellipse 65% 55% at 8% 88%, rgba(98,255,0,0.20) 0%, transparent 68%)",
@@ -21,7 +21,7 @@ export function GridPage() {
       />
       {/* Grain noise */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-grain pointer-events-none absolute inset-0"
         style={{
           opacity: 0.16,
           mixBlendMode: "screen",
@@ -34,7 +34,7 @@ export function GridPage() {
         <MiniAppHeader
           title="Grid"
           subtitle="browser-native sampler and sequencer"
-          subtitleClassName="text-white/30 text-[9px]"
+          subtitleClassName="text-white/45 text-[9px]"
           yOffset={-12}
         />
 
