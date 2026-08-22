@@ -58,11 +58,11 @@ export function AudioControls({
       <div className="flex flex-wrap gap-3">
         <div className="space-y-1.5 flex-1 min-w-[140px]">
           <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5 text-white/50">
+            <div className="flex items-center gap-1.5 text-white/65">
               <Volume2 className="w-3 h-3" />
               <span>Volume</span>
             </div>
-            <span className="text-white/40">{Math.round(volume * 100)}%</span>
+            <span className="text-white/55">{Math.round(volume * 100)}%</span>
           </div>
 
           <Slider.Root
@@ -86,11 +86,11 @@ export function AudioControls({
 
         <div className="space-y-1.5 flex-1 min-w-[140px]">
           <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5 text-white/50">
+            <div className="flex items-center gap-1.5 text-white/65">
               <Music className="w-3 h-3" />
               <span>Pitch</span>
             </div>
-            <span className="text-white/40">
+            <span className="text-white/55">
               {detectedBpm
                 ? `${Math.round(detectedBpm * pitch)} BPM`
                 : `${Math.round(pitch * 100)}%`}

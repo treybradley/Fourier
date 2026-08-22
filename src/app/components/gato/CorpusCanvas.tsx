@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Grain, FeatureKey } from "./featureExtraction";
 import { getNormKey } from "./featureExtraction";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 interface Props {
   grains: Grain[];
@@ -42,6 +43,7 @@ export function CorpusCanvas({
   appState,
   analysisProgress,
 }: Props) {
+  const { mono } = useVisualMode();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -53,12 +55,14 @@ export function CorpusCanvas({
   const activeIdRef = useRef(activeGrainId);
   const cursorRef = useRef(cursorPos);
   const hoveredGrainRef = useRef<Grain | null>(null);
+  const monoRef = useRef(mono);
 
   useEffect(() => { grainsRef.current = grains; }, [grains]);
   useEffect(() => { xAxisRef.current = xAxis; }, [xAxis]);
   useEffect(() => { yAxisRef.current = yAxis; }, [yAxis]);
   useEffect(() => { activeIdRef.current = activeGrainId; }, [activeGrainId]);
   useEffect(() => { cursorRef.current = cursorPos; }, [cursorPos]);
+  useEffect(() => { monoRef.current = mono; }, [mono]);
 
   // Draw loop
   useEffect(() => {
@@ -124,7 +128,7 @@ export function CorpusCanvas({
 
       // Crosshair
       if (cursor) {
-        ctx.strokeStyle = "rgba(0,232,212,0.8)";
+        ctx.strokeStyle = monoRef.current ? "rgba(255,255,255,0.9)" : "rgba(0,232,212,0.8)";
         ctx.lineWidth = 1;
         ctx.globalAlpha = 0.8;
         ctx.beginPath(); ctx.moveTo(cursor.x - 10, cursor.y); ctx.lineTo(cursor.x + 10, cursor.y); ctx.stroke();
@@ -255,7 +259,7 @@ export function CorpusCanvas({
           <div className="w-48 h-0.5 bg-white/8 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-200"
-              style={{ width: `${analysisProgress * 100}%`, background: "linear-gradient(90deg, #AD1888, #FF6100)" }}
+              style={{ width: `${analysisProgress * 100}%`, background: mono ? "#111111" : "linear-gradient(90deg, #AD1888, #FF6100)" }}
             />
           </div>
           <p className="text-white/30 text-[10px] font-mono tracking-widest">

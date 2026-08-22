@@ -17,7 +17,7 @@ export function MiniAppHeader({
   title,
   subtitle,
   titleClassName = "text-white/90",
-  subtitleClassName = "text-white/30 text-[10px]",
+  subtitleClassName = "text-white/45 text-[10px]",
   right,
   className = "",
   yOffset = -16,
@@ -31,7 +31,7 @@ export function MiniAppHeader({
       <Link
         to="/"
         aria-label="Back to Fourier"
-        className="relative z-10 inline-flex items-center justify-center gap-1.5 w-8 h-8 sm:w-auto sm:h-auto sm:px-2 sm:py-1.5 rounded-sm border border-white/15 hover:border-white/25 text-white/30 hover:text-white/60 text-[10px] font-mono tracking-widest uppercase transition-colors"
+        className="relative z-10 inline-flex items-center justify-center gap-1.5 w-8 h-8 sm:w-auto sm:h-auto sm:px-2 sm:py-1.5 rounded-sm border border-white/20 hover:border-white/35 text-white/55 hover:text-white/85 bg-white/[0.04] text-[10px] font-mono tracking-widest uppercase transition-colors"
       >
         <svg
           className="w-3.5 h-3.5 sm:w-3 sm:h-3"

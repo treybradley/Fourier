@@ -2,12 +2,15 @@ import { useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useStemSeparatorContext } from "../../contexts/StemSeparatorContext";
 import { formatTime } from "../../utils/audioUtils";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 export function StemSeparatorUpload() {
   const { sourceFile, sourceBuffer, stage, error, loadFile, startSeparation, reset } =
     useStemSeparatorContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const { mono } = useVisualMode();
+  const accent = mono ? "#111111" : "#00FDD9";
 
   const handleFiles = (files: FileList | null) => {
     if (files?.[0]) loadFile(files[0]);
@@ -23,9 +26,13 @@ export function StemSeparatorUpload() {
           relative w-full max-w-md rounded-sm border-2 border-dashed transition-all duration-200 p-10
           flex flex-col items-center justify-center gap-4 cursor-pointer
           ${isDragging
-            ? "border-[#00FDD9]/70 bg-[#00FDD9]/[0.06]"
+            ? mono
+              ? "border-black/50 bg-black/[0.06]"
+              : "border-[#00FDD9]/70 bg-[#00FDD9]/[0.06]"
             : hasFile
-            ? "border-[#00FDD9]/40 bg-[#00FDD9]/[0.03]"
+            ? mono
+              ? "border-black/40 bg-black/[0.04]"
+              : "border-[#00FDD9]/40 bg-[#00FDD9]/[0.03]"
             : "border-white/15 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04]"
           }
         `}
@@ -76,8 +83,8 @@ export function StemSeparatorUpload() {
           </>
         ) : (
           <>
-            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,253,217,0.15)" }}>
-              <svg className="w-4 h-4" style={{ color: "#00FDD9" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: mono ? "rgba(0,0,0,0.08)" : "rgba(0,253,217,0.15)" }}>
+              <svg className="w-4 h-4" style={{ color: accent }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 19V6l12-3v13" />
                 <circle cx="6" cy="18" r="3" />
                 <circle cx="18" cy="15" r="3" />
@@ -111,16 +118,16 @@ export function StemSeparatorUpload() {
         <motion.button
           className="flex items-center gap-2 px-8 py-3 rounded-sm border text-xs font-mono tracking-widest uppercase transition-all duration-200 text-white/80 hover:text-white"
           style={{
-            borderColor: "rgba(0,253,217,0.45)",
-            background: "rgba(0,253,217,0.08)",
+            borderColor: mono ? "rgba(0,0,0,0.45)" : "rgba(0,253,217,0.45)",
+            background: mono ? "rgba(0,0,0,0.08)" : "rgba(0,253,217,0.08)",
           }}
           onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(0,253,217,0.75)";
-            (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,253,217,0.14)";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = mono ? "rgba(0,0,0,0.7)" : "rgba(0,253,217,0.75)";
+            (e.currentTarget as HTMLButtonElement).style.background = mono ? "rgba(0,0,0,0.14)" : "rgba(0,253,217,0.14)";
           }}
           onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(0,253,217,0.45)";
-            (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,253,217,0.08)";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = mono ? "rgba(0,0,0,0.45)" : "rgba(0,253,217,0.45)";
+            (e.currentTarget as HTMLButtonElement).style.background = mono ? "rgba(0,0,0,0.08)" : "rgba(0,253,217,0.08)";
           }}
           onClick={startSeparation}
           initial={{ opacity: 0, y: 8 }}
@@ -137,7 +144,7 @@ export function StemSeparatorUpload() {
       )}
 
       {/* Disclaimer */}
-      <p className="text-white/15 text-[9px] font-mono text-center max-w-xs leading-relaxed">
+      <p className="text-white/45 text-[9px] font-mono text-center max-w-xs leading-relaxed">
         Runs entirely in your browser · ~2–4 min per track · Models cached after first download
       </p>
     </div>

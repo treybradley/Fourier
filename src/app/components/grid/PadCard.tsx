@@ -1,9 +1,7 @@
 import { useEffect, useRef, type Dispatch } from "react";
 import type { Pad, GridAction } from "./types";
 import { PAD_KEYS } from "./types";
-
-const ACCENT_A = "#FFF047";
-const ACCENT_B = "#62FF00";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 interface PadCardProps {
   pad: Pad;
@@ -24,6 +22,9 @@ export function PadCard({
 }: PadCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const hasContent = !!pad.buffer;
+  const { ink, inkFg, accent } = useVisualMode();
+  const accentA = accent("#FFF047");
+  const accentB = accent("#62FF00");
 
   useEffect(() => {
     if (!pad.buffer || !canvasRef.current) return;
@@ -39,7 +40,7 @@ export function PadCard({
 
     const data = pad.buffer.getChannelData(0);
     const step = Math.ceil(data.length / W);
-    ctx.strokeStyle = ACCENT_A;
+    ctx.strokeStyle = accentA;
     ctx.globalAlpha = 0.5;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -54,7 +55,7 @@ export function PadCard({
       ctx.lineTo(x + 0.5, H / 2 + h);
     }
     ctx.stroke();
-  }, [pad.buffer]);
+  }, [pad.buffer, accentA]);
 
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
@@ -75,20 +76,20 @@ export function PadCard({
   }
 
   const borderColor = isSelected
-    ? ACCENT_B
+    ? accentB
     : isActive
-      ? ACCENT_A
+      ? accentA
       : hasContent
-        ? `${ACCENT_A}50`
-        : "rgba(255,255,255,0.08)";
+        ? `${accentA}50`
+        : ink(0.08);
 
   const bgColor = isActive
-    ? `${ACCENT_A}18`
+    ? `${accentA}18`
     : isSelected
-      ? `${ACCENT_B}10`
+      ? `${accentB}10`
       : hasContent
-        ? "rgba(255,255,255,0.04)"
-        : "rgba(255,255,255,0.02)";
+        ? ink(0.04)
+        : ink(0.02);
 
   return (
     <button
@@ -105,8 +106,8 @@ export function PadCard({
         <div
           className="pointer-events-none absolute inset-0 rounded-[10px]"
           style={{
-            boxShadow: `0 0 16px ${ACCENT_A}40 inset`,
-            background: `${ACCENT_A}08`,
+            boxShadow: `0 0 16px ${accentA}40 inset`,
+            background: `${accentA}08`,
           }}
         />
       )}
@@ -121,7 +122,7 @@ export function PadCard({
         ) : (
           <div className="w-full h-9 flex items-center justify-center">
             <svg
-              className="w-4 h-4 text-white/15 group-hover:text-white/25 transition-colors"
+              className="w-4 h-4 text-white/40 group-hover:text-white/70 transition-colors"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -138,7 +139,7 @@ export function PadCard({
       </div>
 
       <div className="flex items-end justify-between mt-1 gap-1">
-        <span className="text-[8px] font-mono text-white/35 truncate leading-tight flex-1">
+        <span className="text-[8px] font-mono text-white/55 truncate leading-tight flex-1">
           {pad.fileName
             ? pad.fileName.replace(
                 /\.(mp3|wav|ogg|flac|m4a)$/i,
@@ -150,14 +151,14 @@ export function PadCard({
           className="text-[8px] font-mono shrink-0 leading-none px-1 py-0.5 rounded border"
           style={{
             color: hasContent
-              ? ACCENT_A
-              : "rgba(255,255,255,0.15)",
+              ? accentA
+              : inkFg(0.55),
             borderColor: hasContent
-              ? `${ACCENT_A}40`
-              : "rgba(255,255,255,0.08)",
+              ? `${accentA}40`
+              : ink(0.25),
             background: hasContent
-              ? `${ACCENT_A}10`
-              : "transparent",
+              ? `${accentA}10`
+              : ink(0.04),
           }}
         >
           {PAD_KEYS[pad.id]}

@@ -1,7 +1,8 @@
-import { motion } from "motion/react";
+import { useRef, useState } from "react";
 import { useWaveform } from "../hooks/useWaveform";
 import { Marker } from "../contexts/AudioEngineContext";
-import { useRef, useState } from "react";
+import { useVisualMode } from "../hooks/useVisualMode";
+import { motion } from "motion/react";
 
 interface WaveformProps {
   audioBuffer: AudioBuffer | null;
@@ -35,6 +36,15 @@ export function Waveform({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const { mono } = useVisualMode();
+  const waveStroke = mono
+    ? isSelected
+      ? "#111111"
+      : "#11111199"
+    : isSelected
+      ? "#ffffff"
+      : "#ffffff40";
+  const wavePlaceholder = mono ? "#11111140" : "#ffffff20";
 
   const handleSeek = (clientX: number) => {
     if (!containerRef.current || !audioBuffer) return;
@@ -125,7 +135,7 @@ export function Waveform({
               key={pitch}
               d={generateWaveformPath()}
               fill="none"
-              stroke={isSelected ? "#ffffff" : "#ffffff40"}
+              stroke={waveStroke}
               strokeWidth="1.5"
               vectorEffect="non-scaling-stroke"
             />
@@ -137,7 +147,7 @@ export function Waveform({
             y1="50"
             x2="100"
             y2="50"
-            stroke="#ffffff20"
+            stroke={wavePlaceholder}
             strokeWidth="1"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 0.3 }}
@@ -166,15 +176,15 @@ export function Waveform({
       {audioBuffer && (
         <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 pointer-events-none z-20">
           {/* Subtle glow */}
-          <div className="absolute inset-0 bg-purple-500/30 blur-[2px]"></div>
+          <div className={`absolute inset-0 ${mono ? "bg-black/20" : "bg-purple-500/30"} blur-[2px]`}></div>
 
           {/* Center line */}
-          <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-px bg-purple-400/80"></div>
+          <div className={`absolute inset-0 left-1/2 -translate-x-1/2 w-px ${mono ? "bg-black/80" : "bg-purple-400/80"}`}></div>
 
           {/* Top indicator */}
           {isPlaying && (
             <motion.div
-              className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-purple-400 rounded-full"
+              className={`absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full ${mono ? "bg-black" : "bg-purple-400"}`}
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 0.8, repeat: Infinity }}
             />

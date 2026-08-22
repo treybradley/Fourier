@@ -1,8 +1,7 @@
 import type { Dispatch } from "react";
 import type { Pad, GridAction } from "./types";
 import { PAD_KEYS } from "./types";
-
-const ACCENT_A = "#62FF00";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 interface SequencerProps {
   pads: Pad[];
@@ -24,6 +23,8 @@ export function Sequencer({
   selectedPadId,
   dispatch,
 }: SequencerProps) {
+  const { ink, accent, mono } = useVisualMode();
+  const accentA = accent("#62FF00");
   return (
     <div className="w-full h-full overflow-y-auto overflow-x-auto">
       <div
@@ -42,10 +43,10 @@ export function Sequencer({
               style={{
                 color:
                   isPlaying && currentStep === step
-                    ? ACCENT_A
+                    ? accentA
                     : BEAT_MARKERS.has(step)
-                      ? "rgba(255,255,255,0.81)"
-                      : "rgba(255,255,255,0.60)",
+                      ? ink(0.81)
+                      : ink(0.6),
                 fontWeight: BEAT_MARKERS.has(step)
                   ? "500"
                   : "400",
@@ -66,7 +67,7 @@ export function Sequencer({
               className="flex items-center shrink-0 gap-0 rounded-sm transition-colors duration-100"
               style={{
                 background: isSelected
-                  ? "rgba(98,255,0,0.09)"
+                  ? `${accentA}18`
                   : "transparent",
                 opacity: hasContent ? 1 : 0.45,
               }}
@@ -86,8 +87,8 @@ export function Sequencer({
                   className="text-[9px] font-mono tabular-nums shrink-0"
                   style={{
                     color: isSelected
-                      ? ACCENT_A
-                      : "rgba(255,255,255,0.69)",
+                      ? accentA
+                      : ink(0.69),
                     width: "14px",
                   }}
                 >
@@ -97,8 +98,8 @@ export function Sequencer({
                   className="text-[9px] font-mono truncate"
                   style={{
                     color: isSelected
-                      ? "rgba(255,255,255,0.7)"
-                      : "rgba(255,255,255,0.3)",
+                      ? ink(0.7)
+                      : ink(0.3),
                   }}
                 >
                   {pad.fileName
@@ -139,16 +140,18 @@ export function Sequencer({
                           height: "16px",
                           background: active
                             ? isCurrentStep
-                              ? "#FFFFFF"
-                              : ACCENT_A
+                              ? mono
+                                ? "#111111"
+                                : "#FFFFFF"
+                              : accentA
                             : isCurrentStep
-                              ? "rgba(98,255,0,0.25)"
+                              ? `${accentA}40`
                               : isBeat
-                                ? "rgba(255,255,255,0.12)"
-                                : "rgba(255,255,255,0.07)",
+                                ? ink(0.12)
+                                : ink(0.07),
                           boxShadow:
                             active && isCurrentStep
-                              ? `0 0 8px ${ACCENT_A}`
+                              ? `0 0 8px ${accentA}`
                               : "none",
                           transform:
                             isCurrentStep && active

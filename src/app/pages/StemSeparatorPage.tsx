@@ -11,10 +11,10 @@ function StemSeparatorInner() {
   const isDone = stage === "done";
 
   return (
-    <div className="h-screen w-full overflow-hidden relative" style={{ background: "#06050F" }}>
+    <div className="app-page h-screen w-full overflow-hidden relative" style={{ background: "#06050F" }}>
       {/* Citrus gradient atmosphere — #FFA100 → #97FC61 */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-atmosphere pointer-events-none absolute inset-0"
         style={{
           background: [
             "radial-gradient(ellipse 65% 55% at 8% 88%, rgba(255,161,0,0.22) 0%, transparent 68%)",
@@ -25,7 +25,7 @@ function StemSeparatorInner() {
       />
       {/* Grain noise */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-grain pointer-events-none absolute inset-0"
         style={{
           opacity: 0.16,
           mixBlendMode: "screen",
@@ -58,10 +58,8 @@ function StemSeparatorInner() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <div className="flex items-center gap-4 text-white/15 text-[9px] font-mono tracking-widest">
-            <span>Open-Unmix UMXL</span>
-            <span>·</span>
-            <span>onnxruntime-web</span>
+          <div className="flex items-center gap-4 text-white/45 text-[9px] font-mono tracking-widest">
+            <span>Open source stem separation</span>
             <span>·</span>
             <span>runs locally</span>
           </div>

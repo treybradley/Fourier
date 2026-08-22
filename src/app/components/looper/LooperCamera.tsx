@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { EXPORT_HEIGHT, EXPORT_WIDTH } from "../../utils/exportFormat";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 interface LooperCameraProps {
   videoRef: React.Ref<HTMLVideoElement>;
@@ -21,10 +22,18 @@ export function LooperCamera({
   isCapturing,
 }: LooperCameraProps) {
   const aspectRatio = `${EXPORT_WIDTH} / ${EXPORT_HEIGHT}`;
+  const { mono } = useVisualMode();
+  const staging = mono && (!started || !!error);
 
   return (
     <div className="h-full flex flex-col min-h-0">
-      <div className="relative flex-1 min-h-0 flex items-center justify-center rounded-sm border border-white/8 bg-black/60 overflow-hidden p-2">
+      <div
+        className={`relative flex-1 min-h-0 flex items-center justify-center rounded-sm border overflow-hidden p-2 ${
+          staging ? "border-black/25" : "border-white/8 bg-black/60"
+        }`}
+        style={staging ? { background: "#ffffff" } : undefined}
+        {...(staging ? {} : { "data-visual-exempt": true })}
+      >
         {/* Hidden source video for compositor */}
         <video
           ref={videoRef as React.RefObject<HTMLVideoElement>}
@@ -41,20 +50,34 @@ export function LooperCamera({
         >
           <canvas
             ref={canvasRef as React.RefObject<HTMLCanvasElement>}
-            className="absolute inset-0 w-full h-full rounded-sm bg-[#030810]"
+            className={`absolute inset-0 w-full h-full rounded-sm ${
+              staging ? "" : "bg-[#030810]"
+            }`}
+            style={staging ? { background: "#ffffff" } : undefined}
           />
 
           {!started && (
             <motion.div
-              className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/85 backdrop-blur-sm p-4"
+              className={`absolute inset-0 flex flex-col items-center justify-center gap-4 p-4 rounded-sm ${
+                mono ? "" : "bg-black/85 backdrop-blur-sm"
+              }`}
+              style={mono ? { background: "#ffffff" } : undefined}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               <div className="text-center space-y-1">
-                <p className="text-white/50 text-[10px] font-mono tracking-widest uppercase">
+                <p
+                  className={`text-[10px] font-mono tracking-widest uppercase ${
+                    mono ? "text-black/80" : "text-white/50"
+                  }`}
+                >
                   Record video
                 </p>
-                <p className="text-white/40 text-[9px] font-mono max-w-[14rem]">
+                <p
+                  className={`text-[9px] font-mono max-w-[14rem] ${
+                    mono ? "text-black/70" : "text-white/40"
+                  }`}
+                >
                   Capture 9:16 video to share your loops.
                 </p>
               </div>
@@ -62,7 +85,12 @@ export function LooperCamera({
               <motion.button
                 type="button"
                 onClick={onStart}
-                className="flex items-center gap-2 bg-white/8 hover:bg-white/12 border border-white/15 hover:border-white/30 text-white/60 hover:text-white/85 text-[11px] font-mono tracking-widest uppercase rounded-sm px-4 py-2.5 transition-colors"
+                className={`flex items-center gap-2 text-[11px] font-mono tracking-widest uppercase rounded-sm px-4 py-2.5 transition-colors border ${
+                  mono
+                    ? "border-black/35 bg-black hover:bg-black/85"
+                    : "bg-white/8 hover:bg-white/12 border-white/15 hover:border-white/30 text-white/60 hover:text-white/85"
+                }`}
+                style={mono ? { color: "#ffffff" } : undefined}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -72,11 +100,26 @@ export function LooperCamera({
           )}
 
           {error && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/80 p-4 text-center">
-              <p className="text-red-400/70 text-xs font-mono">
+            <div
+              className={`absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center rounded-sm ${
+                mono ? "" : "bg-black/80"
+              }`}
+              style={mono ? { background: "#ffffff" } : undefined}
+            >
+              <p
+                className={`text-xs font-mono ${
+                  mono ? "text-red-600" : "text-red-400/70"
+                }`}
+              >
                 Camera unavailable
               </p>
-              <p className="text-white/25 text-[10px]">{error}</p>
+              <p
+                className={`text-[10px] ${
+                  mono ? "text-black/60" : "text-white/25"
+                }`}
+              >
+                {error}
+              </p>
             </div>
           )}
 

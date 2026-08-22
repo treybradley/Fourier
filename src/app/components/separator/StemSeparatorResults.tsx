@@ -3,12 +3,14 @@ import { motion } from "motion/react";
 import { useStemSeparatorContext } from "../../contexts/StemSeparatorContext";
 import { STEM_NAMES, STEM_LABELS, STEM_COLORS, type StemName } from "../../hooks/useStemSeparator";
 import { formatTime } from "../../utils/audioUtils";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 function StemRow({ stem, duration, playheadTime }: { stem: StemName; duration: number; playheadTime: number }) {
   const { results, stemVolumes, mutedStems, setStemVolume, toggleMute, downloadStem } =
     useStemSeparatorContext();
+  const { mono, ink, inkFg } = useVisualMode();
   const buffer = results[stem];
-  const color = STEM_COLORS[stem];
+  const color = mono ? "#111111" : STEM_COLORS[stem];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMuted = mutedStems[stem];
   const volume = stemVolumes[stem];
@@ -61,14 +63,14 @@ function StemRow({ stem, duration, playheadTime }: { stem: StemName; duration: n
         />
         <span
           className="text-[10px] font-mono tracking-widest uppercase transition-colors"
-          style={{ color: isMuted ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.7)" }}
+          style={{ color: isMuted ? ink(0.35) : inkFg(0.85) }}
         >
           {STEM_LABELS[stem]}
         </span>
       </div>
 
       {/* Waveform + playhead */}
-      <div className="relative flex-1 h-9 rounded-sm overflow-hidden bg-black/20">
+      <div className={`relative flex-1 h-9 rounded-sm overflow-hidden ${mono ? "bg-white border border-black/15" : "bg-black/20"}`}>
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
         <div
           className="absolute top-0 bottom-0 w-px transition-none"
@@ -111,7 +113,7 @@ function StemRow({ stem, duration, playheadTime }: { stem: StemName; duration: n
         className="w-20 shrink-0 cursor-pointer"
         style={{
           "--thumb-color": color,
-          "--track-bg": `${color}30`,
+          "--track-bg": mono ? "rgba(0,0,0,0.18)" : `${color}30`,
           opacity: isMuted ? 0.3 : 1,
         } as React.CSSProperties}
       />
@@ -133,6 +135,7 @@ function StemRow({ stem, duration, playheadTime }: { stem: StemName; duration: n
 export function StemSeparatorResults() {
   const { results, isPlaying, play, pause, seek, reset, sourceFile, getPlayheadTime } =
     useStemSeparatorContext();
+  const { mono } = useVisualMode();
   const [playheadTime, setPlayheadTime] = useState(0);
   const rafRef = useRef<number>();
   const isSeeking = useRef(false);
@@ -206,8 +209,10 @@ export function StemSeparatorResults() {
           value={isSeeking.current ? undefined : playheadTime}
           className="flex-1 cursor-pointer"
           style={{
-            "--thumb-color": "rgba(255,255,255,0.8)",
-            "--track-bg": `linear-gradient(to right, rgba(255,255,255,0.55) ${progress * 100}%, rgba(255,255,255,0.10) ${progress * 100}%)`,
+            "--thumb-color": mono ? "#111111" : "rgba(255,255,255,0.8)",
+            "--track-bg": mono
+              ? `linear-gradient(to right, #111111 ${progress * 100}%, rgba(0,0,0,0.12) ${progress * 100}%)`
+              : `linear-gradient(to right, rgba(255,255,255,0.55) ${progress * 100}%, rgba(255,255,255,0.10) ${progress * 100}%)`,
           } as React.CSSProperties}
           onMouseDown={() => { isSeeking.current = true; if (isPlaying) pause(); }}
           onChange={(e) => { setPlayheadTime(Number(e.target.value)); }}

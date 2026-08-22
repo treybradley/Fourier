@@ -4,10 +4,10 @@ import { MiniAppHeader } from "../components/MiniAppHeader";
 
 export function GatoPage() {
   return (
-    <div className="h-screen w-full overflow-hidden relative" style={{ background: "#0D050A" }}>
+    <div className="app-page h-screen w-full overflow-hidden relative" style={{ background: "#0D050A" }}>
       {/* Papaya gradient atmosphere — #AD1888 → #FF6100 */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-atmosphere pointer-events-none absolute inset-0"
         style={{
           background: [
             "radial-gradient(ellipse 65% 55% at 8% 88%, rgba(173,24,136,0.26) 0%, transparent 68%)",
@@ -18,7 +18,7 @@ export function GatoPage() {
       />
       {/* Grain noise */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-grain pointer-events-none absolute inset-0"
         style={{
           opacity: 0.16,
           mixBlendMode: "screen",
@@ -31,7 +31,7 @@ export function GatoPage() {
         <MiniAppHeader
           title="Gato Cat (Synth)"
           subtitle="concatenative synthesis explorer"
-          subtitleClassName="text-white/30 text-[9px]"
+          subtitleClassName="text-white/45 text-[9px]"
           yOffset={-12}
         />
 

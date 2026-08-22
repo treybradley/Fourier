@@ -5,12 +5,12 @@ import { MiniAppHeader } from "../components/MiniAppHeader";
 export function ArcPage() {
   return (
     <div
-      className="h-screen w-full overflow-hidden relative"
+      className="app-page h-screen w-full overflow-hidden relative"
       style={{ background: "#070510" }}
     >
       {/* Gradient atmosphere */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-atmosphere pointer-events-none absolute inset-0"
         style={{
           background: [
             "radial-gradient(ellipse 65% 55% at 8% 12%, rgba(0,157,255,0.18) 0%, transparent 68%)",
@@ -21,7 +21,7 @@ export function ArcPage() {
       />
       {/* Grain */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
+        className="app-grain pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E")`,
           backgroundSize: "300px 300px",
@@ -33,7 +33,7 @@ export function ArcPage() {
           title="Arc"
           subtitle="music planning workspace"
           titleClassName="text-white/90 tracking-[0.25em]"
-          subtitleClassName="text-white/25 text-[9px]"
+          subtitleClassName="text-white/45 text-[9px]"
           className="px-4 py-3"
         />
 

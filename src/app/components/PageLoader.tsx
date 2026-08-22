@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { useVisualMode } from "../hooks/useVisualMode";
 
 interface PageLoaderProps {
   name: string;
@@ -11,17 +12,20 @@ interface PageLoaderProps {
 }
 
 export function PageLoader({ name, index, tagline, accentA, accentB, background, glows }: PageLoaderProps) {
+  const { mono } = useVisualMode();
+  const a = mono ? "#111111" : accentA;
+  const b = mono ? "#555555" : accentB;
   return (
-    <div className="h-screen w-full overflow-hidden relative flex items-center justify-center" style={{ background }}>
+    <div className="app-page h-screen w-full overflow-hidden relative flex items-center justify-center" style={{ background }}>
       {/* Gradient atmosphere */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-atmosphere pointer-events-none absolute inset-0"
         style={{ background: glows.join(", ") }}
       />
 
       {/* Grain */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="app-grain pointer-events-none absolute inset-0"
         style={{
           opacity: 0.14,
           mixBlendMode: "screen",
@@ -38,7 +42,7 @@ export function PageLoader({ name, index, tagline, accentA, accentB, background,
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="text-[10px] font-mono tracking-widest"
-          style={{ color: `${accentA}60` }}
+          style={{ color: `${a}60` }}
         >
           {index}
         </motion.div>
@@ -69,11 +73,11 @@ export function PageLoader({ name, index, tagline, accentA, accentB, background,
           animate={{ opacity: 1 }}
           transition={{ delay: 0.18, duration: 0.3 }}
           className="w-32 h-px mt-1 overflow-hidden rounded-full"
-          style={{ background: "rgba(255,255,255,0.08)" }}
+          style={{ background: mono ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.08)" }}
         >
           <motion.div
             className="h-full rounded-full"
-            style={{ background: `linear-gradient(90deg, ${accentA}, ${accentB})` }}
+            style={{ background: `linear-gradient(90deg, ${a}, ${b})` }}
             initial={{ x: "-100%" }}
             animate={{ x: "100%" }}
             transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.1 }}
@@ -188,6 +192,24 @@ export function GatoLoader() {
         "radial-gradient(ellipse 65% 55% at 8% 88%, rgba(173,24,136,0.26) 0%, transparent 68%)",
         "radial-gradient(ellipse 55% 60% at 92% 12%, rgba(255,97,0,0.20) 0%, transparent 65%)",
         "radial-gradient(ellipse 40% 40% at 50% 50%, rgba(200,50,80,0.07) 0%, transparent 70%)",
+      ]}
+    />
+  );
+}
+
+export function HarmonizerLoader() {
+  return (
+    <PageLoader
+      name="Harmonizer"
+      index="07"
+      tagline="Parallel interval stacks"
+      accentA="#FF4D6D"
+      accentB="#F59E0B"
+      background="#0A060C"
+      glows={[
+        "radial-gradient(ellipse 65% 55% at 8% 88%, rgba(255,77,109,0.24) 0%, transparent 68%)",
+        "radial-gradient(ellipse 55% 60% at 92% 12%, rgba(245,158,11,0.18) 0%, transparent 65%)",
+        "radial-gradient(ellipse 40% 40% at 50% 50%, rgba(180,40,60,0.07) 0%, transparent 70%)",
       ]}
     />
   );

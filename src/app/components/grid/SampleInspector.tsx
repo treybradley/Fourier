@@ -6,9 +6,7 @@ import {
 } from "react";
 import type { Pad, GridAction } from "./types";
 import { useGridRecorder } from "./useGridRecorder";
-
-const ACCENT_A = "#62FF00";
-const ACCENT_B = "#FBFF00";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 interface SampleInspectorProps {
   pad: Pad | null;
@@ -27,6 +25,9 @@ function WaveformCanvas({
   trimEnd: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { accent, ink } = useVisualMode();
+  const accentA = accent("#62FF00");
+  const accentB = accent("#FBFF00", "#555555");
   const [zoom, setZoom] = useState(1);
   const [viewStart, setViewStart] = useState(0);
   const dragRef = useRef<{
@@ -106,7 +107,7 @@ function WaveformCanvas({
     const visibleSamples = Math.max(1, endSample - startSample);
     const step = Math.max(1, Math.ceil(visibleSamples / W));
 
-    ctx.strokeStyle = ACCENT_A;
+    ctx.strokeStyle = accentA;
     ctx.lineWidth = 1;
     for (let x = 0; x < W; x++) {
       let max = 0;
@@ -128,7 +129,7 @@ function WaveformCanvas({
 
     ctx.globalAlpha = 1;
     ctx.lineWidth = 1.5;
-    ctx.strokeStyle = ACCENT_B;
+    ctx.strokeStyle = accentB;
     const markers = [trimStart, trimEnd];
     markers.forEach((pos) => {
       if (pos < clampedViewStart || pos > viewEnd) return;
@@ -140,7 +141,7 @@ function WaveformCanvas({
     });
 
     ctx.globalAlpha = 0.5;
-    ctx.fillStyle = ACCENT_B;
+    ctx.fillStyle = accentB;
     ctx.font = "8px monospace";
     if (trimStart < clampedViewStart)
       ctx.fillText("◂", 2, H / 2 + 3);
@@ -153,6 +154,8 @@ function WaveformCanvas({
     clampedViewStart,
     viewEnd,
     viewWidth,
+    accentA,
+    accentB,
   ]);
 
   return (
@@ -161,7 +164,7 @@ function WaveformCanvas({
         {zoom > 1 && (
           <span
             className="text-[7px] font-mono mr-auto"
-            style={{ color: "rgba(255,255,255,0.30)" }}
+            style={{ color: ink(0.3) }}
           >
             {zoom}×
           </span>
@@ -171,11 +174,11 @@ function WaveformCanvas({
           disabled={zoom <= 1}
           className="w-5 h-5 flex items-center justify-center rounded-sm text-[10px] font-mono transition-colors border"
           style={{
-            color: zoom <= 1 ? "rgba(255,255,255,0.15)" : ACCENT_A,
+            color: zoom <= 1 ? ink(0.15) : accentA,
             borderColor:
               zoom <= 1
-                ? "rgba(255,255,255,0.06)"
-                : `${ACCENT_A}40`,
+                ? ink(0.06)
+                : `${accentA}40`,
           }}
         >
           −
@@ -186,11 +189,11 @@ function WaveformCanvas({
           className="w-5 h-5 flex items-center justify-center rounded-sm text-[10px] font-mono transition-colors border"
           style={{
             color:
-              zoom >= 32 ? "rgba(255,255,255,0.15)" : ACCENT_A,
+              zoom >= 32 ? ink(0.15) : accentA,
             borderColor:
               zoom >= 32
-                ? "rgba(255,255,255,0.06)"
-                : `${ACCENT_A}40`,
+                ? ink(0.06)
+                : `${accentA}40`,
           }}
         >
           +
@@ -211,12 +214,12 @@ function WaveformCanvas({
       {zoom > 1 && (
         <div
           className="mt-0.5 h-0.5 w-full rounded-full"
-          style={{ background: "rgba(255,255,255,0.08)" }}
+          style={{ background: ink(0.08) }}
         >
           <div
             className="h-full rounded-full"
             style={{
-              background: ACCENT_A,
+              background: accentA,
               marginLeft: `${clampedViewStart * 100}%`,
               width: `${viewWidth * 100}%`,
               opacity: 0.5,
@@ -249,6 +252,8 @@ function Slider({
   labelClassName?: string;
   onChange: (v: number) => void;
 }) {
+  const { accent } = useVisualMode();
+  const accentA = accent("#62FF00");
   return (
     <div className="flex items-center gap-2">
       <span className={labelClassName}>{label}</span>
@@ -262,8 +267,8 @@ function Slider({
         className="flex-1 cursor-pointer"
         style={
           {
-            "--thumb-color": ACCENT_A,
-            "--track-bg": `linear-gradient(to right, ${ACCENT_A} ${((value - min) / (max - min)) * 100}%, rgba(181,209,0,0.20) ${((value - min) / (max - min)) * 100}%)`,
+            "--thumb-color": accentA,
+            "--track-bg": `linear-gradient(to right, ${accentA} ${((value - min) / (max - min)) * 100}%, ${accentA}33 ${((value - min) / (max - min)) * 100}%)`,
           } as React.CSSProperties
         }
       />
@@ -286,6 +291,9 @@ export function SampleInspector({
     useGridRecorder();
   const [micError, setMicError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { accent, ink, inkFg, mono } = useVisualMode();
+  const accentA = accent("#62FF00");
+  const accentB = accent("#FBFF00", "#555555");
 
   if (!pad) {
     return (
@@ -329,7 +337,7 @@ export function SampleInspector({
         <div className="flex items-center gap-2">
           <div
             className="w-1.5 h-1.5 rounded-full"
-            style={{ background: ACCENT_A }}
+            style={{ background: accentA }}
           />
           <span className="text-[9px] font-mono tracking-widest uppercase text-white/40">
             {pad.buffer ? "Audio Pad" : "Empty Pad"} · {pad.id + 1}
@@ -377,13 +385,14 @@ export function SampleInspector({
             style={
               isRecording
                 ? {
-                    color: ACCENT_A,
-                    borderColor: `${ACCENT_A}60`,
-                    background: `${ACCENT_A}18`,
+                    color: accentA,
+                    borderColor: `${accentA}60`,
+                    background: `${accentA}18`,
                   }
                 : {
-                    color: "rgba(255,255,255,0.40)",
-                    borderColor: "rgba(255,255,255,0.10)",
+                    color: inkFg(0.7),
+                    borderColor: ink(0.28),
+                    background: mono ? "rgba(0,0,0,0.05)" : "transparent",
                   }
             }
           >
@@ -531,13 +540,14 @@ export function SampleInspector({
             style={
               pad.reverse
                 ? {
-                    color: ACCENT_B,
-                    borderColor: `${ACCENT_B}60`,
-                    background: `${ACCENT_B}18`,
+                    color: accentB,
+                    borderColor: `${accentB}60`,
+                    background: `${accentB}18`,
                   }
                 : {
-                    color: "rgba(255,255,255,0.35)",
-                    borderColor: "rgba(255,255,255,0.10)",
+                    color: inkFg(0.65),
+                    borderColor: ink(0.28),
+                    background: mono ? "rgba(0,0,0,0.05)" : "transparent",
                   }
             }
           >
@@ -555,13 +565,14 @@ export function SampleInspector({
             style={
               pad.loop
                 ? {
-                    color: ACCENT_A,
-                    borderColor: `${ACCENT_A}60`,
-                    background: `${ACCENT_A}18`,
+                    color: accentA,
+                    borderColor: `${accentA}60`,
+                    background: `${accentA}18`,
                   }
                 : {
-                    color: "rgba(255,255,255,0.35)",
-                    borderColor: "rgba(255,255,255,0.10)",
+                    color: inkFg(0.65),
+                    borderColor: ink(0.28),
+                    background: mono ? "rgba(0,0,0,0.05)" : "transparent",
                   }
             }
           >

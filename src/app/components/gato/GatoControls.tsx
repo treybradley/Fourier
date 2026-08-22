@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import type { FeatureKey } from "./featureExtraction";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 const FEATURE_OPTIONS: { key: FeatureKey; label: string }[] = [
   { key: "spectralCentroid", label: "Spectral Centroid" },
@@ -48,6 +49,9 @@ function AxisSelect({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const selected = FEATURE_OPTIONS.find((o) => o.key === value)!;
+  const { mono, ink, inkFg, accent } = useVisualMode();
+  const papaya = accent("#AD1888");
+  const papayaSoft = accent("#FF9060", "#333333");
 
   useEffect(() => {
     if (!open) return;
@@ -65,9 +69,9 @@ function AxisSelect({
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[11px] font-mono border transition-all duration-150"
         style={{
-          background: open ? "rgba(173,24,136,0.12)" : "rgba(255,255,255,0.05)",
-          borderColor: open ? "rgba(173,24,136,0.50)" : "rgba(255,255,255,0.10)",
-          color: open ? "#FF9060" : "rgba(255,255,255,0.70)",
+          background: open ? (mono ? "rgba(0,0,0,0.06)" : "rgba(173,24,136,0.12)") : ink(0.05),
+          borderColor: open ? (mono ? "rgba(0,0,0,0.35)" : "rgba(173,24,136,0.50)") : ink(0.1),
+          color: open ? papayaSoft : inkFg(0.75),
         }}
       >
         <span>{selected.label}</span>
@@ -75,7 +79,7 @@ function AxisSelect({
           className="w-3 h-3 shrink-0 transition-transform duration-150"
           style={{
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            color: open ? "#AD1888" : "rgba(255,255,255,0.3)",
+            color: open ? papaya : inkFg(0.55),
           }}
           fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
         >
@@ -86,7 +90,7 @@ function AxisSelect({
       {open && (
         <div
           className="absolute z-50 left-0 right-0 mt-1 rounded-lg overflow-hidden border border-white/10 shadow-2xl"
-          style={{ background: "rgba(18,6,14,0.97)", backdropFilter: "blur(20px)" }}
+          style={{ background: mono ? "#ffffff" : "rgba(18,6,14,0.97)", backdropFilter: "blur(20px)" }}
         >
           {FEATURE_OPTIONS.map((opt) => {
             const isSelected = opt.key === value;
@@ -96,21 +100,21 @@ function AxisSelect({
                 onClick={() => { onChange(opt.key); setOpen(false); }}
                 className="w-full text-left px-3 py-2 text-[11px] font-mono transition-colors duration-100 flex items-center justify-between group"
                 style={{
-                  background: isSelected ? "rgba(173,24,136,0.18)" : "transparent",
-                  color: isSelected ? "#FF9060" : "rgba(255,255,255,0.50)",
+                  background: isSelected ? (mono ? "rgba(0,0,0,0.08)" : "rgba(173,24,136,0.18)") : "transparent",
+                  color: isSelected ? papayaSoft : inkFg(0.7),
                 }}
                 onMouseEnter={(e) => {
-                  if (!isSelected) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)";
-                  if (!isSelected) (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.75)";
+                  if (!isSelected) (e.currentTarget as HTMLElement).style.background = ink(0.05);
+                  if (!isSelected) (e.currentTarget as HTMLElement).style.color = inkFg(0.85);
                 }}
                 onMouseLeave={(e) => {
                   if (!isSelected) (e.currentTarget as HTMLElement).style.background = "transparent";
-                  if (!isSelected) (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.50)";
+                  if (!isSelected) (e.currentTarget as HTMLElement).style.color = inkFg(0.7);
                 }}
               >
                 {opt.label}
                 {isSelected && (
-                  <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ color: "#AD1888" }}>
+                  <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ color: papaya }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 )}
@@ -142,6 +146,9 @@ export function GatoControls({
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
+  const { mono, accent } = useVisualMode();
+  const papaya = accent("#AD1888");
+  const papayaHot = accent("#FF6100");
 
   async function processFile(file: File) {
     setIsDecoding(true);
@@ -168,8 +175,12 @@ export function GatoControls({
           className={[
             "h-20 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors duration-200",
             isDragging
-              ? "border-[#FF6100]/60 bg-[#FF6100]/[0.06]"
-              : "border-white/15 bg-white/[0.02] hover:border-[#AD1888]/40 hover:bg-white/[0.04]",
+              ? mono
+                ? "border-black/40 bg-black/[0.06]"
+                : "border-[#FF6100]/60 bg-[#FF6100]/[0.06]"
+              : mono
+                ? "border-black/15 bg-black/[0.02] hover:border-black/40 hover:bg-black/[0.04]"
+                : "border-white/15 bg-white/[0.02] hover:border-[#AD1888]/40 hover:bg-white/[0.04]",
           ].join(" ")}
           onClick={() => inputRef.current?.click()}
           onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -183,7 +194,7 @@ export function GatoControls({
         >
           {isDecoding ? (
             <>
-              <div className="w-4 h-4 border-2 border-white/20 border-t-[#FF6100] rounded-full animate-spin" />
+              <div className={`w-4 h-4 border-2 rounded-full animate-spin ${mono ? "border-black/20 border-t-black" : "border-white/20 border-t-[#FF6100]"}`} />
               <span className="text-[10px] text-white/30 font-mono">Decoding…</span>
             </>
           ) : fileName ? (
@@ -224,7 +235,7 @@ export function GatoControls({
               type="range" min={30} max={500} step={10} value={grainSizeMs}
               onChange={(e) => onGrainSizeChange(Number(e.target.value))}
               className="w-full cursor-pointer"
-              style={{ "--thumb-color": "#AD1888", "--track-bg": "rgba(173,24,136,0.22)" } as React.CSSProperties}
+              style={{ "--thumb-color": papaya, "--track-bg": mono ? "rgba(0,0,0,0.12)" : "rgba(173,24,136,0.22)" } as React.CSSProperties}
             />
           </div>
           <div>
@@ -236,7 +247,7 @@ export function GatoControls({
               type="range" min={0} max={0.9} step={0.05} value={overlapFactor}
               onChange={(e) => onOverlapChange(Number(e.target.value))}
               className="w-full cursor-pointer"
-              style={{ "--thumb-color": "#AD1888", "--track-bg": "rgba(173,24,136,0.22)" } as React.CSSProperties}
+              style={{ "--thumb-color": papaya, "--track-bg": mono ? "rgba(0,0,0,0.12)" : "rgba(173,24,136,0.22)" } as React.CSSProperties}
             />
           </div>
           <div className="flex items-center justify-between pt-1">
@@ -246,7 +257,7 @@ export function GatoControls({
             <button
               onClick={onReanalyze}
               disabled={!fileName || appState === "analyzing"}
-              className="text-[10px] font-mono text-white/35 hover:text-[#FF6100] disabled:text-white/15 transition-colors"
+              className={`text-[10px] font-mono text-white/35 disabled:text-white/15 transition-colors ${mono ? "hover:text-black" : "hover:text-[#FF6100]"}`}
             >
               Reanalyze ↻
             </button>
@@ -267,8 +278,8 @@ export function GatoControls({
       <div className="mt-auto pt-3 border-t border-white/5">
         {isPlaying ? (
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#FF6100" }} />
-            <span className="text-[9px] font-mono" style={{ color: "#FF6100" }}>Playing</span>
+            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: papayaHot }} />
+            <span className="text-[9px] font-mono" style={{ color: papayaHot }}>Playing</span>
           </div>
         ) : (
           <p className="text-[9px] font-mono text-white/20">
