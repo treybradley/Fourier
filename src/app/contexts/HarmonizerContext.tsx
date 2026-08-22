@@ -145,7 +145,33 @@ export function useHarmonizer() {
 interface TrackGraph {
   trackGain: GainNode;
   harmonyGain: GainNode;
-  sources: AudioBufferSourceNode[];
+  rootSource: AudioBufferSourceNode | null;
+  voiceSources: Map<number, AudioBufferSourceNode>;
+}
+
+function stopSource(source: AudioBufferSourceNode | null | undefined) {
+  if (!source) return;
+  try {
+    source.stop();
+  } catch {
+    /* already stopped */
+  }
+  try {
+    source.disconnect();
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Current offset (seconds) into the master loop, for mid-loop voice starts. */
+function loopOffsetSeconds(
+  ctx: AudioContext,
+  masterStart: number,
+  masterLength: number | null,
+): number {
+  if (!masterLength || masterLength <= 0 || masterStart <= 0) return 0;
+  const elapsed = ctx.currentTime - masterStart;
+  return ((elapsed % masterLength) + masterLength) % masterLength;
 }
 
 export function HarmonizerProvider({ children }: { children: React.ReactNode }) {
@@ -219,18 +245,9 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
     for (let i = 0; i < TRACK_COUNT; i++) {
       const g = graphsRef.current[i];
       if (!g) continue;
-      for (const s of g.sources) {
-        try {
-          s.stop();
-        } catch {
-          /* ignore */
-        }
-        try {
-          s.disconnect();
-        } catch {
-          /* ignore */
-        }
-      }
+      stopSource(g.rootSource);
+      for (const src of g.voiceSources.values()) stopSource(src);
+      g.voiceSources.clear();
       try {
         g.harmonyGain.disconnect();
       } catch {
@@ -267,27 +284,67 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
       harmonyGain.gain.value = track.isMuted ? 0 : track.harmonyMix;
       harmonyGain.connect(master);
 
-      const sources: AudioBufferSourceNode[] = [];
-
       const rootSrc = ctx.createBufferSource();
       rootSrc.buffer = track.rootBuffer;
       rootSrc.loop = true;
       rootSrc.connect(trackGain);
       rootSrc.start(when);
-      sources.push(rootSrc);
 
+      const voiceSources = new Map<number, AudioBufferSourceNode>();
       for (const voice of track.voices) {
         const vs = ctx.createBufferSource();
         vs.buffer = voice.buffer;
         vs.loop = true;
         vs.connect(harmonyGain);
         vs.start(when);
-        sources.push(vs);
+        voiceSources.set(voice.semitones, vs);
       }
 
-      graphsRef.current[trackId] = { trackGain, harmonyGain, sources };
+      graphsRef.current[trackId] = {
+        trackGain,
+        harmonyGain,
+        rootSource: rootSrc,
+        voiceSources,
+      };
     });
   }, [getCtx, stopGraph]);
+
+  /** Start one harmony voice mid-loop without restarting the rest. */
+  const startVoiceLive = useCallback(
+    (trackId: number, semitones: number, buffer: AudioBuffer) => {
+      if (!isPlayingRef.current) return;
+      const ctx = audioContextRef.current;
+      const g = graphsRef.current[trackId];
+      if (!ctx || !g) return;
+
+      stopSource(g.voiceSources.get(semitones));
+      g.voiceSources.delete(semitones);
+
+      const offset = loopOffsetSeconds(
+        ctx,
+        masterStartRef.current,
+        masterLengthRef.current,
+      );
+      const vs = ctx.createBufferSource();
+      vs.buffer = buffer;
+      vs.loop = true;
+      vs.connect(g.harmonyGain);
+      try {
+        vs.start(ctx.currentTime, Math.min(offset, Math.max(0, buffer.duration - 0.001)));
+      } catch {
+        vs.start(ctx.currentTime);
+      }
+      g.voiceSources.set(semitones, vs);
+    },
+    [],
+  );
+
+  const stopVoiceLive = useCallback((trackId: number, semitones: number) => {
+    const g = graphsRef.current[trackId];
+    if (!g) return;
+    stopSource(g.voiceSources.get(semitones));
+    g.voiceSources.delete(semitones);
+  }, []);
 
   const play = useCallback(() => {
     const ctx = getCtx();
@@ -547,6 +604,7 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
 
       const active = track.voices.map((v) => v.semitones);
       if (active.includes(semitones)) {
+        stopVoiceLive(trackId, semitones);
         setTracks((prev) => {
           const next = [...prev];
           next[trackId] = {
@@ -556,7 +614,6 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
           tracksRef.current = next;
           return next;
         });
-        queueMicrotask(() => rebuildIfPlaying(tracksRef.current));
         return;
       }
 
@@ -578,23 +635,29 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
           buffer = await pitchShiftBuffer(track.rootBuffer, semitones);
           pitchCacheRef.current.set(key, buffer);
         }
+        // Root may have changed while pitch-shifting
+        const cur = tracksRef.current[trackId];
+        if (!cur?.rootBuffer || rootToken(cur.rootBuffer) !== token) return;
+        if (cur.voices.some((v) => v.semitones === semitones)) return;
+        if (cur.voices.length >= 4) return;
+
         setTracks((prev) => {
-          const cur = prev[trackId];
-          if (!cur?.rootBuffer) return prev;
-          if (cur.voices.some((v) => v.semitones === semitones)) return prev;
-          if (cur.voices.length >= 4) return prev;
+          const t = prev[trackId];
+          if (!t?.rootBuffer) return prev;
+          if (t.voices.some((v) => v.semitones === semitones)) return prev;
+          if (t.voices.length >= 4) return prev;
           const next = [...prev];
           next[trackId] = {
-            ...cur,
-            voices: [...cur.voices, { semitones, buffer: buffer! }].sort(
+            ...t,
+            voices: [...t.voices, { semitones, buffer: buffer! }].sort(
               (a, b) => a.semitones - b.semitones,
             ),
           };
           tracksRef.current = next;
           return next;
         });
+        startVoiceLive(trackId, semitones, buffer);
         setError(null);
-        queueMicrotask(() => rebuildIfPlaying(tracksRef.current));
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Pitch shift failed",
@@ -603,7 +666,7 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
         setShiftingSemitone(null);
       }
     },
-    [rebuildIfPlaying],
+    [startVoiceLive, stopVoiceLive],
   );
 
   const setTrackVolume = useCallback(
