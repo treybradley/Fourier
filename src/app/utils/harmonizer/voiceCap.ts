@@ -1,4 +1,4 @@
-export const MAX_VOICES_PER_TRACK = 4;
+export const MAX_VOICES_PER_TRACK = 6;
 export const SEMITONE_MIN = -12;
 export const SEMITONE_MAX = 12;
 

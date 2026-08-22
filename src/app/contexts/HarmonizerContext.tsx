@@ -15,6 +15,7 @@ import {
 } from "../utils/harmonizer/pitchShiftCache";
 import { pitchShiftBuffer } from "../utils/harmonizer/pitchShiftBuffer";
 import {
+  MAX_VOICES_PER_TRACK,
   SEMITONE_MAX,
   SEMITONE_MIN,
   canEnableVoice,
@@ -618,7 +619,7 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
       }
 
       if (!canEnableVoice(active, semitones)) {
-        setError("Mute a voice first (max 4)");
+        setError("Mute a voice first (max 6)");
         return;
       }
 
@@ -639,13 +640,13 @@ export function HarmonizerProvider({ children }: { children: React.ReactNode }) 
         const cur = tracksRef.current[trackId];
         if (!cur?.rootBuffer || rootToken(cur.rootBuffer) !== token) return;
         if (cur.voices.some((v) => v.semitones === semitones)) return;
-        if (cur.voices.length >= 4) return;
+        if (cur.voices.length >= MAX_VOICES_PER_TRACK) return;
 
         setTracks((prev) => {
           const t = prev[trackId];
           if (!t?.rootBuffer) return prev;
           if (t.voices.some((v) => v.semitones === semitones)) return prev;
-          if (t.voices.length >= 4) return prev;
+          if (t.voices.length >= MAX_VOICES_PER_TRACK) return prev;
           const next = [...prev];
           next[trackId] = {
             ...t,

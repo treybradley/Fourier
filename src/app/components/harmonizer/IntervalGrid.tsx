@@ -188,7 +188,7 @@ export function IntervalGrid({
               >
                 {atCap && !active ? (
                   <p className="text-[10px] tracking-wide text-white/55">
-                    Mute a voice first (max 4)
+                    Mute a voice first (max 6)
                   </p>
                 ) : (
                   <div className="flex flex-col gap-0.5 text-left">

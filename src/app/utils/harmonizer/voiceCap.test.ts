@@ -11,14 +11,14 @@ describe("voiceCap", () => {
   });
 
   it("blocks enabling a new interval at cap", () => {
-    const active = [3, 5, 7, 12];
+    const active = [3, 5, 7, 12, -5, -7];
     expect(active.length).toBe(MAX_VOICES_PER_TRACK);
-    expect(canEnableVoice(active, -5)).toBe(false);
+    expect(canEnableVoice(active, -4)).toBe(false);
   });
 
   it("allows disabling an active interval at cap", () => {
-    const next = toggleVoiceSemitone([3, 5, 7, 12], 5);
-    expect(next).toEqual([3, 7, 12]);
+    const next = toggleVoiceSemitone([3, 5, 7, 12, -5, -7], 5);
+    expect(next).toEqual([3, 7, 12, -5, -7]);
   });
 
   it("ignores root (0) toggles", () => {
@@ -26,6 +26,8 @@ describe("voiceCap", () => {
   });
 
   it("does not add past cap", () => {
-    expect(toggleVoiceSemitone([3, 5, 7, 12], -7)).toEqual([3, 5, 7, 12]);
+    expect(toggleVoiceSemitone([3, 5, 7, 12, -5, -7], -4)).toEqual([
+      3, 5, 7, 12, -5, -7,
+    ]);
   });
 });
