@@ -260,11 +260,14 @@ export async function separateStems(
   source: AudioBuffer,
   audioCtx: AudioContext,
   callbacks: SeparationCallbacks,
-  signal?: AbortSignal
-): Promise<Record<StemName, AudioBuffer>> {
+  signal?: AbortSignal,
+  stems: StemName[] = STEM_NAMES,
+): Promise<Partial<Record<StemName, AudioBuffer>>> {
   // Dynamic import so app builds even before onnxruntime-web is installed
   const ort = await import("onnxruntime-web");
   ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.27.0/dist/";
+
+  const selected = stems.length > 0 ? stems : STEM_NAMES;
 
   const resampled = await resampleTo44100(source);
   const ch0 = resampled.getChannelData(0);
@@ -277,7 +280,7 @@ export async function separateStems(
 
   const results: Partial<Record<StemName, AudioBuffer>> = {};
 
-  for (const stem of STEM_NAMES) {
+  for (const stem of selected) {
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
 
     const modelData = await fetchModel(
@@ -325,7 +328,7 @@ export async function separateStems(
     results[stem] = outBuf;
   }
 
-  return results as Record<StemName, AudioBuffer>;
+  return results;
 }
 
 // ── WAV export ────────────────────────────────────────────────────────────────

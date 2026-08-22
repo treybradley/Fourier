@@ -17,6 +17,10 @@ interface StemSeparatorState {
   sourceFile: File | null;
   sourceBuffer: AudioBuffer | null;
   stage: SeparationStage;
+  /** Stems the user wants to separate (upload screen). */
+  selectedStems: Record<StemName, boolean>;
+  /** Stems included in the current/last separation run. */
+  runStems: StemName[];
   modelProgress: Record<StemName, number>;
   modelCached: Record<StemName, boolean>;
   stemProgress: Record<StemName, StemProgress>;
@@ -25,18 +29,24 @@ interface StemSeparatorState {
   isPlaying: boolean;
   stemVolumes: Record<StemName, number>;
   mutedStems: Record<StemName, boolean>;
+  originalVolume: number;
+  originalMuted: boolean;
   error: string | null;
 }
 
 export interface StemSeparatorContextValue extends StemSeparatorState {
   loadFile: (file: File) => Promise<void>;
+  toggleStemSelection: (stem: StemName) => void;
   startSeparation: () => Promise<void>;
   play: () => void;
   pause: () => void;
   seek: (time: number) => void;
   setStemVolume: (stem: StemName, volume: number) => void;
   toggleMute: (stem: StemName) => void;
+  setOriginalVolume: (volume: number) => void;
+  toggleOriginalMute: () => void;
   downloadStem: (stem: StemName) => void;
+  downloadOriginal: () => void;
   reset: () => void;
   getPlayheadTime: () => number;
 }
@@ -49,6 +59,8 @@ const INITIAL_STATE: StemSeparatorState = {
   sourceFile: null,
   sourceBuffer: null,
   stage: "idle",
+  selectedStems: makeRecord(true),
+  runStems: [...STEM_NAMES],
   modelProgress: makeRecord(0),
   modelCached: makeRecord(false),
   stemProgress: makeRecord({ done: 0, total: 0 }),
@@ -57,6 +69,8 @@ const INITIAL_STATE: StemSeparatorState = {
   isPlaying: false,
   stemVolumes: makeRecord(1),
   mutedStems: makeRecord(false),
+  originalVolume: 1,
+  originalMuted: true,
   error: null,
 };
 
@@ -70,12 +84,17 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
   const resultsRef = useRef<Record<StemName, AudioBuffer | null>>(makeRecord(null));
   const sourceNodesRef = useRef<Record<StemName, AudioBufferSourceNode | null>>(makeRecord(null));
   const gainNodesRef = useRef<Record<StemName, GainNode | null>>(makeRecord(null));
+  const originalSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const originalGainRef = useRef<GainNode | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const isPlayingRef = useRef(false);
-  const playheadOffsetRef = useRef(0);   // seconds into buffer when play started
-  const playStartCtxTimeRef = useRef(0); // AudioContext.currentTime when play started
+  const playheadOffsetRef = useRef(0);
+  const playStartCtxTimeRef = useRef(0);
   const stemVolumesRef = useRef<Record<StemName, number>>(makeRecord(1));
   const mutedStemsRef = useRef<Record<StemName, boolean>>(makeRecord(false));
+  const originalVolumeRef = useRef(1);
+  const originalMutedRef = useRef(true);
+  const selectedStemsRef = useRef<Record<StemName, boolean>>(makeRecord(true));
 
   function getAudioCtx(): AudioContext {
     if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
@@ -95,21 +114,34 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
         gainNodesRef.current[stem] = gain;
       }
     });
+    if (!originalGainRef.current) {
+      const gain = ctx.createGain();
+      gain.gain.value = originalMutedRef.current ? 0 : originalVolumeRef.current;
+      gain.connect(ctx.destination);
+      originalGainRef.current = gain;
+    }
   }
 
   function stopAllSources() {
     STEM_NAMES.forEach(stem => {
-      try { sourceNodesRef.current[stem]?.stop(); } catch {}
+      try { sourceNodesRef.current[stem]?.stop(); } catch { /* already stopped */ }
       sourceNodesRef.current[stem] = null;
     });
+    try { originalSourceRef.current?.stop(); } catch { /* already stopped */ }
+    originalSourceRef.current = null;
+  }
+
+  function getDuration(): number {
+    const sourceDur = sourceBufferRef.current?.duration ?? 0;
+    const stemDur =
+      STEM_NAMES.map(s => resultsRef.current[s]?.duration ?? 0).find(d => d > 0) ?? 0;
+    return Math.max(sourceDur, stemDur);
   }
 
   const getPlayheadTime = useCallback((): number => {
     if (!isPlayingRef.current || !audioCtxRef.current) return playheadOffsetRef.current;
     const elapsed = audioCtxRef.current.currentTime - playStartCtxTimeRef.current;
-    const results = resultsRef.current;
-    const duration = STEM_NAMES.map(s => results[s]?.duration ?? 0).find(d => d > 0) ?? 0;
-    return Math.min(playheadOffsetRef.current + elapsed, duration);
+    return Math.min(playheadOffsetRef.current + elapsed, getDuration());
   }, []);
 
   const play = useCallback(() => {
@@ -122,6 +154,22 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
     isPlayingRef.current = true;
 
     let anyStarted = false;
+    const onEnded = (node: AudioBufferSourceNode, clear: () => void) => {
+      node.onended = () => {
+        if (isPlayingRef.current) {
+          clear();
+          const stillGoing =
+            STEM_NAMES.some(s => sourceNodesRef.current[s] != null) ||
+            originalSourceRef.current != null;
+          if (!stillGoing) {
+            isPlayingRef.current = false;
+            playheadOffsetRef.current = 0;
+            setState(p => ({ ...p, isPlaying: false }));
+          }
+        }
+      };
+    };
+
     STEM_NAMES.forEach(stem => {
       const buf = resultsRef.current[stem];
       if (!buf) return;
@@ -131,15 +179,23 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
       source.start(0, playheadOffsetRef.current);
       sourceNodesRef.current[stem] = source;
       anyStarted = true;
-      // When the last source ends naturally, update playing state
-      source.onended = () => {
-        if (isPlayingRef.current && sourceNodesRef.current[stem] === source) {
-          isPlayingRef.current = false;
-          playheadOffsetRef.current = 0;
-          setState(p => ({ ...p, isPlaying: false }));
-        }
-      };
+      onEnded(source, () => {
+        if (sourceNodesRef.current[stem] === source) sourceNodesRef.current[stem] = null;
+      });
     });
+
+    const original = sourceBufferRef.current;
+    if (original) {
+      const source = ctx.createBufferSource();
+      source.buffer = original;
+      source.connect(originalGainRef.current!);
+      source.start(0, playheadOffsetRef.current);
+      originalSourceRef.current = source;
+      anyStarted = true;
+      onEnded(source, () => {
+        if (originalSourceRef.current === source) originalSourceRef.current = null;
+      });
+    }
 
     if (anyStarted) setState(p => ({ ...p, isPlaying: true }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -158,7 +214,6 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
     isPlayingRef.current = false;
     stopAllSources();
     if (wasPlaying) {
-      // Tiny delay so stop() completes before we restart
       setTimeout(() => play(), 0);
     }
   }, [play]);
@@ -179,6 +234,33 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
       gainNodesRef.current[stem]!.gain.value = muted ? 0 : stemVolumesRef.current[stem];
     }
     setState(p => ({ ...p, mutedStems: { ...p.mutedStems, [stem]: muted } }));
+  }, []);
+
+  const setOriginalVolume = useCallback((volume: number) => {
+    originalVolumeRef.current = volume;
+    if (originalGainRef.current) {
+      originalGainRef.current.gain.value = originalMutedRef.current ? 0 : volume;
+    }
+    setState(p => ({ ...p, originalVolume: volume }));
+  }, []);
+
+  const toggleOriginalMute = useCallback(() => {
+    const muted = !originalMutedRef.current;
+    originalMutedRef.current = muted;
+    if (originalGainRef.current) {
+      originalGainRef.current.gain.value = muted ? 0 : originalVolumeRef.current;
+    }
+    setState(p => ({ ...p, originalMuted: muted }));
+  }, []);
+
+  const toggleStemSelection = useCallback((stem: StemName) => {
+    setState(p => {
+      const next = { ...p.selectedStems, [stem]: !p.selectedStems[stem] };
+      // Keep at least one stem selected
+      if (!STEM_NAMES.some(s => next[s])) return p;
+      selectedStemsRef.current = next;
+      return { ...p, selectedStems: next };
+    });
   }, []);
 
   const loadFile = useCallback(async (file: File) => {
@@ -204,30 +286,37 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
   const startSeparation = useCallback(async () => {
     const sourceBuffer = sourceBufferRef.current;
     if (!sourceBuffer) return;
+
+    const stems = STEM_NAMES.filter(s => selectedStemsRef.current[s]);
+    if (stems.length === 0) return;
+
     abortRef.current?.abort();
     abortRef.current = new AbortController();
     isPlayingRef.current = false;
     playheadOffsetRef.current = 0;
     stopAllSources();
-    // Reset gain nodes so they're recreated with fresh state
     gainNodesRef.current = makeRecord(null);
+    originalGainRef.current = null;
 
     setState(p => ({
       ...p,
       stage: "downloading",
+      runStems: stems,
       modelProgress: makeRecord(0),
       modelCached: makeRecord(false),
       stemProgress: makeRecord({ done: 0, total: 0 }),
       activeStem: null,
       results: makeRecord(null),
       isPlaying: false,
+      originalMuted: true,
       error: null,
     }));
+    originalMutedRef.current = true;
     resultsRef.current = makeRecord(null);
 
     try {
       const ctx = getAudioCtx();
-      const results = await separateStems(
+      const partial = await separateStems(
         sourceBuffer,
         ctx,
         {
@@ -247,8 +336,13 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
             }));
           },
         },
-        abortRef.current.signal
+        abortRef.current.signal,
+        stems,
       );
+      const results = makeRecord(null);
+      for (const stem of STEM_NAMES) {
+        results[stem] = partial[stem] ?? null;
+      }
       resultsRef.current = results;
       setState(p => ({ ...p, stage: "done", results, activeStem: null }));
     } catch (e) {
@@ -276,16 +370,32 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }, []);
 
+  const downloadOriginal = useCallback(() => {
+    const buf = sourceBufferRef.current;
+    if (!buf) return;
+    const blob = audioBufferToWav(buf);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "full-track.wav";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }, []);
+
   const reset = useCallback(() => {
     abortRef.current?.abort();
     isPlayingRef.current = false;
     playheadOffsetRef.current = 0;
     stopAllSources();
     gainNodesRef.current = makeRecord(null);
+    originalGainRef.current = null;
     sourceBufferRef.current = null;
     resultsRef.current = makeRecord(null);
     stemVolumesRef.current = makeRecord(1);
     mutedStemsRef.current = makeRecord(false);
+    originalVolumeRef.current = 1;
+    originalMutedRef.current = true;
+    selectedStemsRef.current = makeRecord(true);
     setState(INITIAL_STATE);
   }, []);
 
@@ -302,6 +412,12 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
         sourceNodesRef.current[stem] = null;
       });
       try {
+        originalSourceRef.current?.stop();
+      } catch {
+        /* already stopped */
+      }
+      originalSourceRef.current = null;
+      try {
         audioCtxRef.current?.close();
       } catch {
         /* already closed */
@@ -314,10 +430,14 @@ export function StemSeparatorProvider({ children }: { children: React.ReactNode 
     <StemSeparatorContext.Provider
       value={{
         ...state,
-        loadFile, startSeparation,
+        loadFile,
+        toggleStemSelection,
+        startSeparation,
         play, pause, seek,
         setStemVolume, toggleMute,
-        downloadStem, reset,
+        setOriginalVolume, toggleOriginalMute,
+        downloadStem, downloadOriginal,
+        reset,
         getPlayheadTime,
       }}
     >
