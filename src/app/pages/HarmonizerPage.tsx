@@ -323,6 +323,11 @@ function HarmonizerInner() {
                   onSelect={() => setSelectedTrack(id)}
                 />
               ))}
+              {!selected?.rootBuffer && (
+                <p className="md:hidden font-mono text-[11px] text-white/30 px-1 pt-1">
+                  Select a loaded track to stack intervals.
+                </p>
+              )}
             </div>
 
             <div className="hidden md:flex lg:w-[38%] xl:w-[36%] shrink-0 rounded-sm border border-white/10 bg-white/[0.03] p-3 flex-col gap-3 min-h-[180px] overflow-y-auto">
@@ -349,9 +354,9 @@ function HarmonizerInner() {
           </div>
         </div>
 
-        {/* Mobile interval grid */}
-        <div className="md:hidden rounded-sm border border-white/10 bg-white/[0.03] p-3">
-          {selected?.rootBuffer ? (
+        {/* Mobile interval grid — only when a track has audio */}
+        {selected?.rootBuffer && (
+          <div className="md:hidden rounded-sm border border-white/10 bg-white/[0.03] p-3">
             <IntervalGrid
               activeSemitones={selected.voices.map((v) => v.semitones)}
               shiftingSemitone={
@@ -361,12 +366,8 @@ function HarmonizerInner() {
               }
               onToggle={(s) => void toggleVoice(selectedTrack, s)}
             />
-          ) : (
-            <p className="font-mono text-[11px] text-white/30">
-              Select a loaded track to stack intervals.
-            </p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -525,8 +525,8 @@ export function GridApp() {
       </div>
 
       {state.mode === "live" ? (
-        <div className="flex-1 min-h-0 flex flex-col md:flex-row gap-3 overflow-y-auto md:overflow-y-visible">
-          <div className="flex-1 min-w-0 min-h-0 md:h-full">
+        <div className="flex-1 min-h-0 flex flex-col md:flex-row gap-3 overflow-hidden md:overflow-y-visible">
+          <div className="flex-1 min-w-0 min-h-[180px] md:min-h-0 md:h-full shrink-0 md:shrink">
             <PadGrid
               pads={state.pads}
               selectedPadId={state.selectedPadId}
@@ -538,7 +538,7 @@ export function GridApp() {
           </div>
 
           <div
-            className="md:w-72 shrink-0 md:h-full rounded-[12px] overflow-hidden p-3"
+            className="md:w-72 shrink-0 min-h-0 flex-1 md:flex-none md:h-full max-h-[48vh] md:max-h-none rounded-[12px] overflow-hidden p-3"
             style={{
               background: mono ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.25)",
               border: mono

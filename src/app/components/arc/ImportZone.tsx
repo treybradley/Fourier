@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 interface ImportZoneProps {
   onFiles: (files: FileList | File[]) => void;
@@ -6,11 +7,11 @@ interface ImportZoneProps {
 }
 
 const ACCENT = "#EB00F7";
-const ACCENT2 = "#009DFF";
 
 export function ImportZone({ onFiles, compact = false }: ImportZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { mono } = useVisualMode();
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -56,9 +57,25 @@ export function ImportZone({ onFiles, compact = false }: ImportZoneProps) {
           onDragLeave={handleDragLeave}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border text-[10px] font-mono tracking-widest uppercase transition-all"
           style={{
-            borderColor: isDragging ? ACCENT : "rgba(255,255,255,0.15)",
-            color: isDragging ? ACCENT : "rgba(255,255,255,0.45)",
-            background: isDragging ? `${ACCENT}12` : "transparent",
+            borderColor: isDragging
+              ? mono
+                ? "rgba(0,0,0,0.55)"
+                : ACCENT
+              : mono
+                ? "rgba(0,0,0,0.25)"
+                : "rgba(255,255,255,0.15)",
+            color: isDragging
+              ? mono
+                ? "#111111"
+                : ACCENT
+              : mono
+                ? "rgba(0,0,0,0.55)"
+                : "rgba(255,255,255,0.45)",
+            background: isDragging
+              ? mono
+                ? "rgba(0,0,0,0.06)"
+                : `${ACCENT}12`
+              : "transparent",
           }}
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -70,6 +87,11 @@ export function ImportZone({ onFiles, compact = false }: ImportZoneProps) {
     );
   }
 
+  const idleBorder = mono ? "rgba(0,0,0,0.28)" : "rgba(255,255,255,0.18)";
+  const activeBorder = mono ? "rgba(0,0,0,0.55)" : ACCENT;
+  const idleBg = mono ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)";
+  const activeBg = mono ? "rgba(0,0,0,0.08)" : `${ACCENT}0A`;
+
   return (
     <>
       <input
@@ -80,31 +102,47 @@ export function ImportZone({ onFiles, compact = false }: ImportZoneProps) {
         className="hidden"
         onChange={handleChange}
       />
-      <div
-        className="flex flex-col items-center justify-center gap-5 rounded-sm border-2 border-dashed cursor-pointer transition-all p-10"
+      <button
+        type="button"
+        className="w-full flex flex-col items-center justify-center gap-4 rounded-sm border-2 border-dashed cursor-pointer transition-all px-8 py-8 text-left"
         style={{
-          borderColor: isDragging ? ACCENT : "rgba(255,255,255,0.08)",
-          background: isDragging ? `${ACCENT}0A` : "rgba(255,255,255,0.015)",
+          borderColor: isDragging ? activeBorder : idleBorder,
+          background: isDragging ? activeBg : idleBg,
         }}
         onClick={handleClick}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
+        <span
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-sm border text-[11px] font-mono tracking-widest uppercase"
+          style={{
+            borderColor: mono ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.25)",
+            background: mono ? "#111111" : "rgba(255,255,255,0.08)",
+            color: mono ? "#ffffff" : "rgba(255,255,255,0.85)",
+          }}
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          {isDragging ? "Drop to import" : "Import audio files"}
+        </span>
 
-        <div className="text-center space-y-1.5">
-          <p className="text-white/60 text-sm font-medium">
-            {isDragging ? "Drop to import" : "Import audio files"}
-          </p>
-          <p className="text-white/25 text-[10px] font-mono">
+        <div className="text-center space-y-1">
+          <p
+            className="text-[10px] font-mono"
+            style={{ color: mono ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.35)" }}
+          >
             drag & drop or click to browse · MP3, WAV, FLAC, AAC
           </p>
+          <p
+            className="text-[9px] font-mono tracking-wider uppercase"
+            style={{ color: mono ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.15)" }}
+          >
+            Arc analyzes BPM, key, energy, and more
+          </p>
         </div>
-
-        <p className="text-[9px] font-mono text-white/15 tracking-wider uppercase">
-          Arc analyzes BPM, key, energy, and more
-        </p>
-      </div>
+      </button>
     </>
   );
 }

@@ -77,7 +77,6 @@ export function WebcamFeed({
         style={staging ? { background: "#ffffff" } : undefined}
         {...(staging ? {} : { "data-visual-exempt": true })}
       >
-        {/* Hidden camera source for compositor + MediaPipe */}
         <video
           ref={videoRef as React.RefObject<HTMLVideoElement>}
           className="absolute w-px h-px opacity-0 pointer-events-none"
@@ -86,70 +85,60 @@ export function WebcamFeed({
           playsInline
         />
 
-        <div
-          className="relative h-full max-w-full mx-auto"
-          style={{ aspectRatio }}
-        >
-          <canvas
-            ref={canvasRef as React.RefObject<HTMLCanvasElement>}
-            className={`absolute inset-0 w-full h-full rounded-sm ${
-              staging ? "" : "bg-[#04050F]"
+        {/* Full-width gesture panel — not locked inside 9:16 */}
+        {!started && (
+          <motion.div
+            className={`w-full flex flex-col items-stretch justify-center gap-4 p-3 sm:p-4 rounded-sm ${
+              mono ? "" : "bg-black/85 backdrop-blur-sm"
             }`}
-            style={staging ? { background: "#ffffff" } : undefined}
-          />
-
-          {!started && (
-            <motion.div
-              className={`absolute inset-0 flex flex-col items-center justify-center gap-5 p-4 rounded-sm ${
-                mono ? "" : "bg-black/85 backdrop-blur-sm"
-              }`}
-              style={mono ? { background: "#ffffff" } : undefined}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <div className="w-full max-w-[15rem] space-y-1.5">
-                <p
-                  className={`text-[10px] font-mono uppercase tracking-widest mb-3 text-center ${
-                    mono ? "text-black/80" : "text-white/80"
+            style={mono ? { background: "#ffffff" } : undefined}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="w-full space-y-1.5">
+              <p
+                className={`text-[10px] font-mono uppercase tracking-widest mb-2 text-center ${
+                  mono ? "text-black/80" : "text-white/80"
+                }`}
+              >
+                Gesture controls
+              </p>
+              {GESTURES.map((g) => (
+                <div
+                  key={g.gesture}
+                  className={`flex items-center gap-2.5 rounded px-3 py-2 ${
+                    mono ? "bg-black/5" : "bg-white/5"
                   }`}
                 >
-                  Gesture controls
-                </p>
-                {GESTURES.map((g) => (
                   <div
-                    key={g.gesture}
-                    className={`flex items-center gap-2 rounded px-2.5 py-1.5 ${
-                      mono ? "bg-black/5" : "bg-white/5"
+                    className={`w-1.5 h-1.5 rounded-sm flex-shrink-0 ${DOT[g.color]}`}
+                  />
+                  <span
+                    className={`text-[10px] font-mono w-3.5 flex-shrink-0 ${
+                      mono ? "text-black/70" : "text-white/80"
                     }`}
                   >
-                    <div
-                      className={`w-1.5 h-1.5 rounded-sm flex-shrink-0 ${DOT[g.color]}`}
-                    />
-                    <span
-                      className={`text-[9px] font-mono w-3 flex-shrink-0 ${
-                        mono ? "text-black/70" : "text-white/80"
-                      }`}
-                    >
-                      {g.hand}
-                    </span>
-                    <span
-                      className={`text-[9px] font-mono flex-1 leading-tight ${
-                        mono ? "text-black/85" : "text-white/90"
-                      }`}
-                    >
-                      {g.gesture}
-                    </span>
-                    <span
-                      className={`text-[9px] font-mono text-right ${
-                        mono ? "text-black/65" : "text-white/75"
-                      }`}
-                    >
-                      {g.action}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                    {g.hand}
+                  </span>
+                  <span
+                    className={`text-[10px] font-mono flex-1 leading-snug min-w-0 ${
+                      mono ? "text-black/85" : "text-white/90"
+                    }`}
+                  >
+                    {g.gesture}
+                  </span>
+                  <span
+                    className={`text-[10px] font-mono text-right shrink-0 whitespace-nowrap ${
+                      mono ? "text-black/65" : "text-white/75"
+                    }`}
+                  >
+                    {g.action}
+                  </span>
+                </div>
+              ))}
+            </div>
 
+            <div className="flex justify-center">
               <motion.button
                 type="button"
                 onClick={onStart}
@@ -164,8 +153,30 @@ export function WebcamFeed({
               >
                 Enable camera
               </motion.button>
-            </motion.div>
-          )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Single canvas always mounted; 9:16 only when live */}
+        <div
+          className={
+            started
+              ? "relative h-full max-w-full mx-auto"
+              : "absolute w-px h-px overflow-hidden opacity-0 pointer-events-none"
+          }
+          style={started ? { aspectRatio } : undefined}
+        >
+          <canvas
+            ref={canvasRef as React.RefObject<HTMLCanvasElement>}
+            className={
+              started
+                ? `absolute inset-0 w-full h-full rounded-sm ${
+                    staging ? "" : "bg-[#04050F]"
+                  }`
+                : "w-px h-px"
+            }
+            style={started && staging ? { background: "#ffffff" } : undefined}
+          />
 
           {started && !isReady && !error && (
             <div
@@ -191,7 +202,7 @@ export function WebcamFeed({
             </div>
           )}
 
-          {error && (
+          {started && error && (
             <div
               className={`absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center rounded-sm ${
                 mono ? "" : "bg-black/70"

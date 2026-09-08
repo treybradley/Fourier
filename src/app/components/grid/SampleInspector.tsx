@@ -25,208 +25,124 @@ function WaveformCanvas({
   trimEnd: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { accent, ink } = useVisualMode();
   const accentA = accent("#62FF00");
   const accentB = accent("#FBFF00", "#555555");
   const [zoom, setZoom] = useState(1);
-  const [viewStart, setViewStart] = useState(0);
-  const dragRef = useRef<{
-    startX: number;
-    startView: number;
-  } | null>(null);
-
-  const viewWidth = 1 / zoom;
-  const clampedViewStart = Math.max(
-    0,
-    Math.min(viewStart, 1 - viewWidth),
-  );
-  const viewEnd = clampedViewStart + viewWidth;
 
   function zoomIn() {
-    const newZoom = Math.min(zoom * 2, 32);
-    const newWidth = 1 / newZoom;
-    const center = (trimStart + trimEnd) / 2;
-    setZoom(newZoom);
-    setViewStart(
-      Math.max(0, Math.min(center - newWidth / 2, 1 - newWidth)),
-    );
+    setZoom((z) => Math.min(z * 2, 32));
   }
 
   function zoomOut() {
-    const newZoom = Math.max(zoom / 2, 1);
-    const newWidth = 1 / newZoom;
-    const center = clampedViewStart + viewWidth / 2;
-    setZoom(newZoom);
-    setViewStart(
-      Math.max(0, Math.min(center - newWidth / 2, 1 - newWidth)),
-    );
-  }
-
-  function onMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
-    if (zoom <= 1) return;
-    dragRef.current = {
-      startX: e.clientX,
-      startView: clampedViewStart,
-    };
-  }
-  function onMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
-    if (!dragRef.current) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dx =
-      (e.clientX - dragRef.current.startX) / canvas.offsetWidth;
-    setViewStart(
-      Math.max(
-        0,
-        Math.min(
-          dragRef.current.startView - dx * viewWidth,
-          1 - viewWidth,
-        ),
-      ),
-    );
-  }
-  function onMouseUp() {
-    dragRef.current = null;
+    setZoom((z) => Math.max(z / 2, 1));
   }
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const W = canvas.offsetWidth || 200;
-    const H = canvas.offsetHeight || 80;
-    const dpr = window.devicePixelRatio;
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    const ctx = canvas.getContext("2d")!;
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, W, H);
+    const scroll = scrollRef.current;
+    if (!canvas || !scroll) return;
 
-    const data = buffer.getChannelData(0);
-    const startSample = Math.floor(clampedViewStart * data.length);
-    const endSample = Math.floor(viewEnd * data.length);
-    const visibleSamples = Math.max(1, endSample - startSample);
-    const step = Math.max(1, Math.ceil(visibleSamples / W));
+    const draw = () => {
+      const cssH = 48;
+      const containerW = scroll.clientWidth || 200;
+      const cssW = Math.max(containerW, Math.round(containerW * zoom));
+      const dpr = window.devicePixelRatio || 1;
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
 
-    ctx.strokeStyle = accentA;
-    ctx.lineWidth = 1;
-    for (let x = 0; x < W; x++) {
-      let max = 0;
-      const base =
-        startSample + Math.floor((x / W) * visibleSamples);
-      for (let j = 0; j < step; j++) {
-        const v = Math.abs(data[base + j] ?? 0);
-        if (v > max) max = v;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssW, cssH);
+
+      const data = buffer.getChannelData(0);
+      const step = Math.max(1, Math.ceil(data.length / cssW));
+
+      ctx.strokeStyle = accentA;
+      ctx.lineWidth = 1;
+      for (let x = 0; x < cssW; x++) {
+        let max = 0;
+        const base = Math.floor((x / cssW) * data.length);
+        for (let j = 0; j < step; j++) {
+          const v = Math.abs(data[base + j] ?? 0);
+          if (v > max) max = v;
+        }
+        // Near-full height; little unused vertical padding
+        const h = max * cssH * 0.49;
+        const norm = x / cssW;
+        const inTrim = norm >= trimStart && norm <= trimEnd;
+        ctx.globalAlpha = inTrim ? 0.7 : 0.18;
+        ctx.beginPath();
+        ctx.moveTo(x + 0.5, cssH / 2 - h);
+        ctx.lineTo(x + 0.5, cssH / 2 + h);
+        ctx.stroke();
       }
-      const h = max * H * 0.42;
-      const norm = clampedViewStart + (x / W) * viewWidth;
-      const inTrim = norm >= trimStart && norm <= trimEnd;
-      ctx.globalAlpha = inTrim ? 0.65 : 0.15;
-      ctx.beginPath();
-      ctx.moveTo(x + 0.5, H / 2 - h);
-      ctx.lineTo(x + 0.5, H / 2 + h);
-      ctx.stroke();
-    }
 
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = accentB;
-    const markers = [trimStart, trimEnd];
-    markers.forEach((pos) => {
-      if (pos < clampedViewStart || pos > viewEnd) return;
-      const x = ((pos - clampedViewStart) / viewWidth) * W;
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, H);
-      ctx.stroke();
-    });
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = accentB;
+      [trimStart, trimEnd].forEach((pos) => {
+        const x = pos * cssW;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, cssH);
+        ctx.stroke();
+      });
+    };
 
-    ctx.globalAlpha = 0.5;
-    ctx.fillStyle = accentB;
-    ctx.font = "8px monospace";
-    if (trimStart < clampedViewStart)
-      ctx.fillText("◂", 2, H / 2 + 3);
-    if (trimEnd > viewEnd) ctx.fillText("▸", W - 8, H / 2 + 3);
-  }, [
-    buffer,
-    trimStart,
-    trimEnd,
-    zoom,
-    clampedViewStart,
-    viewEnd,
-    viewWidth,
-    accentA,
-    accentB,
-  ]);
+    draw();
+    const ro = new ResizeObserver(draw);
+    ro.observe(scroll);
+    return () => ro.disconnect();
+  }, [buffer, trimStart, trimEnd, zoom, accentA, accentB]);
 
   return (
-    <div className="select-none flex flex-col gap-1">
-      <div className="flex items-center justify-end gap-1 px-[6px] py-[6px]">
+    <div className="select-none flex flex-col gap-0">
+      <div className="flex items-center justify-end gap-1 px-1">
         {zoom > 1 && (
           <span
             className="text-[7px] font-mono mr-auto"
             style={{ color: ink(0.3) }}
           >
-            {zoom}×
+            {zoom}× · swipe
           </span>
         )}
         <button
+          type="button"
           onClick={zoomOut}
           disabled={zoom <= 1}
           className="w-5 h-5 flex items-center justify-center rounded-sm text-[10px] font-mono transition-colors border"
           style={{
             color: zoom <= 1 ? ink(0.15) : accentA,
-            borderColor:
-              zoom <= 1
-                ? ink(0.06)
-                : `${accentA}40`,
+            borderColor: zoom <= 1 ? ink(0.06) : `${accentA}40`,
           }}
         >
           −
         </button>
         <button
+          type="button"
           onClick={zoomIn}
           disabled={zoom >= 32}
           className="w-5 h-5 flex items-center justify-center rounded-sm text-[10px] font-mono transition-colors border"
           style={{
-            color:
-              zoom >= 32 ? ink(0.15) : accentA,
-            borderColor:
-              zoom >= 32
-                ? ink(0.06)
-                : `${accentA}40`,
+            color: zoom >= 32 ? ink(0.15) : accentA,
+            borderColor: zoom >= 32 ? ink(0.06) : `${accentA}40`,
           }}
         >
           +
         </button>
       </div>
-      <canvas
-        ref={canvasRef}
-        className="w-full rounded-sm"
-        style={{
-          height: "72px",
-          cursor: zoom > 1 ? "grab" : "default",
-        }}
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
-      />
-      {zoom > 1 && (
-        <div
-          className="mt-0.5 h-0.5 w-full rounded-full"
-          style={{ background: ink(0.08) }}
-        >
-          <div
-            className="h-full rounded-full"
-            style={{
-              background: accentA,
-              marginLeft: `${clampedViewStart * 100}%`,
-              width: `${viewWidth * 100}%`,
-              opacity: 0.5,
-            }}
-          />
-        </div>
-      )}
+      <div
+        ref={scrollRef}
+        className="overflow-x-auto overscroll-x-contain touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        <canvas ref={canvasRef} className="rounded-sm block" />
+      </div>
     </div>
   );
 }
@@ -332,7 +248,7 @@ export function SampleInspector({
   }
 
   return (
-    <div className="h-full flex flex-col gap-3 overflow-y-auto">
+    <div className="h-full flex flex-col gap-3 overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
           <div

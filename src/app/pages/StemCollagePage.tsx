@@ -200,30 +200,15 @@ function StemCollageInner() {
         />
 
         <div className="flex-1 flex flex-col lg:flex-row gap-3 min-h-0">
-          {handControl && (
-            <div className="flex-1 lg:flex-none lg:w-[32%] xl:w-[30%] min-h-[260px] lg:min-h-0">
-              <WebcamFeed
-                videoRef={videoRef}
-                canvasRef={canvasRef}
-                isReady={isReady}
-                started={started}
-                error={error}
-                isCapturing={isCapturing && hasVideo}
-                onStart={start}
-                onStop={() => void handleStopCamera()}
-              />
-            </div>
-          )}
-
+          {/* Rec / Hand in a row above the stage; full width on mobile */}
           <div
-            className={`min-h-0 flex gap-2 ${
+            className={`flex flex-col gap-2 shrink-0 ${
               handControl
-                ? "flex-1 lg:flex-none lg:w-[66%] xl:w-[68%]"
-                : "flex-1 w-full"
+                ? "w-full lg:w-[32%] xl:w-[30%] lg:min-h-0 min-h-0"
+                : ""
             }`}
           >
-            {/* Rec + Hand control rail */}
-            <div className="shrink-0 self-start flex flex-col gap-2">
+            <div className="shrink-0 flex flex-row items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
@@ -262,7 +247,7 @@ function StemCollageInner() {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent
-                  side="right"
+                  side="bottom"
                   sideOffset={8}
                   showArrow={false}
                   className={tipClass}
@@ -322,7 +307,7 @@ function StemCollageInner() {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent
-                  side="right"
+                  side="bottom"
                   sideOffset={8}
                   showArrow={false}
                   className={tipClass}
@@ -332,17 +317,32 @@ function StemCollageInner() {
               </Tooltip>
             </div>
 
-            <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-3 overflow-y-auto p-0">
-              {[1, 2, 3, 4].map((num, index) => (
-                <StemVisualizer
-                  key={num}
-                  stemIndex={index}
-                  stemNumber={num}
-                  isSelected={selectedStem === index}
-                  onSelect={() => setSelectedStem(index)}
+            {handControl && (
+              <div className="w-full min-h-[240px] lg:min-h-0 lg:flex-1">
+                <WebcamFeed
+                  videoRef={videoRef}
+                  canvasRef={canvasRef}
+                  isReady={isReady}
+                  started={started}
+                  error={error}
+                  isCapturing={isCapturing && hasVideo}
+                  onStart={start}
+                  onStop={() => void handleStopCamera()}
                 />
-              ))}
-            </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-3 overflow-y-auto p-0">
+            {[1, 2, 3, 4].map((num, index) => (
+              <StemVisualizer
+                key={num}
+                stemIndex={index}
+                stemNumber={num}
+                isSelected={selectedStem === index}
+                onSelect={() => setSelectedStem(index)}
+              />
+            ))}
           </div>
         </div>
 
