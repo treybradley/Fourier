@@ -16,7 +16,7 @@ Use **exactly these four sections**. Each image appears **once**. The live app a
 
 ## Intro line (optional, under the iframe)
 
-Fourier began as Matte Projects R&D for Replit’s VibeCon 2026 workshop. Among several Make/Replit prototypes from that contract, it’s the one I fully carried into a productized design-engineering showcase—by locking foundations and components early enough to keep iterating.
+Fourier began as Matte Projects R&D for Replit’s VibeCon 2026—meant to run on a computer station tied to real hardware for guided demos with a guest music producer, and as a standalone interactive hardware sculpture. It’s also the prototype I carried further by locking foundations and components early enough to keep iterating.
 
 ---
 
@@ -58,14 +58,14 @@ After VibeCon, the constraint wasn’t “one more demo”—it was adding instr
 
 ## 4. Architecture from VibeCon to product
 
-**Header:** Workshop surface → suite → design system as the scale layer
+**Header:** Station install and sculpture, then a suite that could grow
 
-The architecture follows the same path as the project: a single VibeCon playable surface, then a browser suite under one hub, with foundations and components acting as the layer that made expansion possible. Runtime stays client-side—MediaPipe interaction, Web Audio / ONNX / SoundTouch engines, UI shell, and local export. Sibling Matte experiments from the same period (Ouracle, Code as a Medium, Prompt Sculptor) stayed closer to one-off prototypes; Fourier is the one that used a shared system to keep going.
+Fourier wasn’t only a URL. For VibeCon it was designed to live on a computer station connected to real hardware—so a guest music producer could run guided demos and presentations—and as a standalone interactive sculpture guests could walk up to on the floor. The software architecture follows that path: a playable install surface, a multi-tool hub on the same machine, and foundations/components as the layer that made adding instruments practical. Runtime stays client-side (MediaPipe, Web Audio / ONNX / SoundTouch, UI shell, local export). That same cohesive system also transferred to other Matte / VibeCon builds, keeping consistency without reinventing the shell each time.
 
 **Image:** `05-architecture.png`  
-**Caption:** VibeCon → suite expansion → design system scale layer, beside the browser runtime stack.
+**Caption:** Guided station + interactive sculpture contexts, then suite expansion on a shared browser stack.
 
-**Closing line:** Fourier is the VibeCon prototype that became the lasting product. Keep scrolling for Ouracle, Code as a Medium, and Prompt Sculptor—the sibling Matte / Replit experiments from the same period.
+**Closing line:** Fourier is the VibeCon install that kept going as a product. Keep scrolling for Ouracle, Code as a Medium, and Prompt Sculptor—other Matte / Replit experiments from the same period.
 
 ---
 
