@@ -15,7 +15,7 @@ Fourier started as Matte Projects R&D for Replit VibeCon 2026 — a playable bro
 ## Figma file
 
 **Name:** Fourier — Design System & Architecture  
-Pages: Cover · Foundations (incl. color + mono, spacing, type) · Components · Screens
+Pages: Cover · Foundations (incl. color + mono, spacing, type) · Components · Screens · Architecture (VibeCon → suite)
 
 ## Portfolio sections (below iframe)
 

@@ -10,13 +10,13 @@ Use **exactly these four sections**. Each image appears **once**. The live app a
 | `02-suite-modes.png` | 2 — suite + color/mono |
 | `03-design-foundations.png` | 3 — foundations |
 | `04-design-components.png` | 3 — components |
-| `05-architecture.png` | 4 — bridge |
+| `05-architecture.png` | 4 — VibeCon → product architecture |
 
 ---
 
 ## Intro line (optional, under the iframe)
 
-Fourier began as Matte Projects R&D for Replit’s VibeCon 2026 workshop. Among several Make/Replit prototypes from that contract, it’s the one I fully carried into a productized design-engineering showcase.
+Fourier began as Matte Projects R&D for Replit’s VibeCon 2026 workshop. Among several Make/Replit prototypes from that contract, it’s the one I fully carried into a productized design-engineering showcase—by locking foundations and components early enough to keep iterating.
 
 ---
 
@@ -42,28 +42,28 @@ Beyond the demo moment, Fourier is a hub of mini-apps: looper, grid sampler, ste
 
 ---
 
-## 3. Design system from the live product
+## 3. Foundations and components that let the suite grow
 
-**Header:** Tokens and patterns from the real interface
+**Header:** A system built so I could iterate without redesigning the shell
 
-As the prototype became a maintained product, I documented the system from production—not the unused shadcn folder. Foundations cover the dark canvas, glass alphas, Roboto Mono type roles, spacing scale, radius, grain/atmosphere, per-tool accent pairs, and the color↔mono remap. Components focus on GlassContainer, hub cards, headers, HUD chips, transport/pads, and the unique algorithmic surfaces (corpus scatter, interval grid).
+After VibeCon, the constraint wasn’t “one more demo”—it was adding instruments without starting from scratch each time. I pulled foundations from the live UI (type roles, spacing, glass, accents, color↔mono) and a component set that every mini-app could reuse: GlassContainer, headers, hub cards, HUD chips, transport/pads, and tool-specific surfaces like the interval grid and corpus scatter. That system is what made scaling from a workshop mixer into a full suite tractable.
 
 **Image:** `03-design-foundations.png`  
-**Caption:** Color, mono, type styles, spacing, accents, and glass tokens from the live app.
+**Caption:** Foundations — tokens for color/mono, type, spacing, accents, and glass.
 
 **Image:** `04-design-components.png`  
-**Caption:** UI patterns plus the annotated color/mono suite map.
+**Caption:** Components — shared chrome and patterns reused across mini-apps.
 
 ---
 
-## 4. Bridge to the rest of the Matte / VibeCon work
+## 4. Architecture from VibeCon to product
 
-**Header:** From workshop prototype to product thread
+**Header:** Workshop surface → suite → design system as the scale layer
 
-Fourier sits next to other Matte experiments on this page—Ouracle Playground, Code as a Medium, Prompt Sculptor—but it is the only one I fully built out as a fullstack design-engineering product. The architecture diagram shows what’s live today (Web Audio, MediaPipe hands, ONNX stems, export) and dashed next steps. Scroll down for the adjacent R&D that stayed closer to one-off installations and Make prototypes.
+The architecture follows the same path as the project: a single VibeCon playable surface, then a browser suite under one hub, with foundations and components acting as the layer that made expansion possible. Runtime stays client-side—MediaPipe interaction, Web Audio / ONNX / SoundTouch engines, UI shell, and local export. Sibling Matte experiments from the same period (Ouracle, Code as a Medium, Prompt Sculptor) stayed closer to one-off prototypes; Fourier is the one that used a shared system to keep going.
 
 **Image:** `05-architecture.png`  
-**Caption:** Today’s browser stack vs dashed next (shared projects, unused CV hooks, deeper hosting).
+**Caption:** VibeCon → suite expansion → design system scale layer, beside the browser runtime stack.
 
 **Closing line:** Fourier is the VibeCon prototype that became the lasting product. Keep scrolling for Ouracle, Code as a Medium, and Prompt Sculptor—the sibling Matte / Replit experiments from the same period.
 

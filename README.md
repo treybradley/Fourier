@@ -74,7 +74,7 @@ Only patterns the app actually uses (most of the shadcn folder is unused and omi
 
 ![Component library — UI patterns + suite map](docs/readme/components.png)
 
-**Figma pages:** Cover · Foundations · Components · Screens.
+**Figma pages:** Cover · Foundations · Components · Screens · Architecture.
 
 ## Features
 
