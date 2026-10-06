@@ -17,7 +17,7 @@ Everything runs client-side today. Dashed items are next / unfinished.
 
 ```mermaid
 flowchart TB
-  subgraph Today["TODAY — shipped in browser"]
+  subgraph Today["TODAY — live in browser"]
     direction TB
     Hub[Home hub<br/>color / mono modes]
     Hub --> Collage[Stem Collage<br/>MediaPipe hands]
@@ -49,13 +49,13 @@ flowchart TB
 
 ## Design system
 
-Extracted from the **shipped product**, not a speculative kit. Roboto Mono, near-black canvas, glass panels, per-tool accent atmospheres, and a first-class **color ↔ mono** visual mode. Full file: [Figma](https://www.figma.com/design/lOA7qbbZngiZhPcbqnAmhk).
+Documented from the **live product**, not a speculative kit. Roboto Mono, near-black canvas, glass panels, per-tool accent atmospheres, spacing scale, and a first-class **color ↔ mono** visual mode. Full file: [Figma](https://www.figma.com/design/lOA7qbbZngiZhPcbqnAmhk).
 
 ### Foundations
 
-Dark canvas (`#0A0A0F` / `#04060E`), white-alpha glass and borders, violet focus ring, grain + radial atmospheres, and mono paper remap (`#F3F3F3`). Tool accents (blue→pink collage, teal→blue looper, lime grid, etc.) live on hub cards and page atmospheres.
+Dark canvas (`#0A0A0F` / `#04060E`), white-alpha glass and borders, violet focus ring, grain + radial atmospheres, and mono paper remap (`#F3F3F3`). Type roles from display/brand through micro labels; spacing tokens `space-2`–`space-12` (8–48px). Tool accents (blue→pink collage, teal→blue looper, lime grid, etc.) live on hub cards and page atmospheres.
 
-![Foundations — color, mono, accents, type, glass](docs/readme/foundations.png)
+![Foundations — color, mono, type, spacing, glass](docs/readme/foundations.png)
 
 ### Components
 
@@ -72,7 +72,7 @@ Only patterns the app actually uses (most of the shadcn folder is unused and omi
 | **Corpus / interval grids** | Gato scatter + Harmonizer ±12 matrix |
 | **Separator progress** | ONNX upload → 4-stem results |
 
-![Component library — shipped patterns + suite map](docs/readme/components.png)
+![Component library — UI patterns + suite map](docs/readme/components.png)
 
 **Figma pages:** Cover · Foundations · Components · Architecture · Desktop Wireframes (IA only).
 

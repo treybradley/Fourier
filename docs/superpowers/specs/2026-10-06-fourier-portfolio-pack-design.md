@@ -15,7 +15,7 @@ Fourier started as Matte Projects R&D for Replit VibeCon 2026 — a playable bro
 ## Figma file
 
 **Name:** Fourier — Design System & Architecture  
-Pages: Cover · Foundations (incl. color + mono) · Components (shipped only) · Architecture (today + dashed next) · Desktop Wireframes (optional IA)
+Pages: Cover · Foundations (incl. color + mono, spacing, type) · Components (production only) · Architecture (today + dashed next) · Desktop Wireframes (optional IA)
 
 ## Portfolio sections (below iframe)
 
@@ -26,6 +26,6 @@ Pages: Cover · Foundations (incl. color + mono) · Components (shipped only) ·
 
 ## Rules
 
-- Document shipped UI only (custom glass + accents; not unused shadcn)
+- Document production UI only (custom glass + accents; not unused shadcn)
 - Mermaid in README; architecture PNG for portfolio §4
 - No duplicate images; no wireframe shots in README or portfolio product sections

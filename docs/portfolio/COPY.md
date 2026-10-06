@@ -42,17 +42,17 @@ Beyond the demo moment, Fourier is a hub of mini-apps: looper, grid sampler, ste
 
 ---
 
-## 3. Design system from the shipped product
+## 3. Design system from the live product
 
-**Header:** Tokens and patterns that actually ship
+**Header:** Tokens and patterns from the real interface
 
-As the prototype became a maintained product, I documented the system from production—not the unused shadcn folder. Foundations cover the dark canvas, glass alphas, Roboto Mono, radius, grain/atmosphere, per-tool accent pairs, and the color↔mono remap. Components focus on GlassContainer, hub cards, headers, HUD chips, transport/pads, and the unique algorithmic surfaces (corpus scatter, interval grid).
+As the prototype became a maintained product, I documented the system from production—not the unused shadcn folder. Foundations cover the dark canvas, glass alphas, Roboto Mono type roles, spacing scale, radius, grain/atmosphere, per-tool accent pairs, and the color↔mono remap. Components focus on GlassContainer, hub cards, headers, HUD chips, transport/pads, and the unique algorithmic surfaces (corpus scatter, interval grid).
 
 **Image:** `03-design-foundations.png`  
-**Caption:** Color, mono, accents, type, and glass tokens from the live app.
+**Caption:** Color, mono, type styles, spacing, accents, and glass tokens from the live app.
 
 **Image:** `04-design-components.png`  
-**Caption:** Shipped UI patterns plus the annotated color/mono suite map.
+**Caption:** UI patterns plus the annotated color/mono suite map.
 
 ---
 
@@ -60,7 +60,7 @@ As the prototype became a maintained product, I documented the system from produ
 
 **Header:** From workshop prototype to product thread
 
-Fourier sits next to other Matte experiments on this page—Ouracle Playground, Code as a Medium, Prompt Sculptor—but it is the only one I fully built out as a fullstack design-engineering product. The architecture diagram shows what ships today (Web Audio, MediaPipe hands, ONNX stems, export) and dashed next steps. Scroll down for the adjacent R&D that stayed closer to one-off installations and Make prototypes.
+Fourier sits next to other Matte experiments on this page—Ouracle Playground, Code as a Medium, Prompt Sculptor—but it is the only one I fully built out as a fullstack design-engineering product. The architecture diagram shows what’s live today (Web Audio, MediaPipe hands, ONNX stems, export) and dashed next steps. Scroll down for the adjacent R&D that stayed closer to one-off installations and Make prototypes.
 
 **Image:** `05-architecture.png`  
 **Caption:** Today’s browser stack vs dashed next (shared projects, unused CV hooks, deeper hosting).
