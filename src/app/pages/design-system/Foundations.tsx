@@ -67,9 +67,10 @@ export function FoundationsSection() {
       lead="Color↔mono remaps, tool accents, type roles, spacing, radius, and glass/grain atmosphere—the constraints that let the suite grow without redesigning chrome."
     >
       <Block
-        title="Color story"
-        description="Color mode is a deep stage with cerulean atmosphere and grain. Mono collapses accents to ink on paper so the same tools read as an engineering schematic."
-        why="One toggle remaps the suite for demos, docs, and room lighting—without a second product."
+        id="modes"
+        title="Color atmospheres and mono paper"
+        description="Color mode is a deep stage with cerulean atmosphere and grain. Mono collapses accents to ink on paper so the same tools read as an engineering schematic—useful for demos, docs, and room lighting."
+        why="One toggle remaps the suite without a second product."
         source="src/styles/visual-mode.css · src/app/utils/visualMode.ts · useVisualMode"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

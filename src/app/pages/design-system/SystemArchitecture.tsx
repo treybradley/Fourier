@@ -221,6 +221,7 @@ export function SystemArchitecture() {
 
   return (
     <Block
+      id="architecture"
       title="System architecture"
       description="Fourier wasn’t only a URL. For VibeCon it lived as a guided station and as a walk-up sculpture—two physical contexts, one browser stack, then a suite that kept growing on the same foundations."
       why="Design the shell for the room first; ship mini-apps without inventing new chrome."

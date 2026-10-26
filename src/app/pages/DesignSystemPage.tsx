@@ -47,9 +47,21 @@ export function DesignSystemPage() {
     };
   }, []);
 
+  const section = params.get("section");
+
   useEffect(() => {
+    if (section) {
+      // Wait for tab body to paint, then scroll to deep-linked block.
+      const id = window.setTimeout(() => {
+        document.getElementById(section)?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 80);
+      return () => window.clearTimeout(id);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [tab]);
+  }, [tab, section]);
 
   const setTab = (next: TabId) => {
     const nextParams = new URLSearchParams(params);

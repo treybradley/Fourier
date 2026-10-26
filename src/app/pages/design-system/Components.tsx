@@ -315,6 +315,7 @@ export function ComponentsSection() {
       </Block>
 
       <Block
+        id="glass"
         title="Glass Container"
         description="Motion glass panel with rest / selected elevation via ink alphas."
         source="src/app/components/GlassContainer.tsx"
@@ -336,6 +337,7 @@ export function ComponentsSection() {
       </Block>
 
       <Block
+        id="hub"
         title="Hub tool card"
         description="Accent edge, tagline, feature chips, Enter CTA—pattern from the home grid."
         source="src/app/pages/Home.tsx · ToolCard"

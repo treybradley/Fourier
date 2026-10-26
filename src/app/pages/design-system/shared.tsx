@@ -23,12 +23,14 @@ export function Section({
 }
 
 export function Block({
+  id,
   title,
   description,
   why,
   source,
   children,
 }: {
+  id?: string;
   title: string;
   description?: string;
   why?: string;
@@ -36,7 +38,7 @@ export function Block({
   children: ReactNode;
 }) {
   return (
-    <section className="space-y-4">
+    <section id={id} className="space-y-4 scroll-mt-24">
       <div className="space-y-1.5 max-w-2xl">
         <h2 className="text-sm font-medium tracking-widest uppercase text-white/80">
           {title}

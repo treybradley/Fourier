@@ -1,72 +1,186 @@
-# Fourier — portfolio copy (matches live page structure)
+# Fourier — portfolio copy (iframe-first)
 
-Paste below the live demo on  
+Paste on  
 https://www.treybradley.xyz/matte-projects-ai-vibecoding-rd
 
-Keep the existing **Fourier** overview + GitHub + iframe above this block.  
-Each image appears **once**. Do not re-walk the click flow.
+**No architecture / foundations / components PNGs.** Use the living design system iframes below.  
+Keep intro + GitHub + **product** iframe; then these DS embeds.
 
-**Images**
-
-| File | Placement |
-|------|-----------|
-| `02-suite-modes.png` | Under “Color atmospheres…” |
-| `03-design-foundations.png` | Under “Foundations & components…” (optional second beat) |
-| `04-design-components.png` | Same beat as foundations |
-| `05-architecture.png` | Under “Station install & sculpture…” |
-
-`01-stem-collage.png` — skip; the iframe already shows the product.
+Base: `https://fourier-sound.vercel.app`  
+Query: `embed=1` · `theme=color|mono` · `tab=…` · `section=…` (scrolls to block)
 
 ---
 
-## H2
+## Condensed Fourier structure
 
-**One suite, two visual modes, music creation anywhere…**
-
-Fourier began as Matte Projects R&D for Replit’s VibeCon 2026—meant to run on a computer station tied to real hardware for guided demos with a guest music producer, and as a standalone interactive hardware sculpture. It’s also the prototype I carried further by locking foundations and components early enough to keep iterating.
-
----
-
-## H3 — Color atmospheres and mono paper, same tools
-
-Beyond the demo moment, Fourier is a hub of mini-apps: looper, grid sampler, stem separator, set planner, concatenative explorer, and harmonizer. A color/mono toggle remaps chrome across the suite so the same product can read as a dark stage tool or a light engineering schematic—useful for demos, docs, and different room lighting.
-
-**Image:** `02-suite-modes.png`  
-**Caption:** Home hub in color and mono, with one-line jobs for each mini-app.
+1. **Fourier** intro + GitHub + product iframe (`/`)
+2. **Living design system** — one Overview iframe *or* split embeds below
+3. **Station / sculpture** — architecture iframe (replaces `05-architecture.png`)
+4. **Color / mono** — modes iframe (replaces `02-suite-modes.png`)
+5. Optional: components or signal iframe if you want a third beat
+6. Closing → Ouracle
 
 ---
 
-## H3 — Foundations and components that let the suite grow
+## Product demo
 
-After VibeCon, the constraint wasn’t “one more demo”—it was adding instruments without redesigning the shell. Foundations cover type roles, spacing, glass, accents, and color↔mono. Components reuse GlassContainer, headers, hub cards, HUD chips, transport/pads, and tool surfaces like the interval grid and corpus scatter. That system made scaling into a full suite tractable—and transferred to other Matte / VibeCon builds for consistency.
-
-**Image:** `03-design-foundations.png`  
-**Caption:** Foundations — tokens for color/mono, type, spacing, accents, and glass.
-
-**Image:** `04-design-components.png`  
-**Caption:** Components — shared chrome reused across mini-apps.
-
----
-
-## H3 — Station install and interactive sculpture
-
-Fourier wasn’t only a URL. For VibeCon it lived on a computer station connected to real hardware—so a guest music producer could run guided demos—and as a walk-up interactive sculpture on the floor. The stack stays client-side (MediaPipe, Web Audio / ONNX / SoundTouch, UI shell, local export) on the machine, whether facilitated or self-serve. The live design system Overview tab walks the same architecture interactively (station ↔ sculpture, shared stack layers, post-install suite growth).
-
-**Image:** `05-architecture.png` (optional if the DS Overview iframe already covers this)  
-**Caption:** Guided station + interactive sculpture, then suite expansion on a shared browser stack.
+```html
+<iframe
+  src="https://fourier-sound.vercel.app/"
+  title="Fourier — live demo"
+  width="100%"
+  height="720"
+  style="border:0;border-radius:4px;"
+  loading="lazy"
+  allow="camera; microphone; autoplay"
+></iframe>
+```
 
 ---
 
-## Closing (optional, before Ouracle)
+## Design system — Overview (full handoff + architecture in page)
 
-Fourier is the VibeCon install that kept going as a product. Below: Ouracle, Code as a Medium, and Prompt Sculptor—other Matte / Replit experiments from the same period.
+```html
+<iframe
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=overview"
+  title="Fourier — Design System Overview"
+  width="100%"
+  height="900"
+  style="border:0;border-radius:4px;"
+  loading="lazy"
+></iframe>
+```
+
+---
+
+## Station install & sculpture → System architecture
+
+Replaces `05-architecture.png`.
+
+```html
+<iframe
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=overview&section=architecture"
+  title="Fourier — System architecture (station & sculpture)"
+  width="100%"
+  height="880"
+  style="border:0;border-radius:4px;"
+  loading="lazy"
+></iframe>
+```
+
+---
+
+## One suite, two visual modes → Color / mono
+
+Replaces `02-suite-modes.png`. Toggle color/mono in the embed chrome.
+
+```html
+<iframe
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=foundations&section=modes"
+  title="Fourier — Color atmospheres and mono paper"
+  width="100%"
+  height="720"
+  style="border:0;border-radius:4px;"
+  loading="lazy"
+></iframe>
+```
+
+Optional mono default:
+
+```html
+<iframe
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=mono&tab=foundations&section=modes"
+  title="Fourier — Mono paper mode"
+  width="100%"
+  height="720"
+  style="border:0;border-radius:4px;"
+  loading="lazy"
+></iframe>
+```
+
+---
+
+## Optional extras (if you want a third beat)
+
+**Components (glass + hub card)**
+
+```html
+<iframe
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=components&section=glass"
+  title="Fourier — Design System Components"
+  width="100%"
+  height="800"
+  style="border:0;border-radius:4px;"
+  loading="lazy"
+></iframe>
+```
+
+**Signal (waveforms / Arc chroma)**
+
+```html
+<iframe
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=signal"
+  title="Fourier — Signal surfaces"
+  width="100%"
+  height="900"
+  style="border:0;border-radius:4px;"
+  loading="lazy"
+></iframe>
+```
+
+**Patterns**
+
+```html
+<iframe
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=patterns"
+  title="Fourier — Design System Patterns"
+  width="100%"
+  height="800"
+  style="border:0;border-radius:4px;"
+  loading="lazy"
+></iframe>
+```
+
+---
+
+## Lean recommendation (3 embeds total)
+
+| Order | What | iframe |
+|-------|------|--------|
+| 1 | Product | `/` |
+| 2 | Station / sculpture | `…/design-system?embed=1&theme=color&tab=overview&section=architecture` |
+| 3 | Color / mono | `…/design-system?embed=1&theme=color&tab=foundations&section=modes` |
+
+Skip foundations/components PNGs and the full Overview iframe if those three already tell the story. Reader can open tabs inside any DS embed to explore further.
+
+---
+
+## Paste copy (short)
+
+### Fourier
+*(keep tightened intro + GitHub + product iframe)*
+
+### Living design system *(optional H3 if you only use the two section iframes below, skip this)*
+After VibeCon I kept iterating on a living design system in the app—tokens, production components, patterns, signal surfaces, and install architecture—so the suite could grow without redesigning the shell.
+
+### Station install and interactive sculpture
+Fourier ran as a guided hardware station and a walk-up floor sculpture on the same client stack. Explore the interactive architecture:
+
+*(architecture iframe)*
+
+### One suite, two visual modes
+A color/mono toggle remaps chrome across the hub of mini-apps—stage tool or engineering schematic:
+
+*(modes iframe)*
+
+### Closing
+Fourier is the VibeCon install that kept going as a product. Below: Ouracle…
 
 ---
 
 ## Meta
 
 **Live:** https://fourier-sound.vercel.app/  
-**Design system (iframe):** https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=overview  
-
+**Design system:** https://fourier-sound.vercel.app/design-system  
 **Figma:** https://www.figma.com/design/lOA7qbbZngiZhPcbqnAmhk  
-**GitHub:** https://github.com/treybradley/Fourier
+**GitHub:** https://github.com/treybradley/Fourier  
