@@ -154,7 +154,7 @@ export function PatternsSection() {
   return (
     <Section
       title="Design System Patterns"
-      lead="Composed journeys—not isolated widgets. Hub entry, collage stage + camera rail, and empty/gated intake. Install architecture lives on Overview."
+      lead="Composed journeys—not isolated widgets. Hub entry, collage stage + camera rail, and empty/gated intake. Install architecture lives on the Architecture tab."
     >
       <CalloutGrid
         items={[

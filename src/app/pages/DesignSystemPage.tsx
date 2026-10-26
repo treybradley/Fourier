@@ -8,6 +8,7 @@ import { FoundationsSection } from "./design-system/Foundations";
 import { ComponentsSection } from "./design-system/Components";
 import { PatternsSection } from "./design-system/Patterns";
 import { SignalSection } from "./design-system/Signal";
+import { ArchitectureSection } from "./design-system/SystemArchitecture";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -15,6 +16,7 @@ const TABS = [
   { id: "components", label: "Components" },
   { id: "patterns", label: "Patterns" },
   { id: "signal", label: "Signal" },
+  { id: "architecture", label: "Architecture" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -47,21 +49,11 @@ export function DesignSystemPage() {
     };
   }, []);
 
-  const section = params.get("section");
-
+  // Tab-only deep links: always open at top of the tab (no section= scroll —
+  // scrollIntoView would also scroll ancestor frames / portfolio pages).
   useEffect(() => {
-    if (section) {
-      // Wait for tab body to paint, then scroll to deep-linked block.
-      const id = window.setTimeout(() => {
-        document.getElementById(section)?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 80);
-      return () => window.clearTimeout(id);
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [tab, section]);
+    window.scrollTo(0, 0);
+  }, [tab]);
 
   const setTab = (next: TabId) => {
     const nextParams = new URLSearchParams(params);
@@ -86,6 +78,8 @@ export function DesignSystemPage() {
         return <PatternsSection />;
       case "signal":
         return <SignalSection />;
+      case "architecture":
+        return <ArchitectureSection />;
       default:
         return <OverviewSection />;
     }

@@ -1,5 +1,4 @@
 import { Block, CalloutGrid, Section, SpecTable } from "./shared";
-import { SystemArchitecture } from "./SystemArchitecture";
 
 export function OverviewSection() {
   return (
@@ -23,12 +22,10 @@ export function OverviewSection() {
           },
           {
             title: "Dev-ready handoff",
-            body: "Foundations, Components, Patterns, and Signal show production React—file paths included—not redrawn mocks.",
+            body: "Foundations, Components, Patterns, Signal, and Architecture show production React—file paths included—not redrawn mocks.",
           },
         ]}
       />
-
-      <SystemArchitecture />
 
       <Block
         title="Platform notes"
@@ -101,14 +98,14 @@ export function OverviewSection() {
           </li>
           <li>
             Foundations carry rationale; Components / Patterns / Signal show
-            production React implementations a developer can ship from.
+            production React; Architecture covers install stack and data flow.
           </li>
           <li>
             Embed with{" "}
             <span className="font-mono text-white/60">
-              ?embed=1&amp;theme=color&amp;tab=overview
+              ?embed=1&amp;theme=color&amp;tab=architecture
             </span>{" "}
-            for portfolio iframes (architecture sits on Overview).
+            (or any other tab id)—opens at the top of that tab.
           </li>
         </ul>
       </Block>

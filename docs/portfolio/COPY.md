@@ -7,7 +7,9 @@ https://www.treybradley.xyz/matte-projects-ai-vibecoding-rd
 Keep intro + GitHub + **product** iframe; then these DS embeds.
 
 Base: `https://fourier-sound.vercel.app`  
-Query: `embed=1` · `theme=color|mono` · `tab=…` · `section=…` (scrolls to block)
+Query: `embed=1` · `theme=color|mono` · `tab=…` (opens at top of that tab)
+
+Tabs: `overview` · `foundations` · `components` · `patterns` · `signal` · `architecture`
 
 ---
 
@@ -15,8 +17,8 @@ Query: `embed=1` · `theme=color|mono` · `tab=…` · `section=…` (scrolls to
 
 1. **Fourier** intro + GitHub + product iframe (`/`)
 2. **Living design system** — one Overview iframe *or* split embeds below
-3. **Station / sculpture** — architecture iframe (replaces `05-architecture.png`)
-4. **Color / mono** — modes iframe (replaces `02-suite-modes.png`)
+3. **Station / sculpture** — Architecture tab iframe
+4. **Color / mono** — Foundations tab iframe
 5. Optional: components or signal iframe if you want a third beat
 6. Closing → Ouracle
 
@@ -38,7 +40,7 @@ Query: `embed=1` · `theme=color|mono` · `tab=…` · `section=…` (scrolls to
 
 ---
 
-## Design system — Overview (full handoff + architecture in page)
+## Design system — Overview
 
 ```html
 <iframe
@@ -53,16 +55,14 @@ Query: `embed=1` · `theme=color|mono` · `tab=…` · `section=…` (scrolls to
 
 ---
 
-## Station install & sculpture → System architecture
-
-Replaces `05-architecture.png`.
+## Station install & sculpture → Architecture
 
 ```html
 <iframe
-  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=overview&section=architecture"
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=architecture"
   title="Fourier — System architecture (station & sculpture)"
   width="100%"
-  height="880"
+  height="960"
   style="border:0;border-radius:4px;"
   loading="lazy"
 ></iframe>
@@ -70,13 +70,13 @@ Replaces `05-architecture.png`.
 
 ---
 
-## One suite, two visual modes → Color / mono
+## One suite, two visual modes → Foundations
 
-Replaces `02-suite-modes.png`. Toggle color/mono in the embed chrome.
+Toggle color/mono in the embed chrome.
 
 ```html
 <iframe
-  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=foundations&section=modes"
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=foundations"
   title="Fourier — Color atmospheres and mono paper"
   width="100%"
   height="720"
@@ -89,7 +89,7 @@ Optional mono default:
 
 ```html
 <iframe
-  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=mono&tab=foundations&section=modes"
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=mono&tab=foundations"
   title="Fourier — Mono paper mode"
   width="100%"
   height="720"
@@ -102,11 +102,11 @@ Optional mono default:
 
 ## Optional extras (if you want a third beat)
 
-**Components (glass + hub card)**
+**Components**
 
 ```html
 <iframe
-  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=components&section=glass"
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=components"
   title="Fourier — Design System Components"
   width="100%"
   height="800"
@@ -148,8 +148,8 @@ Optional mono default:
 | Order | What | iframe |
 |-------|------|--------|
 | 1 | Product | `/` |
-| 2 | Station / sculpture | `…/design-system?embed=1&theme=color&tab=overview&section=architecture` |
-| 3 | Color / mono | `…/design-system?embed=1&theme=color&tab=foundations&section=modes` |
+| 2 | Station / sculpture | `…/design-system?embed=1&theme=color&tab=architecture` |
+| 3 | Color / mono | `…/design-system?embed=1&theme=color&tab=foundations` |
 
 Skip foundations/components PNGs and the full Overview iframe if those three already tell the story. Reader can open tabs inside any DS embed to explore further.
 
@@ -166,12 +166,12 @@ After VibeCon I kept iterating on a living design system in the app—tokens, pr
 ### Station install and interactive sculpture
 Fourier ran as a guided hardware station and a walk-up floor sculpture on the same client stack. Explore the interactive architecture:
 
-*(architecture iframe)*
+*(architecture iframe — `tab=architecture`)*
 
 ### One suite, two visual modes
 A color/mono toggle remaps chrome across the hub of mini-apps—stage tool or engineering schematic:
 
-*(modes iframe)*
+*(foundations iframe — `tab=foundations`)*
 
 ### Closing
 Fourier is the VibeCon install that kept going as a product. Below: Ouracle…
