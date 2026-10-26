@@ -2,6 +2,7 @@ import { createElement, lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router";
 import { Root } from "./Root";
 import { Home } from "./pages/Home";
+import { DesignSystemPage } from "./pages/DesignSystemPage";
 import {
   StemCollageLoader,
   LooperLoader,
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
     Component: Root,
     children: [
       { index: true,            Component: Home },
+      { path: "design-system",  Component: DesignSystemPage },
       { path: "stem-collage",   Component: wrap(StemCollagePage,   StemCollageLoader) },
       { path: "loop-station",   Component: wrap(LooperPage,        LooperLoader) },
       { path: "stem-separator", Component: wrap(StemSeparatorPage, StemSeparatorLoader) },

@@ -66,5 +66,6 @@ Fourier is the VibeCon install that kept going as a product. Below: Ouracle, Cod
 ## Meta
 
 **Live:** https://fourier-sound.vercel.app/  
+**Design system (iframe):** https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=foundations  
 **Figma:** https://www.figma.com/design/lOA7qbbZngiZhPcbqnAmhk  
 **GitHub:** https://github.com/treybradley/Fourier

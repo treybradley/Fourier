@@ -154,16 +154,40 @@ function pearsonCorrelation(x: number[], y: number[]): number {
   return dx2 === 0 || dy2 === 0 ? 0 : num / Math.sqrt(dx2 * dy2);
 }
 
-function detectKey(chroma: number[]): { key: string; camelot: string } {
-  let bestCorr = -Infinity, bestKey = "C", bestCamelot = "8B";
+export type KeyCandidate = {
+  key: string;
+  camelot: string;
+  score: number;
+};
+
+/** Rank major/minor key profiles by chroma correlation (Krumhansl–Schmuckler). */
+export function rankKeyCandidates(
+  chroma: number[],
+  topN = 4,
+): KeyCandidate[] {
+  const scored: KeyCandidate[] = [];
   for (let root = 0; root < 12; root++) {
     const rot = chroma.map((_, i) => chroma[(i - root + 12) % 12]);
-    const maj = pearsonCorrelation(rot, KS_MAJOR);
-    const min = pearsonCorrelation(rot, KS_MINOR);
-    if (maj > bestCorr) { bestCorr = maj; bestKey = NOTE_NAMES_MAJOR[root]; bestCamelot = CAMELOT_MAJOR[root]; }
-    if (min > bestCorr) { bestCorr = min; bestKey = NOTE_NAMES_MINOR[root]; bestCamelot = CAMELOT_MINOR[root]; }
+    scored.push({
+      key: NOTE_NAMES_MAJOR[root],
+      camelot: CAMELOT_MAJOR[root],
+      score: pearsonCorrelation(rot, KS_MAJOR),
+    });
+    scored.push({
+      key: NOTE_NAMES_MINOR[root],
+      camelot: CAMELOT_MINOR[root],
+      score: pearsonCorrelation(rot, KS_MINOR),
+    });
   }
-  return { key: bestKey, camelot: bestCamelot };
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, topN);
+}
+
+function detectKey(chroma: number[]): { key: string; camelot: string } {
+  const [best] = rankKeyCandidates(chroma, 1);
+  return best
+    ? { key: best.key, camelot: best.camelot }
+    : { key: "C", camelot: "8B" };
 }
 
 // Fill one 12-bin chroma vector from a window (HPS, C2–C7). Returns RMS weight.
@@ -312,6 +336,47 @@ function computeWaveform(samples: Float32Array, points = 120): number[] {
   return maxVal > 0 ? wf.map(v => v / maxVal) : wf;
 }
 
+/** Analyze an in-memory buffer (Arc pipeline) — used by Arc import and design-system demos. */
+export function analyzeAudioBuffer(audioBuffer: AudioBuffer): {
+  duration: number;
+  bpm: number;
+  key: string;
+  camelot: string;
+  chroma: number[];
+  chromaFrames: number[][];
+  waveform: number[];
+  energy: number;
+  sub: number;
+  bass: number;
+  mids: number;
+  highs: number;
+} {
+  const samples = audioBuffer.getChannelData(0).slice();
+  const sr = audioBuffer.sampleRate;
+
+  const bpm = detectBPMAccurate(samples, sr);
+  const waveform = computeWaveform(samples, 500);
+  const { chroma, chromaFrames } = computeChromaAnalysis(samples, sr);
+  const { key, camelot } = detectKey(chroma);
+  const energy = Math.min(computeRMS(samples) * 6, 1);
+  const { sub, bass, mids, highs } = computeBands(samples, sr);
+
+  return {
+    duration: audioBuffer.duration,
+    bpm,
+    key,
+    camelot,
+    chroma,
+    chromaFrames,
+    waveform,
+    energy,
+    sub,
+    bass,
+    mids,
+    highs,
+  };
+}
+
 // ---------- Hook ----------
 
 export function useArcAnalyzer() {
@@ -320,25 +385,7 @@ export function useArcAnalyzer() {
     const ctx = new AudioContext();
     try {
       const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-      // Defensive copy so any third-party lib can't corrupt our samples
-      const samples = audioBuffer.getChannelData(0).slice();
-      const sr = audioBuffer.sampleRate;
-
-      // BPM — onset-based, accuracy-first
-      const bpm = detectBPMAccurate(samples, sr);
-
-      // Waveform for display — 500 points for detail on long tracks
-      const waveform = computeWaveform(samples, 500);
-
-      // Key + chroma average + time frames (4096 FFT, HPS, energy-weighted)
-      const { chroma, chromaFrames } = computeChromaAnalysis(samples, sr);
-      const { key, camelot } = detectKey(chroma);
-
-      // Energy
-      const energy = Math.min(computeRMS(samples) * 6, 1);
-
-      // EQ band energies
-      const { sub, bass, mids, highs } = computeBands(samples, sr);
+      const analysis = analyzeAudioBuffer(audioBuffer);
 
       // Metadata from filename: "Artist - Title" convention
       const baseName = file.name.replace(/\.[^.]+$/, "");
@@ -348,9 +395,7 @@ export function useArcAnalyzer() {
 
       return {
         title, artist,
-        duration: audioBuffer.duration,
-        bpm, key, camelot, chroma, chromaFrames, waveform,
-        energy, sub, bass, mids, highs,
+        ...analysis,
       };
     } finally {
       ctx.close();

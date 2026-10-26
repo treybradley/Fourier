@@ -240,7 +240,7 @@ export function Home() {
 
         {/* Footer */}
         <motion.footer
-          className="mt-9 pt-6 border-t border-white/5 flex items-center justify-between"
+          className="mt-9 pt-6 border-t border-white/5 flex items-center justify-between gap-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.5 }}
@@ -248,6 +248,12 @@ export function Home() {
           <span className="text-white/20 text-[10px] tracking-widest uppercase font-mono">
             Fourier — Web Audio Suite
           </span>
+          <Link
+            to="/design-system"
+            className="text-white/25 hover:text-white/55 text-[10px] tracking-widest uppercase font-mono transition-colors"
+          >
+            Design system
+          </Link>
         </motion.footer>
       </div>
     </div>

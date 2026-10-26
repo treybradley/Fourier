@@ -9,20 +9,11 @@ import type { ArcTrack, ArcAction } from "./types";
 import { formatDuration } from "./types";
 import type { Dispatch } from "react";
 
-const PITCH_LABELS = [
-  "C",
-  "C#",
-  "D",
-  "Eb",
-  "E",
-  "F",
-  "F#",
-  "G",
-  "Ab",
-  "A",
-  "Bb",
-  "B",
-];
+import {
+  ArcEqBands,
+  ChromaAverageBars,
+  ChromagramOverTime,
+} from "./PitchClassViz";
 
 const KEY_TO_PC: Record<string, number> = {
   C: 0,
@@ -201,131 +192,6 @@ function MiniWaveform({
         />
       )}
     </svg>
-  );
-}
-
-/** Shared pitch-viz height so Average ↔ Over time doesn't jump. */
-const PITCH_VIZ_HEIGHT = 128;
-
-function ChromagramOverTime({
-  frames,
-  rootPc,
-  currentTime,
-  duration,
-  onSeek,
-  canSeek,
-}: {
-  frames: number[][];
-  rootPc: number | null;
-  currentTime: number;
-  duration: number;
-  onSeek: (ratio: number) => void;
-  canSeek: boolean;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
-  const cols = frames.length;
-  const progress =
-    duration > 0 ? Math.max(0, Math.min(1, currentTime / duration)) : 0;
-
-  const getRatio = useCallback((clientX: number) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect || rect.width <= 0) return 0;
-    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-  }, []);
-
-  useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      if (dragging.current && canSeek) onSeek(getRatio(e.clientX));
-    };
-    const onUp = () => {
-      dragging.current = false;
-    };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
-  }, [onSeek, getRatio, canSeek]);
-
-  // Render C at bottom (pc 0) → B at top, music-viz convention
-  const rowOrder = Array.from({ length: 12 }, (_, i) => 11 - i);
-
-  return (
-    <div className="flex gap-2" style={{ height: PITCH_VIZ_HEIGHT }}>
-      <div className="flex flex-col justify-between flex-shrink-0 w-5 py-0.5">
-        {rowOrder.map((pc) => (
-          <span
-            key={pc}
-            className="text-[8px] font-mono leading-none"
-            style={{
-              color:
-                rootPc === pc
-                  ? ACCENT
-                  : "rgba(255,255,255,0.35)",
-            }}
-          >
-            {PITCH_LABELS[pc]}
-          </span>
-        ))}
-      </div>
-
-      <div
-        ref={containerRef}
-        className={`relative flex-1 min-w-0 rounded-sm overflow-hidden ${
-          canSeek ? "cursor-pointer" : "cursor-default"
-        }`}
-        onClick={(e) => e.stopPropagation()}
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          if (!canSeek) return;
-          dragging.current = true;
-          onSeek(getRatio(e.clientX));
-        }}
-      >
-        <div
-          className="absolute inset-0 grid"
-          style={{
-            gridTemplateColumns: `repeat(${cols}, 1fr)`,
-            gridTemplateRows: "repeat(12, 1fr)",
-            gap: 1,
-          }}
-        >
-          {rowOrder.flatMap((pc) =>
-            frames.map((frame, fi) => {
-              const v = frame[pc] ?? 0;
-              const isRoot = rootPc === pc;
-              const alpha = 0.08 + v * 0.92;
-              const bg = isRoot
-                ? `rgba(235, 0, 247, ${alpha})`
-                : `rgba(0, 157, 255, ${alpha * 0.85})`;
-              return (
-                <div
-                  key={`${pc}-${fi}`}
-                  style={{
-                    gridColumn: fi + 1,
-                    gridRow: 11 - pc + 1,
-                    background: bg,
-                  }}
-                />
-              );
-            }),
-          )}
-        </div>
-
-        {duration > 0 && (
-          <div
-            className="absolute top-0 bottom-0 w-px pointer-events-none"
-            style={{
-              left: `${progress * 100}%`,
-              background: "rgba(255,255,255,0.8)",
-              boxShadow: "0 0 4px rgba(0,0,0,0.5)",
-            }}
-          />
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -624,34 +490,12 @@ export function TrackCard({
           <div className="border-t border-white/5 px-3 py-3 space-y-6">
             {/* EQ band bars */}
             {!track.analyzing && (
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { label: "Sub",   value: track.sub },
-                  { label: "Bass",  value: track.bass },
-                  { label: "Mids",  value: track.mids },
-                  { label: "Highs", value: track.highs },
-                ].map(({ label, value }) => (
-                  <div key={label}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[8px] font-mono text-white/25 uppercase tracking-wider">
-                        {label}
-                      </span>
-                      <span className="text-[8px] font-mono text-white/35">
-                        {Math.round(value * 100)}%
-                      </span>
-                    </div>
-                    <div className="h-0.5 rounded-full bg-white/8 overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${value * 100}%`,
-                          background: `linear-gradient(90deg, ${ACCENT}, ${ACCENT2})`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <ArcEqBands
+                sub={track.sub}
+                bass={track.bass}
+                mids={track.mids}
+                highs={track.highs}
+              />
             )}
 
             {/* Pitch classes — Average bars ↔ Over-time chromagram */}
@@ -659,10 +503,6 @@ export function TrackCard({
               track.chroma &&
               (() => {
                 const rootPc = rootPitchClass(track.key);
-                const rootVal =
-                  rootPc !== null
-                    ? Math.max(track.chroma[rootPc], 0.01)
-                    : Math.max(...track.chroma);
                 const hasFrames =
                   !!track.chromaFrames && track.chromaFrames.length > 0;
                 const showOvertime =
@@ -745,48 +585,12 @@ export function TrackCard({
                         canSeek={!!track.fileUrl && track.duration > 0}
                       />
                     ) : (
-                      <div
-                        className="flex items-end gap-0.5"
-                        style={{ height: PITCH_VIZ_HEIGHT }}
-                      >
-                        {PITCH_LABELS.map((label, pc) => {
-                          const isRoot = rootPc === pc;
-                          const ratio = track.chroma![pc] / rootVal;
-                          const hasEnergy = !isRoot && ratio >= 0.18;
-                          const h = Math.min(1, Math.max(0.05, ratio));
-                          return (
-                            <div
-                              key={pc}
-                              className="flex-1 flex flex-col items-center justify-end h-full"
-                              style={{ gap: 4 }}
-                            >
-                              <div
-                                className="w-full rounded-t-[1px]"
-                                style={{
-                                  height: `${h * (PITCH_VIZ_HEIGHT - 14)}px`,
-                                  background: isRoot
-                                    ? ACCENT
-                                    : hasEnergy
-                                      ? ACCENT2
-                                      : "rgba(255,255,255,0.12)",
-                                }}
-                              />
-                              <span
-                                className="text-[8px] font-mono leading-none"
-                                style={{
-                                  color: isRoot
-                                    ? ACCENT
-                                    : hasEnergy
-                                      ? `${ACCENT2}99`
-                                      : "rgba(255,255,255,0.22)",
-                                }}
-                              >
-                                {label}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                      <ChromaAverageBars
+                        chroma={track.chroma!}
+                        rootPc={rootPc}
+                        detectedKey={track.key}
+                        camelot={track.camelot}
+                      />
                     )}
                   </div>
                 );
