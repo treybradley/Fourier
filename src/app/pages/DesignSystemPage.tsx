@@ -30,7 +30,7 @@ function isTabId(value: string | null): value is TabId {
 
 export function DesignSystemPage() {
   const [params, setParams] = useSearchParams();
-  const { mode, setMode } = useVisualMode();
+  const { mode, setMode, ink } = useVisualMode();
 
   const embed = params.get("embed") === "1";
   const rawTab = params.get("tab");
@@ -199,9 +199,12 @@ export function DesignSystemPage() {
                 onClick={() => setTab(t.id)}
                 className={`px-3 py-2 text-[11px] font-mono tracking-widest uppercase transition-colors border-b-2 -mb-px ${
                   active
-                    ? "border-white/70 text-white/90"
+                    ? "text-white/90"
                     : "border-transparent text-white/35 hover:text-white/65"
                 }`}
+                style={
+                  active ? { borderBottomColor: ink(0.85) } : undefined
+                }
               >
                 {t.label}
               </button>
