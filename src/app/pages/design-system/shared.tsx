@@ -22,6 +22,33 @@ export function Section({
   );
 }
 
+/** Mid-page grouping under a Section (Shell / Stage / Controls). */
+export function Subsection({
+  id,
+  title,
+  lead,
+  children,
+}: {
+  id?: string;
+  title: string;
+  lead?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div id={id} className="space-y-8 scroll-mt-24">
+      <div className="max-w-2xl space-y-2 border-t border-white/10 pt-8">
+        <h2 className="text-xs font-mono tracking-widest uppercase text-white/50">
+          {title}
+        </h2>
+        {lead ? (
+          <p className="text-sm text-white/40 leading-relaxed">{lead}</p>
+        ) : null}
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export function Block({
   id,
   title,

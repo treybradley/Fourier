@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -8,6 +8,7 @@ import {
   rankKeyCandidates,
   type KeyCandidate,
 } from "../../hooks/useArcAnalyzer";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 export const PITCH_LABELS = [
   "C",
@@ -59,8 +60,56 @@ const INTERVAL_INSIGHT: Record<string, string> = {
   "7": "Major seventh — jazzy / leading-tone color.",
 };
 
-const tipClass =
-  "border border-white/15 bg-white/[0.08] backdrop-blur-md text-white/85 font-mono shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.1)] rounded-sm px-2.5 py-2.5 max-w-[17rem] z-[80]";
+/** Portaled tooltips sit outside [data-fourier-app], so mono CSS remaps never hit them. */
+function useGlassTip() {
+  const { mono } = useVisualMode();
+  return {
+    mono,
+    tipClass: mono
+      ? "border border-black/20 bg-[#F2F0EB] text-[#111111] font-mono shadow-[0_8px_28px_rgba(0,0,0,0.14)] rounded-sm px-2.5 py-2.5 max-w-[17rem] z-[80]"
+      : "border border-white/15 bg-[rgba(8,12,28,0.92)] backdrop-blur-md text-white/85 font-mono shadow-[0_8px_32px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.1)] rounded-sm px-2.5 py-2.5 max-w-[17rem] z-[80]",
+    titleStyle: {
+      color: mono ? "rgba(17,17,17,0.95)" : "rgba(255,255,255,0.95)",
+    } as const,
+    bodyStyle: {
+      color: mono ? "rgba(17,17,17,0.72)" : "rgba(255,255,255,0.55)",
+    } as const,
+    footerStyle: {
+      color: mono ? "rgba(17,17,17,0.55)" : "rgba(255,255,255,0.4)",
+      borderColor: mono ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.1)",
+    } as const,
+  };
+}
+
+function GlassTipBody({
+  title,
+  body,
+  footer,
+}: {
+  title: ReactNode;
+  body: ReactNode;
+  footer?: ReactNode;
+}) {
+  const tip = useGlassTip();
+  return (
+    <div className="flex flex-col gap-1.5 text-left normal-case tracking-normal">
+      <span className="text-[11px] font-medium" style={tip.titleStyle}>
+        {title}
+      </span>
+      <span className="text-[10px] leading-relaxed" style={tip.bodyStyle}>
+        {body}
+      </span>
+      {footer ? (
+        <span
+          className="text-[10px] leading-relaxed pt-0.5 border-t"
+          style={tip.footerStyle}
+        >
+          {footer}
+        </span>
+      ) : null}
+    </div>
+  );
+}
 
 function intervalFromRoot(pc: number, rootPc: number | null): string {
   if (rootPc === null) return "pitch class";
@@ -170,12 +219,16 @@ export function ChromaAverageBars({
   detectedKey?: string | null;
   camelot?: string | null;
 }) {
+  const { mono, ink, inkFg, accent } = useVisualMode();
+  const tip = useGlassTip();
   const rootVal =
     rootPc !== null
       ? Math.max(chroma[rootPc] ?? 0, 0.01)
       : Math.max(...chroma, 0.01);
   const peakPc = peakPitchClass(chroma);
   const ranked = useMemo(() => rankKeyCandidates(chroma, 4), [chroma]);
+  const rootColor = accent(ACCENT);
+  const energyColor = accent(ACCENT2);
 
   return (
     <div className="space-y-1.5">
@@ -189,7 +242,7 @@ export function ChromaAverageBars({
           const hasEnergy = !isRoot && ratio >= 0.18;
           const h = Math.min(1, Math.max(0.05, ratio));
           const role = intervalFromRoot(pc, rootPc);
-          const tip = averageBarInsight({
+          const insight = averageBarInsight({
             label,
             pc,
             isRoot,
@@ -207,7 +260,7 @@ export function ChromaAverageBars({
                 <button
                   type="button"
                   className="group flex-1 flex flex-col items-center justify-end h-full gap-1 min-w-0 outline-none"
-                  aria-label={`${tip.title}. ${tip.body}`}
+                  aria-label={`${insight.title}. ${insight.body}`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div
@@ -215,20 +268,22 @@ export function ChromaAverageBars({
                     style={{
                       height: `${h * (PITCH_VIZ_HEIGHT - 14)}px`,
                       background: isRoot
-                        ? ACCENT
+                        ? rootColor
                         : hasEnergy
-                          ? ACCENT2
-                          : "rgba(255,255,255,0.12)",
+                          ? energyColor
+                          : ink(mono ? 0.18 : 0.12),
                     }}
                   />
                   <span
                     className="text-[8px] font-mono leading-none transition-colors"
                     style={{
                       color: isRoot
-                        ? ACCENT
+                        ? rootColor
                         : hasEnergy
-                          ? `${ACCENT2}99`
-                          : "rgba(255,255,255,0.22)",
+                          ? mono
+                            ? inkFg(0.75)
+                            : `${ACCENT2}99`
+                          : inkFg(0.45),
                     }}
                   >
                     {label}
@@ -239,27 +294,22 @@ export function ChromaAverageBars({
                 side="top"
                 sideOffset={6}
                 showArrow={false}
-                className={tipClass}
+                className={tip.tipClass}
               >
-                <div className="flex flex-col gap-1.5 text-left normal-case tracking-normal">
-                  <span className="text-[11px] text-white/95 font-medium">
-                    {tip.title}
-                  </span>
-                  <span className="text-[10px] text-white/55 leading-relaxed">
-                    {tip.body}
-                  </span>
-                  {tip.footer ? (
-                    <span className="text-[10px] text-white/40 leading-relaxed pt-0.5 border-t border-white/10">
-                      {tip.footer}
-                    </span>
-                  ) : null}
-                </div>
+                <GlassTipBody
+                  title={insight.title}
+                  body={insight.body}
+                  footer={insight.footer}
+                />
               </TooltipContent>
             </Tooltip>
           );
         })}
       </div>
-      <p className="text-[9px] font-mono text-white/25 tracking-wide">
+      <p
+        className="text-[9px] font-mono tracking-wide"
+        style={{ color: inkFg(0.4) }}
+      >
         Hover a bar · pitch class, key role, and alternatives
       </p>
     </div>
@@ -308,10 +358,14 @@ export function ArcEqBands({
   /** Track card = horizontal meters; design system = tall columns. */
   variant?: "bars" | "columns";
 }) {
+  const { mono, accent } = useVisualMode();
+  const tip = useGlassTip();
   const values = { sub, bass, mids, highs };
   const dominant = EQ_BANDS.reduce((best, b) =>
     values[b.id] > values[best.id] ? b : best,
   );
+  const gradFrom = accent(ACCENT);
+  const gradTo = accent(ACCENT2, "#444444");
 
   if (variant === "columns") {
     return (
@@ -332,7 +386,7 @@ export function ArcEqBands({
                       className="w-full rounded-[1px] transition-[filter] group-hover:brightness-125"
                       style={{
                         height: `${Math.max(6, v * 100)}%`,
-                        background: `linear-gradient(180deg, ${ACCENT}, ${ACCENT2})`,
+                        background: `linear-gradient(180deg, ${gradFrom}, ${gradTo})`,
                       }}
                     />
                   </div>
@@ -345,17 +399,14 @@ export function ArcEqBands({
                 side="top"
                 sideOffset={6}
                 showArrow={false}
-                className={tipClass}
+                className={tip.tipClass}
               >
-                <div className="flex flex-col gap-1.5 text-left normal-case tracking-normal">
-                  <span className="text-[11px] text-white/95 font-medium">
-                    {b.label} · {b.range}
-                  </span>
-                  <span className="text-[10px] text-white/55 leading-relaxed">
-                    {formatPct(v)} relative to the loudest band
-                    {isDom ? " (dominant)" : ""}. {b.body}
-                  </span>
-                </div>
+                <GlassTipBody
+                  title={`${b.label} · ${b.range}`}
+                  body={`${formatPct(v)} relative to the loudest band${
+                    isDom ? " (dominant)" : ""
+                  }. ${b.body}`}
+                />
               </TooltipContent>
             </Tooltip>
           );
@@ -391,7 +442,9 @@ export function ArcEqBands({
                     className="h-full rounded-full transition-[filter] group-hover:brightness-125"
                     style={{
                       width: `${v * 100}%`,
-                      background: `linear-gradient(90deg, ${ACCENT}, ${ACCENT2})`,
+                      background: mono
+                        ? "#111111"
+                        : `linear-gradient(90deg, ${ACCENT}, ${ACCENT2})`,
                     }}
                   />
                 </div>
@@ -401,17 +454,14 @@ export function ArcEqBands({
               side="top"
               sideOffset={6}
               showArrow={false}
-              className={tipClass}
+              className={tip.tipClass}
             >
-              <div className="flex flex-col gap-1.5 text-left normal-case tracking-normal">
-                <span className="text-[11px] text-white/95 font-medium">
-                  {b.label} · {b.range}
-                </span>
-                <span className="text-[10px] text-white/55 leading-relaxed">
-                  {formatPct(v)} relative to the loudest band
-                  {isDom ? " (dominant)" : ""}. {b.body}
-                </span>
-              </div>
+              <GlassTipBody
+                title={`${b.label} · ${b.range}`}
+                body={`${formatPct(v)} relative to the loudest band${
+                  isDom ? " (dominant)" : ""
+                }. ${b.body}`}
+              />
             </TooltipContent>
           </Tooltip>
         );
@@ -436,6 +486,7 @@ export function ChromagramOverTime({
   onSeek?: (ratio: number) => void;
   canSeek?: boolean;
 }) {
+  const { mono, ink, inkFg, accent } = useVisualMode();
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const cols = frames.length;
@@ -446,6 +497,8 @@ export function ChromagramOverTime({
     fi: number;
     v: number;
   } | null>(null);
+  const rootColor = accent(ACCENT);
+  const energyColor = accent(ACCENT2);
 
   const getRatio = useCallback((clientX: number) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -484,10 +537,8 @@ export function ChromagramOverTime({
               key={pc}
               className="text-[8px] font-mono leading-none transition-opacity"
               style={{
-                color:
-                  rootPc === pc ? ACCENT : "rgba(255,255,255,0.35)",
-                opacity:
-                  hover && hover.pc !== pc ? 0.35 : 1,
+                color: rootPc === pc ? rootColor : inkFg(0.55),
+                opacity: hover && hover.pc !== pc ? 0.35 : 1,
               }}
             >
               {PITCH_LABELS[pc]}
@@ -523,9 +574,11 @@ export function ChromagramOverTime({
                 const isRoot = rootPc === pc;
                 const isHover = hover?.pc === pc && hover?.fi === fi;
                 const alpha = 0.08 + v * 0.92;
-                const bg = isRoot
-                  ? `rgba(235, 0, 247, ${alpha})`
-                  : `rgba(0, 157, 255, ${alpha * 0.85})`;
+                const bg = mono
+                  ? `rgba(17, 17, 17, ${0.06 + v * 0.72})`
+                  : isRoot
+                    ? `rgba(235, 0, 247, ${alpha})`
+                    : `rgba(0, 157, 255, ${alpha * 0.85})`;
                 return (
                   <div
                     key={`${pc}-${fi}`}
@@ -537,7 +590,7 @@ export function ChromagramOverTime({
                       gridRow: 11 - pc + 1,
                       background: bg,
                       outline: isHover
-                        ? "1px solid rgba(255,255,255,0.85)"
+                        ? `1px solid ${mono ? "rgba(17,17,17,0.9)" : "rgba(255,255,255,0.85)"}`
                         : undefined,
                       outlineOffset: -1,
                       filter: isHover ? "brightness(1.35)" : undefined,
@@ -554,7 +607,7 @@ export function ChromagramOverTime({
               className="absolute top-0 bottom-0 w-px pointer-events-none z-10"
               style={{
                 left: `${progress * 100}%`,
-                background: "rgba(255,255,255,0.8)",
+                background: ink(0.85),
                 boxShadow: "0 0 4px rgba(0,0,0,0.5)",
               }}
             />
@@ -562,10 +615,17 @@ export function ChromagramOverTime({
         </div>
       </div>
 
-      <p className="text-[9px] font-mono text-white/25 tracking-wide min-h-[1rem]">
+      <p
+        className="text-[9px] font-mono tracking-wide min-h-[1rem]"
+        style={{ color: inkFg(0.4) }}
+      >
         {hover ? (
-          <span className="text-white/55">
-            <span style={{ color: rootPc === hover.pc ? ACCENT : ACCENT2 }}>
+          <span style={{ color: inkFg(0.75) }}>
+            <span
+              style={{
+                color: rootPc === hover.pc ? rootColor : energyColor,
+              }}
+            >
               {PITCH_LABELS[hover.pc]}
             </span>
             {" · "}

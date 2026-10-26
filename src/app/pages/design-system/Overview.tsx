@@ -22,7 +22,7 @@ export function OverviewSection() {
           },
           {
             title: "Dev-ready handoff",
-            body: "Foundations, Components, Patterns, Signal, and Architecture show production React—file paths included—not redrawn mocks.",
+            body: "Foundations, Components & patterns, Signal, and Architecture show production React—file paths included—not redrawn mocks.",
           },
         ]}
       />
@@ -97,8 +97,9 @@ export function OverviewSection() {
             in the header to verify token remaps.
           </li>
           <li>
-            Foundations carry rationale; Components / Patterns / Signal show
-            production React; Architecture covers install stack and data flow.
+            Foundations carry rationale; Components & patterns covers shell,
+            stage journeys, and controls; Signal and Architecture cover DSP and
+            install stack.
           </li>
           <li>
             Embed with{" "}

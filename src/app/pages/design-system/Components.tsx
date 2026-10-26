@@ -7,7 +7,12 @@ import { IntervalGrid } from "../../components/harmonizer/IntervalGrid";
 import { useVisualMode } from "../../hooks/useVisualMode";
 import { createDemoBuffer } from "./demoAudio";
 import { PitchZoomControls } from "./PitchZoomControls";
-import { Block, Section } from "./shared";
+import {
+  CollageStagePattern,
+  EmptyGatedPattern,
+  HubToToolPattern,
+} from "./Patterns";
+import { Block, CalloutGrid, Section, Subsection } from "./shared";
 
 function ModeToggleDemo() {
   const { mode, setMode } = useVisualMode();
@@ -285,132 +290,196 @@ function IntervalDemo() {
 export function ComponentsSection() {
   return (
     <Section
-      title="Design System Components"
-      lead="Production React surfaces reused across mini-apps—not redrawn mocks. Each block names the source file a developer should open."
+      title="Components & patterns"
+      lead="Production React surfaces and the composed journeys that use them—not redrawn mocks. Widgets live under Shell and Controls; Hub entry, collage stage + camera rail, and empty/gated intake live under Stage. Install architecture is on the Architecture tab."
     >
-      <Block
-        title="Color / mono toggle"
-        description="Segmented control on the hub and this page. Writes html[data-visual] + localStorage."
-        source="Home.tsx · useVisualMode · visualMode.ts"
-      >
-        <ModeToggleDemo />
-      </Block>
+      <CalloutGrid
+        items={[
+          {
+            title: "Composed journeys",
+            body: "Patterns are not isolated widgets. Hub → mini-app, stage + rail, and honest empty states are the units a developer ships together.",
+          },
+          {
+            title: "One chrome language",
+            body: "Every mini-app opens with Mini App Header + glass rails so muscle memory transfers across the suite.",
+          },
+          {
+            title: "Stage + rail",
+            body: "Primary mixer/workspace on the left; optional camera / HUD on the right—never a dashboard of cards.",
+          },
+          {
+            title: "Empty before fake",
+            body: "Upload gates unlock waveforms and analysis. Prefer silence over invented precision.",
+          },
+        ]}
+      />
 
-      <Block
-        title="Mini App Header"
-        description="Back to hub, centered title + mono subtitle, optional right slot (BPM, export)."
-        source="src/app/components/MiniAppHeader.tsx"
+      <Subsection
+        id="shell"
+        title="Shell"
+        lead="Shared chrome: visual mode, header, glass, hub card, chips."
       >
-        <div className="rounded-sm border border-white/10 bg-white/[0.02] p-4">
-          <MiniAppHeader
-            title="Stem Collage"
-            subtitle="Multi-stem mixer"
-            right={
-              <span className="text-[10px] font-mono text-white/35 tracking-widest">
-                4 stems
-              </span>
-            }
-          />
-        </div>
-      </Block>
+        <Block
+          title="Color / mono toggle"
+          description="Segmented control on the hub and this page. Writes html[data-visual] + localStorage."
+          source="Home.tsx · useVisualMode · visualMode.ts"
+        >
+          <ModeToggleDemo />
+        </Block>
 
-      <Block
-        id="glass"
-        title="Glass Container"
-        description="Motion glass panel with rest / selected elevation via ink alphas."
-        source="src/app/components/GlassContainer.tsx"
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
-          <GlassContainer className="p-4">
-            <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">
-              Rest
-            </div>
-            <p className="text-xs text-white/40 mt-2">Stem card shell</p>
-          </GlassContainer>
-          <GlassContainer className="p-4" isSelected>
-            <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">
-              Selected
-            </div>
-            <p className="text-xs text-white/40 mt-2">Active stem focus</p>
-          </GlassContainer>
-        </div>
-      </Block>
+        <Block
+          title="Mini App Header"
+          description="Back to hub, centered title + mono subtitle, optional right slot (BPM, export). Production links home; demos can pass interactive={false}."
+          source="src/app/components/MiniAppHeader.tsx"
+        >
+          <div className="rounded-sm border border-white/10 bg-white/[0.02] p-4">
+            <MiniAppHeader
+              title="Stem Collage"
+              subtitle="Multi-stem mixer"
+              interactive={false}
+              right={
+                <span className="text-[10px] font-mono tracking-widest text-white/35">
+                  4 stems
+                </span>
+              }
+            />
+          </div>
+        </Block>
 
-      <Block
-        id="hub"
-        title="Hub tool card"
-        description="Accent edge, tagline, feature chips, Enter CTA—pattern from the home grid."
-        source="src/app/pages/Home.tsx · ToolCard"
-      >
-        <HubCardDemo />
-      </Block>
+        <Block
+          id="glass"
+          title="Glass Container"
+          description="Motion glass panel with rest / selected elevation via ink alphas."
+          source="src/app/components/GlassContainer.tsx"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
+            <GlassContainer className="p-4">
+              <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">
+                Rest
+              </div>
+              <p className="text-xs text-white/40 mt-2">Stem card shell</p>
+            </GlassContainer>
+            <GlassContainer className="p-4" isSelected>
+              <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">
+                Selected
+              </div>
+              <p className="text-xs text-white/40 mt-2">Active stem focus</p>
+            </GlassContainer>
+          </div>
+        </Block>
 
-      <Block
-        title="Feature chips"
-        description="Uppercase mono pills for capability lists on hub cards."
-        source="Home.tsx"
-      >
-        <FeatureChips />
-      </Block>
+        <Block
+          id="hub"
+          title="Hub tool card"
+          description="Accent edge, tagline, feature chips, Enter CTA—pattern from the home grid."
+          source="src/app/pages/Home.tsx · ToolCard"
+        >
+          <HubCardDemo />
+        </Block>
 
-      <Block
-        title="File Uploader"
-        description="Empty / loading / loaded / error states for stem and sample intake."
-        why="Honest empty — no fake filename until a real file lands."
-        source="src/app/components/FileUploader.tsx"
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
-          <FileUploader onFileSelect={async () => {}} />
-          <FileUploader
-            onFileSelect={async () => {}}
-            onClear={() => {}}
-            fileName="demo-kick.wav"
-          />
-          <FileUploader onFileSelect={async () => {}} isLoading />
-        </div>
-      </Block>
+        <Block
+          title="Feature chips"
+          description="Uppercase mono pills for capability lists on hub cards."
+          source="Home.tsx"
+        >
+          <FeatureChips />
+        </Block>
+      </Subsection>
 
-      <Block
-        title="Waveform"
-        description="SVG path from AudioBuffer peaks; pitch compresses width; central playhead + markers."
-        source="src/app/components/Waveform.tsx · useWaveform"
+      <Subsection
+        id="stage"
+        title="Stage"
+        lead="Composed journeys—not isolated widgets. Hub entry, collage stage + camera rail, and empty/gated intake. Install architecture lives on the Architecture tab."
       >
-        <WaveformDemo />
-      </Block>
+        <Block
+          title="Hub → enter tool"
+          description="Home card CTA lands in a mini-app that keeps Fourier back-navigation and the same type hierarchy."
+          source="Home ToolCard → /loop-station · MiniAppHeader.tsx"
+        >
+          <HubToToolPattern />
+        </Block>
 
-      <Block
-        title="Grid transport chrome"
-        description="Live / seq mode, play, BPM — accent-driven segmented controls."
-        source="src/app/components/grid/Transport.tsx"
-      >
-        <TransportChromeDemo />
-      </Block>
+        <Block
+          title="Collage stage + camera rail"
+          description="Four stem glasses (selected / idle / empty uploaders) beside an exempt camera column for gesture HUD—taller stage, same stage + rail contract."
+          source="StemCollagePage · StemVisualizer · WebcamFeed"
+        >
+          <CollageStagePattern />
+        </Block>
 
-      <Block
-        title="Pad Grid"
-        description="9-pad sampler chrome with active flash and filename meta."
-        source="src/app/components/grid/PadCard.tsx · PadGrid.tsx"
-      >
-        <PadDemo />
-      </Block>
+        <Block
+          title="Empty / gated upload"
+          description="Intake states before any buffer exists—used by Collage, Separator, Grid, Arc."
+          source="FileUploader · StemSeparatorUpload · ImportZone"
+        >
+          <EmptyGatedPattern />
+        </Block>
+      </Subsection>
 
-      <Block
-        title="HUD Chips"
-        description="Camera / tracking / record status over live views (camera trees keep color HUD in mono)."
-        source="Looper / Collage camera rails"
+      <Subsection
+        id="controls"
+        title="Controls"
+        lead="Intake, signal chrome, transport, pads, and tool-specific pickers."
       >
-        <div data-visual-exempt>
-          <HudChipDemo />
-        </div>
-      </Block>
+        <Block
+          title="File Uploader"
+          description="Empty / loading / loaded / error states for stem and sample intake."
+          why="Honest empty — no fake filename until a real file lands."
+          source="src/app/components/FileUploader.tsx"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
+            <FileUploader onFileSelect={async () => {}} />
+            <FileUploader
+              onFileSelect={async () => {}}
+              onClear={() => {}}
+              fileName="demo-kick.wav"
+            />
+            <FileUploader onFileSelect={async () => {}} isLoading />
+          </div>
+        </Block>
 
-      <Block
-        title="Interval Grid"
-        description="Harmonizer ±12 semitone voice picker with degree / ±st label modes."
-        source="src/app/components/harmonizer/IntervalGrid.tsx"
-      >
-        <IntervalDemo />
-      </Block>
+        <Block
+          title="Waveform"
+          description="SVG path from AudioBuffer peaks; pitch compresses width; central playhead + markers."
+          source="src/app/components/Waveform.tsx · useWaveform"
+        >
+          <WaveformDemo />
+        </Block>
+
+        <Block
+          title="Grid transport chrome"
+          description="Live / seq mode, play, BPM — accent-driven segmented controls."
+          source="src/app/components/grid/Transport.tsx"
+        >
+          <TransportChromeDemo />
+        </Block>
+
+        <Block
+          title="Pad Grid"
+          description="9-pad sampler chrome with active flash and filename meta."
+          source="src/app/components/grid/PadCard.tsx · PadGrid.tsx"
+        >
+          <PadDemo />
+        </Block>
+
+        <Block
+          title="HUD Chips"
+          description="Camera / tracking / record status over live views (camera trees keep color HUD in mono)."
+          source="Looper / Collage camera rails"
+        >
+          <div data-visual-exempt>
+            <HudChipDemo />
+          </div>
+        </Block>
+
+        <Block
+          title="Interval Grid"
+          description="Harmonizer ±12 semitone voice picker with degree / ±st label modes."
+          source="src/app/components/harmonizer/IntervalGrid.tsx"
+        >
+          <IntervalDemo />
+        </Block>
+      </Subsection>
     </Section>
   );
 }

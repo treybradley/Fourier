@@ -9,7 +9,8 @@ Keep intro + GitHub + **product** iframe; then these DS embeds.
 Base: `https://fourier-sound.vercel.app`  
 Query: `embed=1` · `theme=color|mono` · `tab=…` (opens at top of that tab)
 
-Tabs: `overview` · `foundations` · `components` · `patterns` · `signal` · `architecture`
+Tabs: `overview` · `foundations` · `components` (Components & patterns) · `signal` · `architecture`  
+(`tab=patterns` aliases to `components`.)
 
 ---
 
@@ -128,14 +129,14 @@ Optional mono default:
 ></iframe>
 ```
 
-**Patterns**
+**Components & patterns** (shell · stage · controls)
 
 ```html
 <iframe
-  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=patterns"
-  title="Fourier — Design System Patterns"
+  src="https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=components"
+  title="Fourier — Components & patterns"
   width="100%"
-  height="800"
+  height="960"
   style="border:0;border-radius:4px;"
   loading="lazy"
 ></iframe>

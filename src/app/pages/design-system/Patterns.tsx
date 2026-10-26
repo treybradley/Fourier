@@ -1,12 +1,10 @@
-import { Link } from "react-router";
 import { GlassContainer } from "../../components/GlassContainer";
 import { MiniAppHeader } from "../../components/MiniAppHeader";
 import { FileUploader } from "../../components/FileUploader";
 import { Waveform } from "../../components/Waveform";
 import { useVisualMode } from "../../hooks/useVisualMode";
-import { Block, CalloutGrid, Section } from "./shared";
 
-function HubToToolPattern() {
+export function HubToToolPattern() {
   const { mono } = useVisualMode();
   const accentA = mono ? "#111111" : "#00EBB8";
 
@@ -52,13 +50,14 @@ function HubToToolPattern() {
             title="Loop Station"
             subtitle="Multi-track looper"
             yOffset={0}
+            interactive={false}
             right={
               <span className="text-[10px] font-mono text-white/35">5 tr</span>
             }
           />
           <p className="text-[11px] text-white/35 leading-relaxed pt-2">
-            Same brand back-link, title stack, and right slot on every tool—so
-            navigation stays learned.
+            Same brand back mark, title stack, and right slot on every tool—so
+            navigation stays learned. (Back is inert in this demo.)
           </p>
         </div>
       </div>
@@ -66,33 +65,60 @@ function HubToToolPattern() {
   );
 }
 
-function CollageStagePattern() {
+const STEM_SLOTS = [
+  { label: "Stem 1", state: "selected" as const },
+  { label: "Stem 2", state: "idle" as const },
+  { label: "Stem 3", state: "empty" as const },
+  { label: "Stem 4", state: "empty" as const },
+];
+
+export function CollageStagePattern() {
   return (
     <div className="rounded-sm border border-white/10 p-4 space-y-3">
       <MiniAppHeader
         title="Stem Collage"
         subtitle="Multi-stem mixer"
         yOffset={0}
+        interactive={false}
       />
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_9rem] gap-3">
         <div className="space-y-2">
-          {[0, 1].map((i) => (
-            <GlassContainer key={i} className="p-3 space-y-2" isSelected={i === 0}>
+          {STEM_SLOTS.map((slot) => (
+            <GlassContainer
+              key={slot.label}
+              className="p-3 space-y-2"
+              isSelected={slot.state === "selected"}
+            >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono tracking-widest uppercase text-white/50">
-                  Stem {i + 1}
+                  {slot.label}
                 </span>
                 <span className="text-[9px] font-mono text-white/30">
-                  {i === 0 ? "Selected" : "Idle"}
+                  {slot.state === "selected"
+                    ? "Selected"
+                    : slot.state === "idle"
+                      ? "Idle"
+                      : "Empty"}
                 </span>
               </div>
-              {i === 0 ? (
+              {slot.state === "selected" ? (
                 <Waveform
                   audioBuffer={null}
                   isPlaying={false}
                   currentTime={0}
                   duration={0}
                   isSelected
+                  markers={[]}
+                  onSeek={() => {}}
+                  onMarkerClick={() => {}}
+                />
+              ) : slot.state === "idle" ? (
+                <Waveform
+                  audioBuffer={null}
+                  isPlaying={false}
+                  currentTime={0}
+                  duration={0}
+                  isSelected={false}
                   markers={[]}
                   onSeek={() => {}}
                   onMarkerClick={() => {}}
@@ -105,12 +131,12 @@ function CollageStagePattern() {
         </div>
         <div
           data-visual-exempt
-          className="rounded-sm border border-white/10 bg-[#04050F] p-3 flex flex-col gap-2 min-h-[10rem]"
+          className="rounded-sm border border-white/10 bg-[#04050F] p-3 flex flex-col gap-2 min-h-[22rem] lg:min-h-full"
         >
           <div className="text-[9px] font-mono tracking-widest uppercase text-white/40">
             Camera rail
           </div>
-          <div className="flex-1 rounded-sm border border-dashed border-white/15 grid place-items-center text-[10px] font-mono text-white/25">
+          <div className="flex-1 rounded-sm border border-dashed border-white/15 grid place-items-center text-[10px] font-mono text-white/25 min-h-[8rem]">
             Webcam / HUD
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-sm border border-white/15 bg-black/50 px-2 py-1 text-[9px] font-mono tracking-widest uppercase text-white/70 w-fit">
@@ -123,7 +149,7 @@ function CollageStagePattern() {
   );
 }
 
-function EmptyGatedPattern() {
+export function EmptyGatedPattern() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
       <div className="rounded-sm border border-white/10 p-4 space-y-3">
@@ -147,74 +173,5 @@ function EmptyGatedPattern() {
         </p>
       </div>
     </div>
-  );
-}
-
-export function PatternsSection() {
-  return (
-    <Section
-      title="Design System Patterns"
-      lead="Composed journeys—not isolated widgets. Hub entry, collage stage + camera rail, and empty/gated intake. Install architecture lives on the Architecture tab."
-    >
-      <CalloutGrid
-        items={[
-          {
-            title: "One chrome language",
-            body: "Every mini-app opens with Mini App Header + glass rails so muscle memory transfers.",
-          },
-          {
-            title: "Stage + rail",
-            body: "Primary mixer/workspace on the left; optional camera / HUD on the right—never a dashboard of cards.",
-          },
-          {
-            title: "Empty before fake",
-            body: "Upload gates unlock waveforms and analysis. Prefer silence over invented precision.",
-          },
-        ]}
-      />
-
-      <Block
-        title="Hub → enter tool"
-        description="Home card CTA lands in a mini-app that keeps Fourier back-navigation and the same type hierarchy."
-        source="Home ToolCard → /loop-station · MiniAppHeader.tsx"
-      >
-        <HubToToolPattern />
-      </Block>
-
-      <Block
-        title="Collage stage + camera rail"
-        description="Selected stem glass + waveform (or uploader) beside an exempt camera column for gesture HUD."
-        source="StemCollagePage · StemVisualizer · WebcamFeed"
-      >
-        <CollageStagePattern />
-      </Block>
-
-      <Block
-        title="Empty / gated upload"
-        description="Intake states before any buffer exists—used by Collage, Separator, Grid, Arc."
-        source="FileUploader · StemSeparatorUpload · ImportZone"
-      >
-        <EmptyGatedPattern />
-      </Block>
-
-      <Block title="Try the suite">
-        <div className="flex flex-wrap gap-2">
-          {[
-            { to: "/", label: "Hub" },
-            { to: "/stem-collage", label: "Stem Collage" },
-            { to: "/grid", label: "Grid" },
-            { to: "/harmonizer", label: "Harmonizer" },
-          ].map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className="px-3 py-1.5 rounded-sm border border-white/15 text-[10px] font-mono tracking-widest uppercase text-white/55 hover:text-white/90 hover:border-white/30 transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      </Block>
-    </Section>
   );
 }

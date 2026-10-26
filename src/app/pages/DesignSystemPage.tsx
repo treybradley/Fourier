@@ -6,18 +6,21 @@ import { applyVisualMode, type VisualMode } from "../utils/visualMode";
 import { OverviewSection } from "./design-system/Overview";
 import { FoundationsSection } from "./design-system/Foundations";
 import { ComponentsSection } from "./design-system/Components";
-import { PatternsSection } from "./design-system/Patterns";
 import { SignalSection } from "./design-system/Signal";
 import { ArchitectureSection } from "./design-system/SystemArchitecture";
 
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "foundations", label: "Foundations" },
-  { id: "components", label: "Components" },
-  { id: "patterns", label: "Patterns" },
+  { id: "components", label: "Components & patterns" },
   { id: "signal", label: "Signal" },
   { id: "architecture", label: "Architecture" },
 ] as const;
+
+/** Old ?tab=patterns iframes land on the merged Components & patterns tab. */
+const TAB_ALIASES: Record<string, (typeof TABS)[number]["id"]> = {
+  patterns: "components",
+};
 
 type TabId = (typeof TABS)[number]["id"];
 
@@ -30,9 +33,12 @@ export function DesignSystemPage() {
   const { mode, setMode } = useVisualMode();
 
   const embed = params.get("embed") === "1";
-  const tab: TabId = isTabId(params.get("tab"))
-    ? (params.get("tab") as TabId)
-    : "overview";
+  const rawTab = params.get("tab");
+  const tab: TabId = isTabId(rawTab)
+    ? (rawTab as TabId)
+    : rawTab && TAB_ALIASES[rawTab]
+      ? TAB_ALIASES[rawTab]
+      : "overview";
 
   // Apply theme from query (portfolio iframes).
   useEffect(() => {
@@ -74,8 +80,6 @@ export function DesignSystemPage() {
         return <FoundationsSection />;
       case "components":
         return <ComponentsSection />;
-      case "patterns":
-        return <PatternsSection />;
       case "signal":
         return <SignalSection />;
       case "architecture":

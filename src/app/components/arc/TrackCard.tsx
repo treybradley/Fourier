@@ -14,6 +14,7 @@ import {
   ChromaAverageBars,
   ChromagramOverTime,
 } from "./PitchClassViz";
+import { useVisualMode } from "../../hooks/useVisualMode";
 
 const KEY_TO_PC: Record<string, number> = {
   C: 0,
@@ -205,6 +206,7 @@ export function TrackCard({
   onDrop,
   isDragOver,
 }: TrackCardProps) {
+  const { mono, ink, inkFg } = useVisualMode();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [pitchView, setPitchView] = useState<"average" | "overtime">("average");
@@ -526,11 +528,15 @@ export function TrackCard({
                             style={{
                               color:
                                 pitchView === "average"
-                                  ? "rgba(255,255,255,0.9)"
-                                  : "rgba(255,255,255,0.35)",
+                                  ? mono
+                                    ? "#ffffff"
+                                    : inkFg(0.9)
+                                  : inkFg(0.55),
                               background:
                                 pitchView === "average"
-                                  ? "rgba(255,255,255,0.1)"
+                                  ? mono
+                                    ? "#111111"
+                                    : ink(0.1)
                                   : "transparent",
                             }}
                           >
@@ -547,11 +553,15 @@ export function TrackCard({
                             style={{
                               color:
                                 pitchView === "overtime"
-                                  ? "rgba(255,255,255,0.9)"
-                                  : "rgba(255,255,255,0.35)",
+                                  ? mono
+                                    ? "#ffffff"
+                                    : inkFg(0.9)
+                                  : inkFg(0.55),
                               background:
                                 pitchView === "overtime"
-                                  ? "rgba(255,255,255,0.1)"
+                                  ? mono
+                                    ? "#111111"
+                                    : ink(0.1)
                                   : "transparent",
                             }}
                             title={
