@@ -150,63 +150,11 @@ function EmptyGatedPattern() {
   );
 }
 
-function ArchitecturePattern() {
-  return (
-    <div className="rounded-sm border border-white/10 p-5 space-y-4 max-w-2xl">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="rounded-sm border border-white/10 bg-white/[0.03] p-4 space-y-2">
-          <div className="text-[10px] font-mono tracking-widest uppercase text-white/70">
-            Guided station
-          </div>
-          <p className="text-xs text-white/40 leading-relaxed">
-            Facilitated demo with a guest producer—hardware in the room, browser
-            stack on the machine.
-          </p>
-        </div>
-        <div className="rounded-sm border border-white/10 bg-white/[0.03] p-4 space-y-2">
-          <div className="text-[10px] font-mono tracking-widest uppercase text-white/70">
-            Interactive sculpture
-          </div>
-          <p className="text-xs text-white/40 leading-relaxed">
-            Walk-up floor install—same MediaPipe + Web Audio / ONNX path,
-            self-serve.
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 text-[10px] font-mono text-white/30 tracking-widest uppercase">
-        <span className="flex-1 h-px bg-white/10" />
-        Shared client stack
-        <span className="flex-1 h-px bg-white/10" />
-      </div>
-      <div className="flex flex-wrap gap-1.5">
-        {[
-          "UI shell",
-          "MediaPipe",
-          "Web Audio",
-          "ONNX / SoundTouch",
-          "Local export",
-        ].map((t) => (
-          <span
-            key={t}
-            className="text-[9px] font-mono tracking-wider uppercase rounded-sm px-2 py-0.5 border border-white/10 text-white/40"
-          >
-            {t}
-          </span>
-        ))}
-      </div>
-      <p className="text-[11px] text-white/35 leading-relaxed">
-        After VibeCon, the same foundations scaled the hub into a full suite—
-        tokens and components transferred to other Matte / VibeCon builds.
-      </p>
-    </div>
-  );
-}
-
 export function PatternsSection() {
   return (
     <Section
       title="Design System Patterns"
-      lead="Composed journeys—not isolated widgets. Hub entry, collage stage + camera rail, empty/gated intake, and the station↔sculpture install story."
+      lead="Composed journeys—not isolated widgets. Hub entry, collage stage + camera rail, and empty/gated intake. Install architecture lives on Overview."
     >
       <CalloutGrid
         items={[
@@ -247,14 +195,6 @@ export function PatternsSection() {
         source="FileUploader · StemSeparatorUpload · ImportZone"
       >
         <EmptyGatedPattern />
-      </Block>
-
-      <Block
-        title="Station install & sculpture"
-        description="Product architecture for VibeCon: two physical contexts, one browser stack, then suite expansion."
-        source="docs/portfolio/COPY.md · Architecture board"
-      >
-        <ArchitecturePattern />
       </Block>
 
       <Block title="Try the suite">

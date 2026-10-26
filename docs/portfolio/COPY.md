@@ -50,9 +50,9 @@ After VibeCon, the constraint wasn’t “one more demo”—it was adding instr
 
 ## H3 — Station install and interactive sculpture
 
-Fourier wasn’t only a URL. For VibeCon it lived on a computer station connected to real hardware—so a guest music producer could run guided demos—and as a walk-up interactive sculpture on the floor. The stack stays client-side (MediaPipe, Web Audio / ONNX / SoundTouch, UI shell, local export) on the machine, whether facilitated or self-serve.
+Fourier wasn’t only a URL. For VibeCon it lived on a computer station connected to real hardware—so a guest music producer could run guided demos—and as a walk-up interactive sculpture on the floor. The stack stays client-side (MediaPipe, Web Audio / ONNX / SoundTouch, UI shell, local export) on the machine, whether facilitated or self-serve. The live design system Overview tab walks the same architecture interactively (station ↔ sculpture, shared stack layers, post-install suite growth).
 
-**Image:** `05-architecture.png`  
+**Image:** `05-architecture.png` (optional if the DS Overview iframe already covers this)  
 **Caption:** Guided station + interactive sculpture, then suite expansion on a shared browser stack.
 
 ---
@@ -66,6 +66,7 @@ Fourier is the VibeCon install that kept going as a product. Below: Ouracle, Cod
 ## Meta
 
 **Live:** https://fourier-sound.vercel.app/  
-**Design system (iframe):** https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=foundations  
+**Design system (iframe):** https://fourier-sound.vercel.app/design-system?embed=1&theme=color&tab=overview  
+
 **Figma:** https://www.figma.com/design/lOA7qbbZngiZhPcbqnAmhk  
 **GitHub:** https://github.com/treybradley/Fourier

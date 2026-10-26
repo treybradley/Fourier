@@ -1,17 +1,14 @@
 import { Block, CalloutGrid, Section, SpecTable } from "./shared";
+import { SystemArchitecture } from "./SystemArchitecture";
 
 export function OverviewSection() {
   return (
     <Section
       title="Design System Overview"
-      lead="Fourier is a browser music suite that began as Matte Projects R&D for Replit’s VibeCon 2026—built to run as a guided computer station and as a walk-up interactive sculpture. This page documents the shared tokens, chrome, and patterns a developer can implement without redesigning the shell."
+      lead="Fourier is a browser music suite that began as Matte Projects R&D for Replit’s VibeCon 2026. This page documents the shared tokens, chrome, and patterns a developer can implement—and how that UI was meant to live in a live install."
     >
       <CalloutGrid
         items={[
-          {
-            title: "Station + sculpture",
-            body: "Same client stack on a facilitated demo station and a self-serve floor install—MediaPipe, Web Audio / ONNX / SoundTouch, local export.",
-          },
           {
             title: "Two visual modes",
             body: "Color reads as a dark stage tool; mono reads as a light engineering schematic. One product, remapped chrome—not a separate light theme.",
@@ -24,8 +21,14 @@ export function OverviewSection() {
             title: "Prototype → suite",
             body: "Lock foundations early (glass, headers, accents, color↔mono) so new mini-apps reuse the shell instead of inventing chrome.",
           },
+          {
+            title: "Dev-ready handoff",
+            body: "Foundations, Components, Patterns, and Signal show production React—file paths included—not redrawn mocks.",
+          },
         ]}
       />
+
+      <SystemArchitecture />
 
       <Block
         title="Platform notes"
@@ -35,7 +38,8 @@ export function OverviewSection() {
           rows={[
             {
               role: "Primary experience",
-              detail: "Hub + mini-apps (Collage, Looper, Grid, Separator, Arc, Gato, Harmonizer)",
+              detail:
+                "Hub + mini-apps (Collage, Looper, Grid, Separator, Arc, Gato, Harmonizer)",
               note: "All client-side",
             },
             {
@@ -73,8 +77,8 @@ export function OverviewSection() {
       >
         <p className="text-xs text-white/40 leading-relaxed max-w-xl">
           Capture-adjacent tools (hand tracking, pads, multi-stem mixers) are
-          designed for station installs and laptop demos. Phone web is a companion
-          browse surface, not a full substitute for the sculpture.
+          designed for station installs and laptop demos. Phone web is a
+          companion browse surface, not a full substitute for the sculpture.
         </p>
       </Block>
 
@@ -96,15 +100,15 @@ export function OverviewSection() {
             in the header to verify token remaps.
           </li>
           <li>
-            Foundations carry rationale; Components / Patterns show production
-            React implementations a developer can ship from.
+            Foundations carry rationale; Components / Patterns / Signal show
+            production React implementations a developer can ship from.
           </li>
           <li>
             Embed with{" "}
             <span className="font-mono text-white/60">
-              ?embed=1&amp;theme=color&amp;tab=foundations
+              ?embed=1&amp;theme=color&amp;tab=overview
             </span>{" "}
-            for portfolio iframes.
+            for portfolio iframes (architecture sits on Overview).
           </li>
         </ul>
       </Block>
