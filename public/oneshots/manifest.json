@@ -1,0 +1,2609 @@
+{
+  "version": 1,
+  "categories": [
+    "kick",
+    "snare",
+    "percussion",
+    "cymbals"
+  ],
+  "count": 371,
+  "samples": [
+    {
+      "id": "kick/DIRT_BLEND_one_shots_distorted_kick",
+      "name": "distorted kick",
+      "category": "kick",
+      "path": "/oneshots/kick/DIRT_BLEND_one_shots_distorted_kick.mp3",
+      "bytes": 46124
+    },
+    {
+      "id": "kick/DIRT_BLEND_one_shots_distorted_kick_long_hiss",
+      "name": "distorted kick long hiss",
+      "category": "kick",
+      "path": "/oneshots/kick/DIRT_BLEND_one_shots_distorted_kick_long_hiss.mp3",
+      "bytes": 76652
+    },
+    {
+      "id": "kick/DIRT_BLEND_one_shots_distorted_soft_and_harsh_kick",
+      "name": "distorted soft and harsh kick",
+      "category": "kick",
+      "path": "/oneshots/kick/DIRT_BLEND_one_shots_distorted_soft_and_harsh_kick.mp3",
+      "bytes": 73196
+    },
+    {
+      "id": "kick/DIRT_BLEND_one_shots_distorted_soft_kick",
+      "name": "distorted soft kick",
+      "category": "kick",
+      "path": "/oneshots/kick/DIRT_BLEND_one_shots_distorted_soft_kick.mp3",
+      "bytes": 62828
+    },
+    {
+      "id": "kick/DIRT_BLEND_one_shots_distorted_thump",
+      "name": "distorted thump",
+      "category": "kick",
+      "path": "/oneshots/kick/DIRT_BLEND_one_shots_distorted_thump.mp3",
+      "bytes": 26540
+    },
+    {
+      "id": "kick/DIRT_BLEND_one_shots_kick",
+      "name": "kick",
+      "category": "kick",
+      "path": "/oneshots/kick/DIRT_BLEND_one_shots_kick.mp3",
+      "bytes": 46124
+    },
+    {
+      "id": "kick/DIRT_BLEND_one_shots_kick_and_snare",
+      "name": "kick and snare",
+      "category": "kick",
+      "path": "/oneshots/kick/DIRT_BLEND_one_shots_kick_and_snare.mp3",
+      "bytes": 74348
+    },
+    {
+      "id": "kick/DIRT_BLEND_one_shots_mega_filthy_kick_hiss",
+      "name": "mega filthy kick hiss",
+      "category": "kick",
+      "path": "/oneshots/kick/DIRT_BLEND_one_shots_mega_filthy_kick_hiss.mp3",
+      "bytes": 47276
+    },
+    {
+      "id": "kick/DIRT_BLEND_one_shots_mega_hiss_tremolo_kick",
+      "name": "mega hiss tremolo kick",
+      "category": "kick",
+      "path": "/oneshots/kick/DIRT_BLEND_one_shots_mega_hiss_tremolo_kick.mp3",
+      "bytes": 59372
+    },
+    {
+      "id": "kick/GROOVIN_one_shots_kick",
+      "name": "kick",
+      "category": "kick",
+      "path": "/oneshots/kick/GROOVIN_one_shots_kick.mp3",
+      "bytes": 59602
+    },
+    {
+      "id": "kick/HEAVY_BONES_one_shots_kick",
+      "name": "kick",
+      "category": "kick",
+      "path": "/oneshots/kick/HEAVY_BONES_one_shots_kick.mp3",
+      "bytes": 60524
+    },
+    {
+      "id": "kick/HEAVY_BONES_one_shots_kick_bell_hell",
+      "name": "kick bell hell",
+      "category": "kick",
+      "path": "/oneshots/kick/HEAVY_BONES_one_shots_kick_bell_hell.mp3",
+      "bytes": 37484
+    },
+    {
+      "id": "kick/HEAVY_BONES_one_shots_kick_high_gain_doom",
+      "name": "kick high gain doom",
+      "category": "kick",
+      "path": "/oneshots/kick/HEAVY_BONES_one_shots_kick_high_gain_doom.mp3",
+      "bytes": 36908
+    },
+    {
+      "id": "kick/HEAVY_BONES_one_shots_kick_of_doom",
+      "name": "kick of doom",
+      "category": "kick",
+      "path": "/oneshots/kick/HEAVY_BONES_one_shots_kick_of_doom.mp3",
+      "bytes": 73196
+    },
+    {
+      "id": "kick/POPCORN_Popcorn_Dark_Burned_Popcorn_Sub",
+      "name": "Dark Burned Popcorn Sub",
+      "category": "kick",
+      "path": "/oneshots/kick/POPCORN_Popcorn_Dark_Burned_Popcorn_Sub.mp3",
+      "bytes": 56696
+    },
+    {
+      "id": "kick/POPCORN_Popcorn_Kick",
+      "name": "Kick",
+      "category": "kick",
+      "path": "/oneshots/kick/POPCORN_Popcorn_Kick.mp3",
+      "bytes": 48056
+    },
+    {
+      "id": "kick/POPCORN_Popcorn_Kick_and_closed_hat",
+      "name": "Kick and closed hat",
+      "category": "kick",
+      "path": "/oneshots/kick/POPCORN_Popcorn_Kick_and_closed_hat.mp3",
+      "bytes": 48632
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_1",
+      "name": "kick 1",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_1.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_10",
+      "name": "kick 10",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_10.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_11",
+      "name": "kick 11",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_11.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_12",
+      "name": "kick 12",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_12.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_13",
+      "name": "kick 13",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_13.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_14",
+      "name": "kick 14",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_14.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_15",
+      "name": "kick 15",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_15.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_16",
+      "name": "kick 16",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_16.mp3",
+      "bytes": 57246
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_17",
+      "name": "kick 17",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_17.mp3",
+      "bytes": 57246
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_18",
+      "name": "kick 18",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_18.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_19",
+      "name": "kick 19",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_19.mp3",
+      "bytes": 66860
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_2",
+      "name": "kick 2",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_2.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_20",
+      "name": "kick 20",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_20.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_3",
+      "name": "kick 3",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_3.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_4",
+      "name": "kick 4",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_4.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_5",
+      "name": "kick 5",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_5.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_6",
+      "name": "kick 6",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_6.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_7",
+      "name": "kick 7",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_7.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_8",
+      "name": "kick 8",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_8.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "kick/PSYCHOTONES_one_shots_kick_9",
+      "name": "kick 9",
+      "category": "kick",
+      "path": "/oneshots/kick/PSYCHOTONES_one_shots_kick_9.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_distorted_shell_hit",
+      "name": "distorted shell hit",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_distorted_shell_hit.mp3",
+      "bytes": 25964
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_distorted_snare",
+      "name": "distorted snare",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_distorted_snare.mp3",
+      "bytes": 55340
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_distorted_snare_noise",
+      "name": "distorted snare noise",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_distorted_snare_noise.mp3",
+      "bytes": 25964
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_distorted_snare_pressroll_buildup",
+      "name": "distorted snare pressroll buildup",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_distorted_snare_pressroll_buildup.mp3",
+      "bytes": 67436
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_distorted_snare_rim_flam",
+      "name": "distorted snare rim flam",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_distorted_snare_rim_flam.mp3",
+      "bytes": 37484
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_distorted_snare_roll_drop",
+      "name": "distorted snare roll drop",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_distorted_snare_roll_drop.mp3",
+      "bytes": 47276
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_distorted_snare_sidesticke_flam",
+      "name": "distorted snare sidesticke flam",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_distorted_snare_sidesticke_flam.mp3",
+      "bytes": 50156
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_distorted_snare_snap",
+      "name": "distorted snare snap",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_distorted_snare_snap.mp3",
+      "bytes": 51884
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_dry_snare",
+      "name": "dry snare",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_dry_snare.mp3",
+      "bytes": 55340
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_filthy_open_distorted_snare",
+      "name": "filthy open distorted snare",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_filthy_open_distorted_snare.mp3",
+      "bytes": 63404
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_filthy_open_snare",
+      "name": "filthy open snare",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_filthy_open_snare.mp3",
+      "bytes": 63404
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_mega_distorted_rim_flam",
+      "name": "mega distorted rim flam",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_mega_distorted_rim_flam.mp3",
+      "bytes": 39788
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_mega_distorted_snare_mid_hit",
+      "name": "mega distorted snare mid hit",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_mega_distorted_snare_mid_hit.mp3",
+      "bytes": 47852
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_snare_pressroll_buildup",
+      "name": "snare pressroll buildup",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_snare_pressroll_buildup.mp3",
+      "bytes": 67436
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_snare_pressroll_to_snap",
+      "name": "snare pressroll to snap",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_snare_pressroll_to_snap.mp3",
+      "bytes": 77804
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_snare_pressroll_wave",
+      "name": "snare pressroll wave",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_snare_pressroll_wave.mp3",
+      "bytes": 138860
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_snare_rim_flam",
+      "name": "snare rim flam",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_snare_rim_flam.mp3",
+      "bytes": 37484
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_snare_roll_drop",
+      "name": "snare roll drop",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_snare_roll_drop.mp3",
+      "bytes": 47276
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_snare_sidestick",
+      "name": "snare sidestick",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_snare_sidestick.mp3",
+      "bytes": 32300
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_snare_sidestick_dry_flam",
+      "name": "snare sidestick dry flam",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_snare_sidestick_dry_flam.mp3",
+      "bytes": 17900
+    },
+    {
+      "id": "snare/DIRT_BLEND_one_shots_snare_snap",
+      "name": "snare snap",
+      "category": "snare",
+      "path": "/oneshots/snare/DIRT_BLEND_one_shots_snare_snap.mp3",
+      "bytes": 51884
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_open_side_snare",
+      "name": "open side snare",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_open_side_snare.mp3",
+      "bytes": 73394
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_open_snare",
+      "name": "open snare",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_open_snare.mp3",
+      "bytes": 49571
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_open_super_side_snare",
+      "name": "open super side snare",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_open_super_side_snare.mp3",
+      "bytes": 73394
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_snare_pressroll",
+      "name": "snare pressroll",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_snare_pressroll.mp3",
+      "bytes": 61483
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_snare_pressroll_fadein",
+      "name": "snare pressroll fadein",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_snare_pressroll_fadein.mp3",
+      "bytes": 73394
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_snare_pressroll_fadeout",
+      "name": "snare pressroll fadeout",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_snare_pressroll_fadeout.mp3",
+      "bytes": 85306
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_snare_pressroll_muffled",
+      "name": "snare pressroll muffled",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_snare_pressroll_muffled.mp3",
+      "bytes": 49571
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_snare_reverse_open_hit",
+      "name": "snare reverse open hit",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_snare_reverse_open_hit.mp3",
+      "bytes": 61483
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_snare_rim_click",
+      "name": "snare rim click",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_snare_rim_click.mp3",
+      "bytes": 49571
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_snare_side_reverse",
+      "name": "snare side reverse",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_snare_side_reverse.mp3",
+      "bytes": 73394
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_snare_sidestick_clap",
+      "name": "snare sidestick clap",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_snare_sidestick_clap.mp3",
+      "bytes": 49571
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_snare_sloppy_sticks_drop",
+      "name": "snare sloppy sticks drop",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_snare_sloppy_sticks_drop.mp3",
+      "bytes": 49571
+    },
+    {
+      "id": "snare/GROOVIN_one_shots_snare_stick_on_stick",
+      "name": "snare stick on stick",
+      "category": "snare",
+      "path": "/oneshots/snare/GROOVIN_one_shots_snare_stick_on_stick.mp3",
+      "bytes": 49571
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare",
+      "name": "snare",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare.mp3",
+      "bytes": 21932
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_clap",
+      "name": "snare clap",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_clap.mp3",
+      "bytes": 38060
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_clap_2",
+      "name": "snare clap 2",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_clap_2.mp3",
+      "bytes": 29996
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_clap_of_doom",
+      "name": "snare clap of doom",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_clap_of_doom.mp3",
+      "bytes": 38060
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_clap_of_doom_2",
+      "name": "snare clap of doom 2",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_clap_of_doom_2.mp3",
+      "bytes": 29996
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_click",
+      "name": "snare click",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_click.mp3",
+      "bytes": 27116
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_click_of_doom",
+      "name": "snare click of doom",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_click_of_doom.mp3",
+      "bytes": 27116
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_high_click",
+      "name": "snare high click",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_high_click.mp3",
+      "bytes": 32300
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_high_click_of_doom",
+      "name": "snare high click of doom",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_high_click_of_doom.mp3",
+      "bytes": 32300
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_high_gain_doom",
+      "name": "snare high gain doom",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_high_gain_doom.mp3",
+      "bytes": 39788
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_hit",
+      "name": "snare hit",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_hit.mp3",
+      "bytes": 53612
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_moan",
+      "name": "snare moan",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_moan.mp3",
+      "bytes": 37484
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_moan_of_doom",
+      "name": "snare moan of doom",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_moan_of_doom.mp3",
+      "bytes": 37484
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_shooting_up",
+      "name": "snare shooting up",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_shooting_up.mp3",
+      "bytes": 55340
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_tiny",
+      "name": "snare tiny",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_tiny.mp3",
+      "bytes": 42668
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_tiny_high_gain_doom",
+      "name": "snare tiny high gain doom",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_tiny_high_gain_doom.mp3",
+      "bytes": 58220
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_tiny_prees_roll",
+      "name": "snare tiny prees roll",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_tiny_prees_roll.mp3",
+      "bytes": 53036
+    },
+    {
+      "id": "snare/HEAVY_BONES_one_shots_snare_tiny_reverse_roll_to_hit",
+      "name": "snare tiny reverse roll to hit",
+      "category": "snare",
+      "path": "/oneshots/snare/HEAVY_BONES_one_shots_snare_tiny_reverse_roll_to_hit.mp3",
+      "bytes": 53036
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_6_loose_press_roll",
+      "name": "snare 6 loose press roll",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_6_loose_press_roll.mp3",
+      "bytes": 43244
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_6_press_roll",
+      "name": "snare 6 press roll",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_6_press_roll.mp3",
+      "bytes": 25388
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_6_roll_to_hit",
+      "name": "snare 6 roll to hit",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_6_roll_to_hit.mp3",
+      "bytes": 29996
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_6_roll_to_hit_and_fall",
+      "name": "snare 6 roll to hit and fall",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_6_roll_to_hit_and_fall.mp3",
+      "bytes": 37484
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_6_timbalito_loose_press_roll",
+      "name": "snare 6 timbalito loose press roll",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_6_timbalito_loose_press_roll.mp3",
+      "bytes": 31724
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_6_timbalito_press_roll",
+      "name": "snare 6 timbalito press roll",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_6_timbalito_press_roll.mp3",
+      "bytes": 37484
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_8_timbalito_loose_press_roll",
+      "name": "snare 8 timbalito loose press roll",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_8_timbalito_loose_press_roll.mp3",
+      "bytes": 56492
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_8_timbalito_press_roll",
+      "name": "snare 8 timbalito press roll",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_8_timbalito_press_roll.mp3",
+      "bytes": 44396
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_climbing_down_press_rolls",
+      "name": "snare climbing down press rolls",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_climbing_down_press_rolls.mp3",
+      "bytes": 49580
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_climbing_press_rolls",
+      "name": "snare climbing press rolls",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_climbing_press_rolls.mp3",
+      "bytes": 31724
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_one_stroke_roll_fade",
+      "name": "snare one stroke roll fade",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_one_stroke_roll_fade.mp3",
+      "bytes": 115244
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_one_stroke_roll_fade_2",
+      "name": "snare one stroke roll fade 2",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_one_stroke_roll_fade_2.mp3",
+      "bytes": 181484
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_one_stroke_roll_fade_to_weird_press",
+      "name": "snare one stroke roll fade to weird press",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_one_stroke_roll_fade_to_weird_press.mp3",
+      "bytes": 97388
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_press_roll_fades",
+      "name": "snare press roll fades",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_press_roll_fades.mp3",
+      "bytes": 109484
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_press_roll_swell",
+      "name": "snare press roll swell",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_press_roll_swell.mp3",
+      "bytes": 73196
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_press_roll_swell_2",
+      "name": "snare press roll swell 2",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_press_roll_swell_2.mp3",
+      "bytes": 72044
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_sad_press_roll_fade",
+      "name": "snare sad press roll fade",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_sad_press_roll_fade.mp3",
+      "bytes": 97388
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_three_falling_press_rolls",
+      "name": "snare three falling press rolls",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_three_falling_press_rolls.mp3",
+      "bytes": 49580
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_three_loose_press_rolls",
+      "name": "snare three loose press rolls",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_three_loose_press_rolls.mp3",
+      "bytes": 73196
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_three_timbalito_press_rolls",
+      "name": "snare three timbalito press rolls",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_three_timbalito_press_rolls.mp3",
+      "bytes": 25388
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_three_timbalito_press_rolls_2",
+      "name": "snare three timbalito press rolls 2",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_three_timbalito_press_rolls_2.mp3",
+      "bytes": 31724
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_three_tiny_snares_burst",
+      "name": "snare three tiny snares burst",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_three_tiny_snares_burst.mp3",
+      "bytes": 61676
+    },
+    {
+      "id": "snare/IN_MOTION_one_shots_snare_three_tiny_snares_burst_2",
+      "name": "snare three tiny snares burst 2",
+      "category": "snare",
+      "path": "/oneshots/snare/IN_MOTION_one_shots_snare_three_tiny_snares_burst_2.mp3",
+      "bytes": 91628
+    },
+    {
+      "id": "snare/POPCORN_Popcorn_Filthy_Snare_Pop",
+      "name": "Filthy Snare Pop",
+      "category": "snare",
+      "path": "/oneshots/snare/POPCORN_Popcorn_Filthy_Snare_Pop.mp3",
+      "bytes": 25592
+    },
+    {
+      "id": "snare/POPCORN_Popcorn_Flam_Pop",
+      "name": "Flam Pop",
+      "category": "snare",
+      "path": "/oneshots/snare/POPCORN_Popcorn_Flam_Pop.mp3",
+      "bytes": 38264
+    },
+    {
+      "id": "snare/POPCORN_Popcorn_Ring_Snare_Pop",
+      "name": "Ring Snare Pop",
+      "category": "snare",
+      "path": "/oneshots/snare/POPCORN_Popcorn_Ring_Snare_Pop.mp3",
+      "bytes": 29048
+    },
+    {
+      "id": "snare/POPCORN_Popcorn_Ring_Snare_Pop_2",
+      "name": "Ring Snare Pop 2",
+      "category": "snare",
+      "path": "/oneshots/snare/POPCORN_Popcorn_Ring_Snare_Pop_2.mp3",
+      "bytes": 39992
+    },
+    {
+      "id": "snare/POPCORN_Popcorn_Ring_Snare_Pop_3",
+      "name": "Ring Snare Pop 3",
+      "category": "snare",
+      "path": "/oneshots/snare/POPCORN_Popcorn_Ring_Snare_Pop_3.mp3",
+      "bytes": 25592
+    },
+    {
+      "id": "snare/POPCORN_Popcorn_Snare",
+      "name": "Snare",
+      "category": "snare",
+      "path": "/oneshots/snare/POPCORN_Popcorn_Snare.mp3",
+      "bytes": 35960
+    },
+    {
+      "id": "snare/POPCORN_Popcorn_Timba_Snare_Pop",
+      "name": "Timba Snare Pop",
+      "category": "snare",
+      "path": "/oneshots/snare/POPCORN_Popcorn_Timba_Snare_Pop.mp3",
+      "bytes": 18104
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_1",
+      "name": "snare 1",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_1.mp3",
+      "bytes": 66462
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_10",
+      "name": "snare 10",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_10.mp3",
+      "bytes": 67436
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_11",
+      "name": "snare 11",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_11.mp3",
+      "bytes": 31902
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_12",
+      "name": "snare 12",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_12.mp3",
+      "bytes": 31902
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_13",
+      "name": "snare 13",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_13.mp3",
+      "bytes": 31148
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_14",
+      "name": "snare 14",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_14.mp3",
+      "bytes": 67436
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_15",
+      "name": "snare 15",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_15.mp3",
+      "bytes": 34782
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_16",
+      "name": "snare 16",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_16.mp3",
+      "bytes": 45726
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_17",
+      "name": "snare 17",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_17.mp3",
+      "bytes": 45726
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_18",
+      "name": "snare 18",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_18.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_19",
+      "name": "snare 19",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_19.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_2",
+      "name": "snare 2",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_2.mp3",
+      "bytes": 66462
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_20",
+      "name": "snare 20",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_20.mp3",
+      "bytes": 68190
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_21",
+      "name": "snare 21",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_21.mp3",
+      "bytes": 62430
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_22",
+      "name": "snare 22",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_22.mp3",
+      "bytes": 62430
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_23",
+      "name": "snare 23",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_23.mp3",
+      "bytes": 62430
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_24",
+      "name": "snare 24",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_24.mp3",
+      "bytes": 62430
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_25",
+      "name": "snare 25",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_25.mp3",
+      "bytes": 51486
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_26",
+      "name": "snare 26",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_26.mp3",
+      "bytes": 51486
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_27",
+      "name": "snare 27",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_27.mp3",
+      "bytes": 51486
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_28",
+      "name": "snare 28",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_28.mp3",
+      "bytes": 51486
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_29",
+      "name": "snare 29",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_29.mp3",
+      "bytes": 51486
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_3",
+      "name": "snare 3",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_3.mp3",
+      "bytes": 66462
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_30",
+      "name": "snare 30",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_30.mp3",
+      "bytes": 83742
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_31",
+      "name": "snare 31",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_31.mp3",
+      "bytes": 83742
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_32",
+      "name": "snare 32",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_32.mp3",
+      "bytes": 83742
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_33",
+      "name": "snare 33",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_33.mp3",
+      "bytes": 57246
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_34",
+      "name": "snare 34",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_34.mp3",
+      "bytes": 67038
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_35",
+      "name": "snare 35",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_35.mp3",
+      "bytes": 67038
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_36",
+      "name": "snare 36",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_36.mp3",
+      "bytes": 66860
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_37",
+      "name": "snare 37",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_37.mp3",
+      "bytes": 90078
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_38",
+      "name": "snare 38",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_38.mp3",
+      "bytes": 90078
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_39",
+      "name": "snare 39",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_39.mp3",
+      "bytes": 45548
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_4",
+      "name": "snare 4",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_4.mp3",
+      "bytes": 66462
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_40",
+      "name": "snare 40",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_40.mp3",
+      "bytes": 45548
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_41",
+      "name": "snare 41",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_41.mp3",
+      "bytes": 45548
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_42",
+      "name": "snare 42",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_42.mp3",
+      "bytes": 53036
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_5",
+      "name": "snare 5",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_5.mp3",
+      "bytes": 66860
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_6",
+      "name": "snare 6",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_6.mp3",
+      "bytes": 51486
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_7",
+      "name": "snare 7",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_7.mp3",
+      "bytes": 51486
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_8",
+      "name": "snare 8",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_8.mp3",
+      "bytes": 51486
+    },
+    {
+      "id": "snare/PSYCHOTONES_one_shots_snare_9",
+      "name": "snare 9",
+      "category": "snare",
+      "path": "/oneshots/snare/PSYCHOTONES_one_shots_snare_9.mp3",
+      "bytes": 87198
+    },
+    {
+      "id": "snare/RUST_ON_TOP_one_shots_snare_case_hit_1",
+      "name": "snare case hit 1",
+      "category": "snare",
+      "path": "/oneshots/snare/RUST_ON_TOP_one_shots_snare_case_hit_1.mp3",
+      "bytes": 27899
+    },
+    {
+      "id": "snare/RUST_ON_TOP_one_shots_snare_case_hit_2",
+      "name": "snare case hit 2",
+      "category": "snare",
+      "path": "/oneshots/snare/RUST_ON_TOP_one_shots_snare_case_hit_2.mp3",
+      "bytes": 27899
+    },
+    {
+      "id": "snare/RUST_ON_TOP_one_shots_snare_case_hit_3",
+      "name": "snare case hit 3",
+      "category": "snare",
+      "path": "/oneshots/snare/RUST_ON_TOP_one_shots_snare_case_hit_3.mp3",
+      "bytes": 27899
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_bells_drop",
+      "name": "bells drop",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_bells_drop.mp3",
+      "bytes": 45548
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_bells_pickup",
+      "name": "bells pickup",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_bells_pickup.mp3",
+      "bytes": 99692
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_bottle_high",
+      "name": "bottle high",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_bottle_high.mp3",
+      "bytes": 28268
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_bottle_low",
+      "name": "bottle low",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_bottle_low.mp3",
+      "bytes": 19628
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_chinese_mini_gong_creak",
+      "name": "chinese mini gong creak",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_chinese_mini_gong_creak.mp3",
+      "bytes": 155564
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_chinese_mini_gong_hit",
+      "name": "chinese mini gong hit",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_chinese_mini_gong_hit.mp3",
+      "bytes": 114668
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_crap_from_the_floor_high_gain_doom",
+      "name": "crap from the floor high gain doom",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_crap_from_the_floor_high_gain_doom.mp3",
+      "bytes": 123884
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_dropped_somethig",
+      "name": "dropped somethig",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_dropped_somethig.mp3",
+      "bytes": 52460
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_drum_scratch",
+      "name": "drum scratch",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_drum_scratch.mp3",
+      "bytes": 42668
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_elephant_bell_gated",
+      "name": "elephant bell gated",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_elephant_bell_gated.mp3",
+      "bytes": 55916
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_garbage_bells_fall",
+      "name": "garbage bells fall",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_garbage_bells_fall.mp3",
+      "bytes": 182636
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_garbage_bells_fall_2",
+      "name": "garbage bells fall 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_garbage_bells_fall_2.mp3",
+      "bytes": 90476
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_garbage_bells_fall_on_tom",
+      "name": "garbage bells fall on tom",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_garbage_bells_fall_on_tom.mp3",
+      "bytes": 65708
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_garbage_bells_high_gain_doom",
+      "name": "garbage bells high gain doom",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_garbage_bells_high_gain_doom.mp3",
+      "bytes": 157868
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_garbage_bells_hit",
+      "name": "garbage bells hit",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_garbage_bells_hit.mp3",
+      "bytes": 63404
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_padeiro_hit_high_gain_doom",
+      "name": "padeiro hit high gain doom",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_padeiro_hit_high_gain_doom.mp3",
+      "bytes": 31724
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_padeiro_low_moan_high_gain_doom",
+      "name": "padeiro low moan high gain doom",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_padeiro_low_moan_high_gain_doom.mp3",
+      "bytes": 30572
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_padeiro_low_moan_high_gain_doom_2",
+      "name": "padeiro low moan high gain doom 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_padeiro_low_moan_high_gain_doom_2.mp3",
+      "bytes": 42668
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_padeiro_slap_high_gain_doom",
+      "name": "padeiro slap high gain doom",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_padeiro_slap_high_gain_doom.mp3",
+      "bytes": 48428
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_padeiro_slow_rattle_high_gain_doom",
+      "name": "padeiro slow rattle high gain doom",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_padeiro_slow_rattle_high_gain_doom.mp3",
+      "bytes": 50156
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_high_hit",
+      "name": "pandeiro low gain high hit",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_high_hit.mp3",
+      "bytes": 73196
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_high_moan",
+      "name": "pandeiro low gain high moan",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_high_moan.mp3",
+      "bytes": 65132
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_high_rattle",
+      "name": "pandeiro low gain high rattle",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_high_rattle.mp3",
+      "bytes": 58796
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_high_slap",
+      "name": "pandeiro low gain high slap",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_high_slap.mp3",
+      "bytes": 11564
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_low_hit",
+      "name": "pandeiro low gain low hit",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_low_hit.mp3",
+      "bytes": 39788
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_mid_slap",
+      "name": "pandeiro low gain mid slap",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_mid_slap.mp3",
+      "bytes": 21932
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_moan",
+      "name": "pandeiro low gain moan",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_moan.mp3",
+      "bytes": 41516
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_rattle",
+      "name": "pandeiro low gain rattle",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_rattle.mp3",
+      "bytes": 48428
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_side_hit",
+      "name": "pandeiro low gain side hit",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_side_hit.mp3",
+      "bytes": 58796
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_slap",
+      "name": "pandeiro low gain slap",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_pandeiro_low_gain_slap.mp3",
+      "bytes": 23084
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_percussion_box",
+      "name": "percussion box",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_percussion_box.mp3",
+      "bytes": 72044
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_percussion_box_oh_no",
+      "name": "percussion box oh no",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_percussion_box_oh_no.mp3",
+      "bytes": 262700
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_shaker",
+      "name": "shaker",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_shaker.mp3",
+      "bytes": 28844
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_shaker_doom",
+      "name": "shaker doom",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_shaker_doom.mp3",
+      "bytes": 28844
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_slay_bell_gated",
+      "name": "slay bell gated",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_slay_bell_gated.mp3",
+      "bytes": 93932
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_slay_bell_high_gated",
+      "name": "slay bell high gated",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_slay_bell_high_gated.mp3",
+      "bytes": 135404
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_sticks_low",
+      "name": "sticks low",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_sticks_low.mp3",
+      "bytes": 73196
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_sticks_on_old_desk",
+      "name": "sticks on old desk",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_sticks_on_old_desk.mp3",
+      "bytes": 28268
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_tamborine",
+      "name": "tamborine",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_tamborine.mp3",
+      "bytes": 13292
+    },
+    {
+      "id": "percussion/HEAVY_BONES_one_shots_tamborine_doom",
+      "name": "tamborine doom",
+      "category": "percussion",
+      "path": "/oneshots/percussion/HEAVY_BONES_one_shots_tamborine_doom.mp3",
+      "bytes": 13292
+    },
+    {
+      "id": "percussion/IN_MOTION_one_shots_percussion_ultra_low_spring_scratch",
+      "name": "percussion ultra low spring scratch",
+      "category": "percussion",
+      "path": "/oneshots/percussion/IN_MOTION_one_shots_percussion_ultra_low_spring_scratch.mp3",
+      "bytes": 253484
+    },
+    {
+      "id": "percussion/POPCORN_Popcorn_Droped_Pop",
+      "name": "Droped Pop",
+      "category": "percussion",
+      "path": "/oneshots/percussion/POPCORN_Popcorn_Droped_Pop.mp3",
+      "bytes": 57272
+    },
+    {
+      "id": "percussion/POPCORN_Popcorn_Rustic_Old_Pop",
+      "name": "Rustic Old Pop",
+      "category": "percussion",
+      "path": "/oneshots/percussion/POPCORN_Popcorn_Rustic_Old_Pop.mp3",
+      "bytes": 32504
+    },
+    {
+      "id": "percussion/POPCORN_Popcorn_Timba_Chocolate_Pop",
+      "name": "Timba Chocolate Pop",
+      "category": "percussion",
+      "path": "/oneshots/percussion/POPCORN_Popcorn_Timba_Chocolate_Pop.mp3",
+      "bytes": 15224
+    },
+    {
+      "id": "percussion/POPCORN_Popcorn_Timba_Chocolate_Pop_2",
+      "name": "Timba Chocolate Pop 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/POPCORN_Popcorn_Timba_Chocolate_Pop_2.mp3",
+      "bytes": 28472
+    },
+    {
+      "id": "percussion/POPCORN_Popcorn_Timba_Pop",
+      "name": "Timba Pop",
+      "category": "percussion",
+      "path": "/oneshots/percussion/POPCORN_Popcorn_Timba_Pop.mp3",
+      "bytes": 15800
+    },
+    {
+      "id": "percussion/POPCORN_Popcorn_Timba_Press_Roll",
+      "name": "Timba Press Roll",
+      "category": "percussion",
+      "path": "/oneshots/percussion/POPCORN_Popcorn_Timba_Press_Roll.mp3",
+      "bytes": 25592
+    },
+    {
+      "id": "percussion/POPCORN_Popcorn_Timba_Wires_Pop",
+      "name": "Timba Wires Pop",
+      "category": "percussion",
+      "path": "/oneshots/percussion/POPCORN_Popcorn_Timba_Wires_Pop.mp3",
+      "bytes": 22712
+    },
+    {
+      "id": "percussion/POPCORN_Popcorn_Timba_Wires_Soft_Pop",
+      "name": "Timba Wires Soft Pop",
+      "category": "percussion",
+      "path": "/oneshots/percussion/POPCORN_Popcorn_Timba_Wires_Soft_Pop.mp3",
+      "bytes": 24440
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_1",
+      "name": "percussion 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_1.mp3",
+      "bytes": 29420
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_10",
+      "name": "percussion 10",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_10.mp3",
+      "bytes": 45548
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_11",
+      "name": "percussion 11",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_11.mp3",
+      "bytes": 45548
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_12",
+      "name": "percussion 12",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_12.mp3",
+      "bytes": 40364
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_13",
+      "name": "percussion 13",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_13.mp3",
+      "bytes": 23660
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_14",
+      "name": "percussion 14",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_14.mp3",
+      "bytes": 45548
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_15",
+      "name": "percussion 15",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_15.mp3",
+      "bytes": 45548
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_16",
+      "name": "percussion 16",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_16.mp3",
+      "bytes": 50732
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_17",
+      "name": "percussion 17",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_17.mp3",
+      "bytes": 50732
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_18",
+      "name": "percussion 18",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_18.mp3",
+      "bytes": 68012
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_19",
+      "name": "percussion 19",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_19.mp3",
+      "bytes": 66860
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_2",
+      "name": "percussion 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_2.mp3",
+      "bytes": 29420
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_20",
+      "name": "percussion 20",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_20.mp3",
+      "bytes": 66860
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_21",
+      "name": "percussion 21",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_21.mp3",
+      "bytes": 23660
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_22",
+      "name": "percussion 22",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_22.mp3",
+      "bytes": 26540
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_23",
+      "name": "percussion 23",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_23.mp3",
+      "bytes": 23660
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_24",
+      "name": "percussion 24",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_24.mp3",
+      "bytes": 23660
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_25",
+      "name": "percussion 25",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_25.mp3",
+      "bytes": 123308
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_26",
+      "name": "percussion 26",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_26.mp3",
+      "bytes": 123308
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_27",
+      "name": "percussion 27",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_27.mp3",
+      "bytes": 123308
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_28",
+      "name": "percussion 28",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_28.mp3",
+      "bytes": 57068
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_29",
+      "name": "percussion 29",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_29.mp3",
+      "bytes": 57068
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_3",
+      "name": "percussion 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_3.mp3",
+      "bytes": 29420
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_30",
+      "name": "percussion 30",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_30.mp3",
+      "bytes": 29420
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_31",
+      "name": "percussion 31",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_31.mp3",
+      "bytes": 29420
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_32",
+      "name": "percussion 32",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_32.mp3",
+      "bytes": 17900
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_33",
+      "name": "percussion 33",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_33.mp3",
+      "bytes": 37484
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_34",
+      "name": "percussion 34",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_34.mp3",
+      "bytes": 37484
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_4",
+      "name": "percussion 4",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_4.mp3",
+      "bytes": 29420
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_5",
+      "name": "percussion 5",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_5.mp3",
+      "bytes": 84716
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_6",
+      "name": "percussion 6",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_6.mp3",
+      "bytes": 84716
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_7",
+      "name": "percussion 7",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_7.mp3",
+      "bytes": 84716
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_8",
+      "name": "percussion 8",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_8.mp3",
+      "bytes": 84716
+    },
+    {
+      "id": "percussion/PSYCHOTONES_one_shots_percussion_9",
+      "name": "percussion 9",
+      "category": "percussion",
+      "path": "/oneshots/percussion/PSYCHOTONES_one_shots_percussion_9.mp3",
+      "bytes": 45548
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_ball_of_doom_1",
+      "name": "ball of doom 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_ball_of_doom_1.mp3",
+      "bytes": 319355
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_ball_of_doom_2",
+      "name": "ball of doom 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_ball_of_doom_2.mp3",
+      "bytes": 319355
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_ball_of_doom_3",
+      "name": "ball of doom 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_ball_of_doom_3.mp3",
+      "bytes": 319355
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_ball_of_doom_4",
+      "name": "ball of doom 4",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_ball_of_doom_4.mp3",
+      "bytes": 319355
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_ball_of_doom_5",
+      "name": "ball of doom 5",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_ball_of_doom_5.mp3",
+      "bytes": 319355
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_coins_1",
+      "name": "barrel coins 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_coins_1.mp3",
+      "bytes": 70523
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_coins_2",
+      "name": "barrel coins 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_coins_2.mp3",
+      "bytes": 70523
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_coins_3",
+      "name": "barrel coins 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_coins_3.mp3",
+      "bytes": 70523
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_hit_1",
+      "name": "barrel hit 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_hit_1.mp3",
+      "bytes": 69371
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_hit_2",
+      "name": "barrel hit 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_hit_2.mp3",
+      "bytes": 69371
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_hit_3",
+      "name": "barrel hit 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_hit_3.mp3",
+      "bytes": 175931
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_hit_4",
+      "name": "barrel hit 4",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_hit_4.mp3",
+      "bytes": 175931
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_hit_5",
+      "name": "barrel hit 5",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_hit_5.mp3",
+      "bytes": 111419
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_hit_6",
+      "name": "barrel hit 6",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_hit_6.mp3",
+      "bytes": 111419
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_tang_1",
+      "name": "barrel tang 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_tang_1.mp3",
+      "bytes": 207611
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_tang_2",
+      "name": "barrel tang 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_tang_2.mp3",
+      "bytes": 207611
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_barrel_tang_3",
+      "name": "barrel tang 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_barrel_tang_3.mp3",
+      "bytes": 207611
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_coin_bag_1",
+      "name": "coin bag 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_coin_bag_1.mp3",
+      "bytes": 42299
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_coin_bag_2",
+      "name": "coin bag 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_coin_bag_2.mp3",
+      "bytes": 42299
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_coin_bag_3",
+      "name": "coin bag 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_coin_bag_3.mp3",
+      "bytes": 42299
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_coin_grab_1",
+      "name": "coin grab 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_coin_grab_1.mp3",
+      "bytes": 19259
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_coin_grab_2",
+      "name": "coin grab 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_coin_grab_2.mp3",
+      "bytes": 19259
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_coin_grab_3",
+      "name": "coin grab 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_coin_grab_3.mp3",
+      "bytes": 19259
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_coin_toss_1",
+      "name": "coin toss 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_coin_toss_1.mp3",
+      "bytes": 54971
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_coin_toss_2",
+      "name": "coin toss 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_coin_toss_2.mp3",
+      "bytes": 54971
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_coin_toss_3",
+      "name": "coin toss 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_coin_toss_3.mp3",
+      "bytes": 54971
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_dropped_coins_1",
+      "name": "dropped coins 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_dropped_coins_1.mp3",
+      "bytes": 60731
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_dropped_coins_2",
+      "name": "dropped coins 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_dropped_coins_2.mp3",
+      "bytes": 60731
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_rusty_tamb_hit_1",
+      "name": "rusty tamb hit 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_rusty_tamb_hit_1.mp3",
+      "bytes": 103931
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_rusty_tamb_hit_2",
+      "name": "rusty tamb hit 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_rusty_tamb_hit_2.mp3",
+      "bytes": 103931
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_rusty_tamb_hit_3",
+      "name": "rusty tamb hit 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_rusty_tamb_hit_3.mp3",
+      "bytes": 103931
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_short_on_coins_1",
+      "name": "short on coins 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_short_on_coins_1.mp3",
+      "bytes": 37691
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_short_on_coins_2",
+      "name": "short on coins 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_short_on_coins_2.mp3",
+      "bytes": 37691
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_short_on_coins_3",
+      "name": "short on coins 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_short_on_coins_3.mp3",
+      "bytes": 37691
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_tin_coin_1",
+      "name": "tin coin 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_tin_coin_1.mp3",
+      "bytes": 20411
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_tin_coin_2",
+      "name": "tin coin 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_tin_coin_2.mp3",
+      "bytes": 20411
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_tin_coin_3",
+      "name": "tin coin 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_tin_coin_3.mp3",
+      "bytes": 20411
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_tin_coins_1",
+      "name": "tin coins 1",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_tin_coins_1.mp3",
+      "bytes": 46331
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_tin_coins_2",
+      "name": "tin coins 2",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_tin_coins_2.mp3",
+      "bytes": 46331
+    },
+    {
+      "id": "percussion/RUST_ON_TOP_one_shots_tin_coins_3",
+      "name": "tin coins 3",
+      "category": "percussion",
+      "path": "/oneshots/percussion/RUST_ON_TOP_one_shots_tin_coins_3.mp3",
+      "bytes": 46331
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_board_mad_tube_cymbal_hits",
+      "name": "board mad tube cymbal hits",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_board_mad_tube_cymbal_hits.mp3",
+      "bytes": 74348
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_board_noisy_cymbal",
+      "name": "board noisy cymbal",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_board_noisy_cymbal.mp3",
+      "bytes": 89324
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_board_tremolo_cymbal",
+      "name": "board tremolo cymbal",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_board_tremolo_cymbal.mp3",
+      "bytes": 92780
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_board_whapa",
+      "name": "board whapa",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_board_whapa.mp3",
+      "bytes": 104300
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_closed_hihat",
+      "name": "closed hihat",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_closed_hihat.mp3",
+      "bytes": 20204
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_distorted_ride_creak",
+      "name": "distorted ride creak",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_distorted_ride_creak.mp3",
+      "bytes": 178028
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_distorted_ride_creak_2",
+      "name": "distorted ride creak 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_distorted_ride_creak_2.mp3",
+      "bytes": 70892
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_fast_opening_hihat",
+      "name": "fast opening hihat",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_fast_opening_hihat.mp3",
+      "bytes": 25964
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_high_bell_trash_ride",
+      "name": "high bell trash ride",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_high_bell_trash_ride.mp3",
+      "bytes": 136556
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_high_trash_ride",
+      "name": "high trash ride",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_high_trash_ride.mp3",
+      "bytes": 140588
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_low_bell_trash_ride",
+      "name": "low bell trash ride",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_low_bell_trash_ride.mp3",
+      "bytes": 140012
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_low_trash_ride",
+      "name": "low trash ride",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_low_trash_ride.mp3",
+      "bytes": 207404
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_mega_distorted_open_hihat_bell",
+      "name": "mega distorted open hihat bell",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_mega_distorted_open_hihat_bell.mp3",
+      "bytes": 171692
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_mega_distorted_ping_ride",
+      "name": "mega distorted ping ride",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_mega_distorted_ping_ride.mp3",
+      "bytes": 96236
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_mega_distorted_pong_ride",
+      "name": "mega distorted pong ride",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_mega_distorted_pong_ride.mp3",
+      "bytes": 106028
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_open_hihat",
+      "name": "open hihat",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_open_hihat.mp3",
+      "bytes": 372716
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_reverse_hihat",
+      "name": "reverse hihat",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_reverse_hihat.mp3",
+      "bytes": 39212
+    },
+    {
+      "id": "cymbals/DIRT_BLEND_one_shots_reverse_hihat_to_close_hihat_snap",
+      "name": "reverse hihat to close hihat snap",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/DIRT_BLEND_one_shots_reverse_hihat_to_close_hihat_snap.mp3",
+      "bytes": 34604
+    },
+    {
+      "id": "cymbals/GROOVIN_one_shots_hihat_bell",
+      "name": "hihat bell",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/GROOVIN_one_shots_hihat_bell.mp3",
+      "bytes": 145492
+    },
+    {
+      "id": "cymbals/GROOVIN_one_shots_hihat_closed",
+      "name": "hihat closed",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/GROOVIN_one_shots_hihat_closed.mp3",
+      "bytes": 25747
+    },
+    {
+      "id": "cymbals/GROOVIN_one_shots_hihat_long_open",
+      "name": "hihat long open",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/GROOVIN_one_shots_hihat_long_open.mp3",
+      "bytes": 43301
+    },
+    {
+      "id": "cymbals/GROOVIN_one_shots_hihat_open_hit",
+      "name": "hihat open hit",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/GROOVIN_one_shots_hihat_open_hit.mp3",
+      "bytes": 289688
+    },
+    {
+      "id": "cymbals/GROOVIN_one_shots_hihat_quick_bell_open",
+      "name": "hihat quick bell open",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/GROOVIN_one_shots_hihat_quick_bell_open.mp3",
+      "bytes": 25747
+    },
+    {
+      "id": "cymbals/GROOVIN_one_shots_hihat_quick_open",
+      "name": "hihat quick open",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/GROOVIN_one_shots_hihat_quick_open.mp3",
+      "bytes": 22612
+    },
+    {
+      "id": "cymbals/GROOVIN_one_shots_hihat_reverse",
+      "name": "hihat reverse",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/GROOVIN_one_shots_hihat_reverse.mp3",
+      "bytes": 25747
+    },
+    {
+      "id": "cymbals/GROOVIN_one_shots_low_scraps_drop",
+      "name": "low scraps drop",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/GROOVIN_one_shots_low_scraps_drop.mp3",
+      "bytes": 79664
+    },
+    {
+      "id": "cymbals/GROOVIN_one_shots_scraps_drop",
+      "name": "scraps drop",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/GROOVIN_one_shots_scraps_drop.mp3",
+      "bytes": 79664
+    },
+    {
+      "id": "cymbals/HEAVY_BONES_one_shots_hihat_long_open_scratch_of_doom",
+      "name": "hihat long open scratch of doom",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/HEAVY_BONES_one_shots_hihat_long_open_scratch_of_doom.mp3",
+      "bytes": 235628
+    },
+    {
+      "id": "cymbals/HEAVY_BONES_one_shots_hihat_scratch",
+      "name": "hihat scratch",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/HEAVY_BONES_one_shots_hihat_scratch.mp3",
+      "bytes": 73196
+    },
+    {
+      "id": "cymbals/HEAVY_BONES_one_shots_hihat_scratch_2",
+      "name": "hihat scratch 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/HEAVY_BONES_one_shots_hihat_scratch_2.mp3",
+      "bytes": 161900
+    },
+    {
+      "id": "cymbals/HEAVY_BONES_one_shots_hihat_scratch_of_doom",
+      "name": "hihat scratch of doom",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/HEAVY_BONES_one_shots_hihat_scratch_of_doom.mp3",
+      "bytes": 73196
+    },
+    {
+      "id": "cymbals/HEAVY_BONES_one_shots_hihat_scratch_of_doom_2",
+      "name": "hihat scratch of doom 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/HEAVY_BONES_one_shots_hihat_scratch_of_doom_2.mp3",
+      "bytes": 161900
+    },
+    {
+      "id": "cymbals/HEAVY_BONES_one_shots_hihat_step",
+      "name": "hihat step",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/HEAVY_BONES_one_shots_hihat_step.mp3",
+      "bytes": 24812
+    },
+    {
+      "id": "cymbals/HEAVY_BONES_one_shots_trash_cymbal_scratch",
+      "name": "trash cymbal scratch",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/HEAVY_BONES_one_shots_trash_cymbal_scratch.mp3",
+      "bytes": 106028
+    },
+    {
+      "id": "cymbals/HEAVY_BONES_one_shots_trash_cymbal_scratch_of_doom",
+      "name": "trash cymbal scratch of doom",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/HEAVY_BONES_one_shots_trash_cymbal_scratch_of_doom.mp3",
+      "bytes": 106028
+    },
+    {
+      "id": "cymbals/POPCORN_Popcorn_Closed_HH",
+      "name": "Closed HH",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/POPCORN_Popcorn_Closed_HH.mp3",
+      "bytes": 10616
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_1",
+      "name": "hihat 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_1.mp3",
+      "bytes": 44972
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_10",
+      "name": "hihat 10",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_10.mp3",
+      "bytes": 255788
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_11",
+      "name": "hihat 11",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_11.mp3",
+      "bytes": 78956
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_12",
+      "name": "hihat 12",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_12.mp3",
+      "bytes": 78956
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_2",
+      "name": "hihat 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_2.mp3",
+      "bytes": 44972
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_3",
+      "name": "hihat 3",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_3.mp3",
+      "bytes": 23660
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_4",
+      "name": "hihat 4",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_4.mp3",
+      "bytes": 23660
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_5",
+      "name": "hihat 5",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_5.mp3",
+      "bytes": 29420
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_6",
+      "name": "hihat 6",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_6.mp3",
+      "bytes": 29420
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_7",
+      "name": "hihat 7",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_7.mp3",
+      "bytes": 369836
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_8",
+      "name": "hihat 8",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_8.mp3",
+      "bytes": 369836
+    },
+    {
+      "id": "cymbals/PSYCHOTONES_one_shots_hihat_9",
+      "name": "hihat 9",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/PSYCHOTONES_one_shots_hihat_9.mp3",
+      "bytes": 369836
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_bells_on_HH_hit_1",
+      "name": "bells on HH hit 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_bells_on_HH_hit_1.mp3",
+      "bytes": 67643
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_bells_on_HH_hit_2",
+      "name": "bells on HH hit 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_bells_on_HH_hit_2.mp3",
+      "bytes": 67643
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_bells_on_HH_hit_3",
+      "name": "bells on HH hit 3",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_bells_on_HH_hit_3.mp3",
+      "bytes": 46331
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_bells_on_HH_hit_4",
+      "name": "bells on HH hit 4",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_bells_on_HH_hit_4.mp3",
+      "bytes": 46331
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_bells_on_HH_hit_5",
+      "name": "bells on HH hit 5",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_bells_on_HH_hit_5.mp3",
+      "bytes": 46331
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_cammel_bells_hit_1",
+      "name": "cammel bells hit 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_cammel_bells_hit_1.mp3",
+      "bytes": 263483
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_cammel_bells_hit_2",
+      "name": "cammel bells hit 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_cammel_bells_hit_2.mp3",
+      "bytes": 263483
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_hit_1",
+      "name": "chinese mini gong hit 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_hit_1.mp3",
+      "bytes": 129275
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_hit_2",
+      "name": "chinese mini gong hit 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_hit_2.mp3",
+      "bytes": 129275
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_hit_3",
+      "name": "chinese mini gong hit 3",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_hit_3.mp3",
+      "bytes": 129275
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_scratch_1",
+      "name": "chinese mini gong scratch 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_scratch_1.mp3",
+      "bytes": 77435
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_scratch_2",
+      "name": "chinese mini gong scratch 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_scratch_2.mp3",
+      "bytes": 77435
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_scratch_3",
+      "name": "chinese mini gong scratch 3",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_chinese_mini_gong_scratch_3.mp3",
+      "bytes": 77435
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_closed_HH_1",
+      "name": "closed HH 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_closed_HH_1.mp3",
+      "bytes": 56699
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_closed_HH_2",
+      "name": "closed HH 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_closed_HH_2.mp3",
+      "bytes": 56699
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_closed_HH_3",
+      "name": "closed HH 3",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_closed_HH_3.mp3",
+      "bytes": 56123
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_closed_HH_4",
+      "name": "closed HH 4",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_closed_HH_4.mp3",
+      "bytes": 56123
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_closed_HH_5",
+      "name": "closed HH 5",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_closed_HH_5.mp3",
+      "bytes": 33083
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_closed_HH_6",
+      "name": "closed HH 6",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_closed_HH_6.mp3",
+      "bytes": 33083
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_half_open_HH_1",
+      "name": "half open HH 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_half_open_HH_1.mp3",
+      "bytes": 47483
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_half_open_HH_2",
+      "name": "half open HH 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_half_open_HH_2.mp3",
+      "bytes": 47483
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_half_open_HH_3",
+      "name": "half open HH 3",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_half_open_HH_3.mp3",
+      "bytes": 47483
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_low_tiny_gong_1",
+      "name": "low tiny gong 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_low_tiny_gong_1.mp3",
+      "bytes": 80891
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_low_tiny_gong_2",
+      "name": "low tiny gong 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_low_tiny_gong_2.mp3",
+      "bytes": 80891
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_open_long_hit_HH_1",
+      "name": "open long hit HH 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_open_long_hit_HH_1.mp3",
+      "bytes": 382139
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_open_long_hit_HH_2",
+      "name": "open long hit HH 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_open_long_hit_HH_2.mp3",
+      "bytes": 382139
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_open_long_hit_HH_3",
+      "name": "open long hit HH 3",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_open_long_hit_HH_3.mp3",
+      "bytes": 382139
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_open_snap_HH_1",
+      "name": "open snap HH 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_open_snap_HH_1.mp3",
+      "bytes": 44027
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_open_snap_HH_2",
+      "name": "open snap HH 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_open_snap_HH_2.mp3",
+      "bytes": 44027
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_open_snap_HH_3",
+      "name": "open snap HH 3",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_open_snap_HH_3.mp3",
+      "bytes": 44027
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_tiny_gong_1",
+      "name": "tiny gong 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_tiny_gong_1.mp3",
+      "bytes": 47483
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_tiny_gong_2",
+      "name": "tiny gong 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_tiny_gong_2.mp3",
+      "bytes": 47483
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_tiny_gong_3",
+      "name": "tiny gong 3",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_tiny_gong_3.mp3",
+      "bytes": 52667
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_tiny_gong_4",
+      "name": "tiny gong 4",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_tiny_gong_4.mp3",
+      "bytes": 52667
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_wind_bells_hit_1",
+      "name": "wind bells hit 1",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_wind_bells_hit_1.mp3",
+      "bytes": 57851
+    },
+    {
+      "id": "cymbals/RUST_ON_TOP_one_shots_wind_bells_hit_2",
+      "name": "wind bells hit 2",
+      "category": "cymbals",
+      "path": "/oneshots/cymbals/RUST_ON_TOP_one_shots_wind_bells_hit_2.mp3",
+      "bytes": 57851
+    }
+  ]
+}

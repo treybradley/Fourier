@@ -7,12 +7,18 @@ import {
 import type { Pad, GridAction } from "./types";
 import { useGridRecorder } from "./useGridRecorder";
 import { useVisualMode } from "../../hooks/useVisualMode";
+import { OneShotBrowser } from "./OneShotBrowser";
 
 interface SampleInspectorProps {
   pad: Pad | null;
   dispatch: Dispatch<GridAction>;
   ensureAudioCtx: () => Promise<AudioContext | null>;
   onRecord: (padId: number, buffer: AudioBuffer) => void;
+  onLoadOneShot: (
+    padId: number,
+    buffer: AudioBuffer,
+    fileName: string,
+  ) => void;
 }
 
 function WaveformCanvas({
@@ -202,10 +208,12 @@ export function SampleInspector({
   dispatch,
   ensureAudioCtx,
   onRecord,
+  onLoadOneShot,
 }: SampleInspectorProps) {
   const { isRecording, startRecording, stopRecording } =
     useGridRecorder();
   const [micError, setMicError] = useState("");
+  const [browsingOneShots, setBrowsingOneShots] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { accent, ink, inkFg, mono } = useVisualMode();
   const accentA = accent("#62FF00");
@@ -223,6 +231,20 @@ export function SampleInspector({
           inspect or edit
         </p>
       </div>
+    );
+  }
+
+  if (browsingOneShots) {
+    return (
+      <OneShotBrowser
+        padId={pad.id}
+        ensureAudioCtx={ensureAudioCtx}
+        onBack={() => setBrowsingOneShots(false)}
+        onLoad={(padId, buffer, fileName) => {
+          onLoadOneShot(padId, buffer, fileName);
+          setBrowsingOneShots(false);
+        }}
+      />
     );
   }
 
@@ -315,6 +337,17 @@ export function SampleInspector({
             {isRecording ? "● Stop" : "Record mic"}
           </button>
         </div>
+        <button
+          onClick={() => setBrowsingOneShots(true)}
+          className="w-full py-1.5 text-[9px] font-mono tracking-wider rounded-sm border transition-colors"
+          style={{
+            color: accentA,
+            borderColor: `${accentA}40`,
+            background: `${accentA}10`,
+          }}
+        >
+          One-shots →
+        </button>
         {micError && (
           <p className="text-[8px] font-mono text-red-400/70">
             {micError}

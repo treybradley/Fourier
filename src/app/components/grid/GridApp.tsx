@@ -563,6 +563,15 @@ export function GridApp() {
                   detectedBpm: detectPadBpm(buffer),
                 });
               }}
+              onLoadOneShot={(padId, buffer, fileName) => {
+                dispatch({
+                  type: "LOAD_SAMPLE",
+                  padId,
+                  buffer,
+                  fileName,
+                  detectedBpm: detectPadBpm(buffer),
+                });
+              }}
             />
           </div>
         </div>
