@@ -1,4 +1,4 @@
-import { useState, type Dispatch } from "react";
+import { useEffect, useRef, useState, type Dispatch } from "react";
 import type { GridMode, GridState, GridAction } from "./types";
 import {
   Popover,
@@ -11,6 +11,56 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { useVisualMode } from "../../hooks/useVisualMode";
+
+function useBpmHold(
+  dispatch: Dispatch<GridAction>,
+  bpm: number,
+  delta: number,
+) {
+  const bpmRef = useRef(bpm);
+  bpmRef.current = bpm;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function clear() {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    timerRef.current = null;
+    intervalRef.current = null;
+  }
+
+  function step() {
+    dispatch({
+      type: "SET_BPM",
+      bpm: Math.max(40, Math.min(240, bpmRef.current + delta)),
+    });
+  }
+
+  function start() {
+    clear();
+    step();
+    timerRef.current = setTimeout(() => {
+      intervalRef.current = setInterval(step, 60);
+    }, 320);
+  }
+
+  useEffect(() => () => clear(), []);
+
+  return {
+    onPointerDown: (e: React.PointerEvent) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      e.preventDefault();
+      (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+      start();
+    },
+    onPointerUp: clear,
+    onPointerCancel: clear,
+    onPointerLeave: (e: React.PointerEvent) => {
+      // Only clear if we lost capture / mouse left while held
+      if (e.buttons === 0) clear();
+    },
+  };
+}
 
 interface TransportProps {
   state: GridState;
@@ -41,6 +91,8 @@ export function Transport({
   const ACCENT = accent(ACCENT_COLOR);
   const [exportOpen, setExportOpen] = useState(false);
   const [lastBars, setLastBars] = useState<1 | 2 | 4>(1);
+  const decBpm = useBpmHold(dispatch, bpm, -1);
+  const incBpm = useBpmHold(dispatch, bpm, 1);
 
   function pickBars(bars: 1 | 2 | 4) {
     setLastBars(bars);
@@ -146,13 +198,23 @@ export function Transport({
         </span>
       </button>
 
-      {/* BPM */}
-      <div className="flex items-center gap-1">
-        <span className="text-white/25 text-[9px] font-mono tracking-widest">
+      {/* BPM — steppers for touch; number still editable */}
+      <div className="flex items-center gap-0.5">
+        <span className="text-white/25 text-[9px] font-mono tracking-widest mr-0.5">
           BPM
         </span>
+        <button
+          type="button"
+          aria-label="Decrease BPM"
+          className="w-8 h-8 flex items-center justify-center rounded-sm border border-white/10 text-white/55 hover:text-white/85 hover:border-white/25 active:bg-white/10 text-sm font-mono select-none touch-manipulation"
+          style={{ touchAction: "manipulation" }}
+          {...decBpm}
+        >
+          −
+        </button>
         <input
           type="number"
+          inputMode="numeric"
           min={40}
           max={240}
           value={bpm}
@@ -162,8 +224,17 @@ export function Transport({
               bpm: Math.round(Number(e.target.value)),
             })
           }
-          className="w-12 text-center text-xs font-mono text-white/80 bg-white/5 border border-white/10 rounded-sm py-0.5 focus:outline-none focus:border-white/25"
+          className="w-11 h-8 text-center text-xs font-mono text-white/80 bg-white/5 border border-white/10 rounded-sm focus:outline-none focus:border-white/25 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
+        <button
+          type="button"
+          aria-label="Increase BPM"
+          className="w-8 h-8 flex items-center justify-center rounded-sm border border-white/10 text-white/55 hover:text-white/85 hover:border-white/25 active:bg-white/10 text-sm font-mono select-none touch-manipulation"
+          style={{ touchAction: "manipulation" }}
+          {...incBpm}
+        >
+          +
+        </button>
       </div>
 
       <div className="w-px h-4 bg-white/10" />

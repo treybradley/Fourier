@@ -13,7 +13,10 @@ interface PadGridProps {
 
 export function PadGrid({ pads, selectedPadId, activePadIds, dispatch, onTrigger, onDropFile }: PadGridProps) {
   return (
-    <div className="grid grid-cols-3 gap-2 w-full h-full" style={{ gridTemplateRows: "repeat(3, 1fr)" }}>
+    <div
+      className="grid grid-cols-3 gap-2 w-full h-full touch-none select-none"
+      style={{ gridTemplateRows: "repeat(3, 1fr)", touchAction: "none" }}
+    >
       {pads.map((pad) => (
         <PadCard
           key={pad.id}

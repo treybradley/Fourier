@@ -91,13 +91,30 @@ export function PadCard({
         ? ink(0.04)
         : ink(0.02);
 
+  function handlePointerDown(e: React.PointerEvent) {
+    // Only primary button for mouse; all touches/pens fire.
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    // Don't steal focus from inputs; prevent scroll/gesture steal on touch.
+    e.preventDefault();
+    dispatch({ type: "SELECT_PAD", padId: pad.id });
+    if (hasContent) onTrigger(pad.id);
+  }
+
+  // div (not <button>): iOS Safari often refuses simultaneous presses on multiple buttons
   return (
-    <button
-      className="relative flex flex-col justify-between p-2 rounded-[10px] border overflow-hidden transition-all duration-100 cursor-pointer group text-left w-full h-full min-h-[72px]"
-      style={{ borderColor, background: bgColor }}
-      onClick={() => {
-        dispatch({ type: "SELECT_PAD", padId: pad.id });
-        if (hasContent) onTrigger(pad.id);
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Pad ${pad.id + 1}${pad.fileName ? `: ${pad.fileName}` : ""}`}
+      className="relative flex flex-col justify-between p-2 rounded-[10px] border overflow-hidden transition-all duration-100 cursor-pointer group text-left w-full h-full min-h-[72px] touch-none select-none"
+      style={{ borderColor, background: bgColor, touchAction: "none" }}
+      onPointerDown={handlePointerDown}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          dispatch({ type: "SELECT_PAD", padId: pad.id });
+          if (hasContent) onTrigger(pad.id);
+        }
       }}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
@@ -164,6 +181,6 @@ export function PadCard({
           {PAD_KEYS[pad.id]}
         </span>
       </div>
-    </button>
+    </div>
   );
 }
