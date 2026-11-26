@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState, type Dispatch } from "react";
-import type { GridMode, GridState, GridAction } from "./types";
+import type {
+  GridMode,
+  GridState,
+  GridAction,
+  PatternBars,
+} from "./types";
+import { SUBDIVISION_OPTIONS } from "./types";
 import {
   Popover,
   PopoverContent,
@@ -86,18 +92,18 @@ export function Transport({
   isSessionRecording,
   onToggleSessionRecord,
 }: TransportProps) {
-  const { isPlaying, bpm, mode } = state;
+  const { isPlaying, bpm, mode, bars, subdivision } = state;
   const { accent, ink, inkFg, mono } = useVisualMode();
   const ACCENT = accent(ACCENT_COLOR);
   const [exportOpen, setExportOpen] = useState(false);
-  const [lastBars, setLastBars] = useState<1 | 2 | 4>(1);
+  const [lastLoops, setLastLoops] = useState<1 | 2 | 4>(1);
   const decBpm = useBpmHold(dispatch, bpm, -1);
   const incBpm = useBpmHold(dispatch, bpm, 1);
 
-  function pickBars(bars: 1 | 2 | 4) {
-    setLastBars(bars);
+  function pickLoops(loops: 1 | 2 | 4) {
+    setLastLoops(loops);
     setExportOpen(false);
-    onExportLoop?.(bars);
+    onExportLoop?.(loops);
   }
 
   return (
@@ -127,7 +133,71 @@ export function Transport({
         ))}
       </div>
 
-      <div className="w-px h-4 bg-white/10" />
+      {/* Length + subdivision — sequencer only */}
+      {mode === "seq" && (
+        <>
+          <div
+            className="flex rounded-sm overflow-hidden border border-white/10"
+            style={{ fontSize: "9px" }}
+            title="Pattern length in bars"
+          >
+            <span className="px-1.5 py-1 font-mono tracking-widest uppercase text-white/25 self-center">
+              Len
+            </span>
+            {([1, 2, 4] as PatternBars[]).map((b) => (
+              <button
+                key={b}
+                type="button"
+                onClick={() => dispatch({ type: "SET_BARS", bars: b })}
+                className="min-w-7 px-2 py-1 font-mono tabular-nums transition-all duration-150 touch-manipulation"
+                style={{
+                  touchAction: "manipulation",
+                  ...(bars === b
+                    ? {
+                        background: `${ACCENT}28`,
+                        color: ACCENT,
+                      }
+                    : { color: inkFg(0.55) }),
+                }}
+              >
+                {b}
+              </button>
+            ))}
+          </div>
+          <div
+            className="flex rounded-sm overflow-hidden border border-white/10"
+            style={{ fontSize: "9px" }}
+            title="Step subdivision"
+          >
+            <span className="px-1.5 py-1 font-mono tracking-widest uppercase text-white/25 self-center">
+              Div
+            </span>
+            {SUBDIVISION_OPTIONS.map(({ id, label, title }) => (
+              <button
+                key={id}
+                type="button"
+                title={title}
+                onClick={() =>
+                  dispatch({ type: "SET_SUBDIVISION", subdivision: id })
+                }
+                className="min-w-7 px-2 py-1 font-mono tabular-nums transition-all duration-150 touch-manipulation"
+                style={{
+                  touchAction: "manipulation",
+                  ...(subdivision === id
+                    ? {
+                        background: `${ACCENT}28`,
+                        color: ACCENT,
+                      }
+                    : { color: inkFg(0.55) }),
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="w-px h-4 bg-white/10" />
+        </>
+      )}
 
       {/* Play */}
       <button
@@ -264,16 +334,16 @@ export function Transport({
           className="w-auto p-2 border-white/10 bg-[#0A0509] shadow-lg"
         >
           <p className="text-[8px] font-mono tracking-widest uppercase text-white/30 px-1 mb-1.5">
-            Bars
+            Loops of pattern
           </p>
           <div className="flex gap-1">
             {([1, 2, 4] as const).map((b) => (
               <button
                 key={b}
-                onClick={() => pickBars(b)}
+                onClick={() => pickLoops(b)}
                 className="min-w-9 px-2.5 py-1.5 text-[10px] font-mono tabular-nums rounded-sm border transition-all duration-150"
                 style={
-                  lastBars === b
+                  lastLoops === b
                     ? {
                         background: `${ACCENT}28`,
                         color: ACCENT,
@@ -285,7 +355,7 @@ export function Transport({
                       }
                 }
               >
-                {b}
+                ×{b}
               </button>
             ))}
           </div>

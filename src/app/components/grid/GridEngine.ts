@@ -1,8 +1,8 @@
-import type { Pad } from "./types";
+import type { Pad, Subdivision } from "./types";
+import { STEPS_PER_BAR, secondsPerStep } from "./types";
 
 const LOOKAHEAD_MS = 25;
 const SCHEDULE_AHEAD_SEC = 0.1;
-const STEPS_PER_BAR = 16;
 
 export class GridEngine {
   private _ctx: AudioContext | null = null;
@@ -182,6 +182,8 @@ export class GridEngine {
     getPattern: () => boolean[][],
     getBpm: () => number,
     onStep: (step: number) => void,
+    getTotalSteps: () => number = () => STEPS_PER_BAR,
+    getSubdivision: () => Subdivision = () => "1/16",
   ): void {
     this.stopScheduler();
     void this.ensureRunning();
@@ -191,10 +193,11 @@ export class GridEngine {
     const tick = () => {
       const pads = getPads();
       const pattern = getPattern();
-      const secondsPerStep = 60 / getBpm() / 4;
+      const stepDur = secondsPerStep(getBpm(), getSubdivision());
+      const totalSteps = Math.max(1, getTotalSteps());
 
       while (this.nextNoteTime < this.ctx.currentTime + SCHEDULE_AHEAD_SEC) {
-        const step = this.schedulerStep;
+        const step = this.schedulerStep % totalSteps;
         const noteTime = this.nextNoteTime;
 
         for (let padId = 0; padId < 9; padId++) {
@@ -206,8 +209,8 @@ export class GridEngine {
         const uiDelay = Math.max(0, (noteTime - this.ctx.currentTime) * 1000);
         setTimeout(() => onStep(step), uiDelay);
 
-        this.nextNoteTime += secondsPerStep;
-        this.schedulerStep = (this.schedulerStep + 1) % STEPS_PER_BAR;
+        this.nextNoteTime += stepDur;
+        this.schedulerStep = (this.schedulerStep + 1) % totalSteps;
       }
 
       this.schedulerTimer = setTimeout(tick, LOOKAHEAD_MS);
@@ -224,18 +227,23 @@ export class GridEngine {
   }
 
   /**
-   * Offline bounce of the pattern for `bars` cycles of 16 steps.
+   * Offline bounce of the full pattern, optionally repeated `loops` times.
    * Includes trim / speed / gain / drive (one-shot hits; loop ignored).
    */
   async renderToBuffer(
     pads: Pad[],
     pattern: boolean[][],
     bpm: number,
-    bars = 1,
+    loops = 1,
+    subdivision: Subdivision = "1/16",
   ): Promise<AudioBuffer> {
-    const secondsPerStep = 60 / bpm / 4;
-    const totalSteps = STEPS_PER_BAR * Math.max(1, bars);
-    const totalDuration = secondsPerStep * totalSteps + 2;
+    const stepDur = secondsPerStep(bpm, subdivision);
+    const patternSteps = Math.max(
+      ...pattern.map((row) => row.length),
+      1,
+    );
+    const totalSteps = patternSteps * Math.max(1, loops);
+    const totalDuration = stepDur * totalSteps + 2;
     const sr = 44100;
     const offline = new OfflineAudioContext(
       2,
@@ -244,10 +252,10 @@ export class GridEngine {
     );
 
     for (let step = 0; step < totalSteps; step++) {
-      const stepInBar = step % STEPS_PER_BAR;
-      const stepTime = step * secondsPerStep;
+      const stepInPattern = step % patternSteps;
+      const stepTime = step * stepDur;
       for (let padId = 0; padId < 9; padId++) {
-        if (!pattern[padId]?.[stepInBar]) continue;
+        if (!pattern[padId]?.[stepInPattern]) continue;
         const pad = pads[padId];
         if (!pad.buffer) continue;
         const buffer =

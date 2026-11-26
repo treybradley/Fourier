@@ -11,8 +11,24 @@ import { PadGrid } from "./PadGrid";
 import { SampleInspector } from "./SampleInspector";
 import { Sequencer } from "./Sequencer";
 import { useGridSessionRecorder } from "./useGridSessionRecorder";
-import type { GridState, GridAction, GridMode } from "./types";
-import { makePad, KEY_TO_PAD, audioBufferToWav, detectPadBpm } from "./types";
+import type {
+  GridState,
+  GridAction,
+  GridMode,
+  PatternBars,
+} from "./types";
+import {
+  makePad,
+  KEY_TO_PAD,
+  audioBufferToWav,
+  detectPadBpm,
+  makeEmptyPattern,
+  resizePattern,
+  remapSubdivision,
+  totalStepsForBars,
+  stepsPerBar,
+  parseSubdivision,
+} from "./types";
 import {
   decodeAudioFile,
   isValidAudioFile,
@@ -25,7 +41,9 @@ function makeInitialState(): GridState {
   return {
     pads: Array.from({ length: 9 }, (_, i) => makePad(i)),
     selectedPadId: 0,
-    pattern: Array.from({ length: 9 }, () => Array(16).fill(false)),
+    pattern: makeEmptyPattern(1, "1/16"),
+    bars: 1,
+    subdivision: "1/16",
     bpm: 120,
     isPlaying: false,
     currentStep: -1,
@@ -63,6 +81,50 @@ function gridReducer(state: GridState, action: GridAction): GridState {
         ...state,
         bpm: Math.max(40, Math.min(240, action.bpm)),
       };
+    case "SET_BARS": {
+      if (action.bars === state.bars) return state;
+      const pattern = resizePattern(
+        state.pattern,
+        action.bars,
+        state.subdivision,
+      );
+      const maxStep =
+        totalStepsForBars(action.bars, state.subdivision) - 1;
+      return {
+        ...state,
+        bars: action.bars,
+        pattern,
+        currentStep:
+          state.currentStep > maxStep ? -1 : state.currentStep,
+      };
+    }
+    case "SET_SUBDIVISION": {
+      if (action.subdivision === state.subdivision) return state;
+      const pattern = remapSubdivision(
+        state.pattern,
+        state.subdivision,
+        action.subdivision,
+        state.bars,
+      );
+      const maxStep =
+        totalStepsForBars(state.bars, action.subdivision) - 1;
+      return {
+        ...state,
+        subdivision: action.subdivision,
+        pattern,
+        currentStep:
+          state.currentStep > maxStep ? 0 : state.currentStep,
+      };
+    }
+    case "SET_PATTERN": {
+      const subdivision = action.subdivision ?? state.subdivision;
+      return {
+        ...state,
+        bars: action.bars,
+        subdivision,
+        pattern: resizePattern(action.pattern, action.bars, subdivision),
+      };
+    }
     case "PLAY":
       return { ...state, isPlaying: true, currentStep: 0 };
     case "STOP":
@@ -268,6 +330,12 @@ export function GridApp() {
             });
           }, 80);
         },
+        () =>
+          totalStepsForBars(
+            stateRef.current.bars,
+            stateRef.current.subdivision,
+          ),
+        () => stateRef.current.subdivision,
       );
     } else {
       engine.stopScheduler();
@@ -276,7 +344,7 @@ export function GridApp() {
     return () => {
       engine.stopScheduler();
     };
-  }, [state.isPlaying]);
+  }, [state.isPlaying, state.bars, state.subdivision]);
 
   useEffect(() => {
     for (const pad of state.pads) {
@@ -322,18 +390,20 @@ export function GridApp() {
       window.removeEventListener("grid-load-file", onLoadFile);
   }, []);
 
-  async function exportLoop(bars: 1 | 2 | 4) {
+  async function exportLoop(loops: 1 | 2 | 4) {
     const engine = getEngine();
     const buf = await engine.renderToBuffer(
       state.pads,
       state.pattern,
       state.bpm,
-      bars,
+      loops,
+      state.subdivision,
     );
     const blob = audioBufferToWav(buf);
+    const divLabel = state.subdivision.replace("/", "");
     download(
       blob,
-      `fourier-grid-${state.bpm}bpm-${bars}bar.wav`,
+      `fourier-grid-${state.bpm}bpm-${state.bars}bar-${divLabel}-x${loops}.wav`,
     );
   }
 
@@ -373,8 +443,10 @@ export function GridApp() {
     );
     const json = JSON.stringify(
       {
-        version: 2,
+        version: 4,
         bpm: state.bpm,
+        bars: state.bars,
+        subdivision: state.subdivision,
         pattern: state.pattern,
         pads: padsJson,
       },
@@ -402,14 +474,26 @@ export function GridApp() {
       const data = JSON.parse(text);
       if (data.bpm) dispatch({ type: "SET_BPM", bpm: data.bpm });
       if (data.pattern) {
-        for (let p = 0; p < 9; p++) {
-          for (let s = 0; s < 16; s++) {
-            const want = data.pattern[p]?.[s] ?? false;
-            if (want !== (state.pattern[p]?.[s] ?? false)) {
-              dispatch({ type: "TOGGLE_STEP", padId: p, step: s });
-            }
-          }
-        }
+        const subdivision = parseSubdivision(data.subdivision);
+        const spb = stepsPerBar(subdivision);
+        const rowLen = Math.max(
+          ...((data.pattern as boolean[][]) ?? []).map((r) => r?.length ?? 0),
+          spb,
+        );
+        const inferredBars: PatternBars =
+          data.bars === 1 || data.bars === 2 || data.bars === 4
+            ? data.bars
+            : rowLen >= spb * 4
+              ? 4
+              : rowLen >= spb * 2
+                ? 2
+                : 1;
+        dispatch({
+          type: "SET_PATTERN",
+          pattern: data.pattern,
+          bars: inferredBars,
+          subdivision,
+        });
       }
       const engine = getEngine();
       for (const padData of data.pads ?? []) {
@@ -510,8 +594,8 @@ export function GridApp() {
       <div className="flex flex-wrap items-center justify-between gap-y-2 flex-shrink-0">
         <span className="text-white/90 text-[9px] font-mono tracking-widest uppercase">
           {state.isPlaying
-            ? `step ${state.currentStep + 1}/16`
-            : "9 pads · 16 steps"}
+            ? `step ${state.currentStep + 1}/${totalStepsForBars(state.bars, state.subdivision)} · bar ${Math.floor(Math.max(0, state.currentStep) / stepsPerBar(state.subdivision)) + 1}/${state.bars}`
+            : `9 pads · ${state.bars} bar${state.bars > 1 ? "s" : ""} · ${totalStepsForBars(state.bars, state.subdivision)} steps`}
         </span>
         <Transport
           state={state}
@@ -579,13 +663,17 @@ export function GridApp() {
         <div
           className="flex-1 min-h-0 rounded-[12px] overflow-hidden p-3"
           style={{
-            background: "rgba(0,0,0,0.25)",
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: mono ? "#000000" : "rgba(0,0,0,0.25)",
+            border: mono
+              ? "1px solid rgba(255,255,255,0.12)"
+              : "1px solid rgba(255,255,255,0.06)",
           }}
         >
           <Sequencer
             pads={state.pads}
             pattern={state.pattern}
+            bars={state.bars}
+            subdivision={state.subdivision}
             currentStep={state.currentStep}
             isPlaying={state.isPlaying}
             selectedPadId={state.selectedPadId}
